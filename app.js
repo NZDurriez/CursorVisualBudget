@@ -2808,7 +2808,24 @@ function calculateNextDate(
 
 function renderAll() {
 
+    let settingsChanged = false;
+
+
+    if (rollForwardNextPayDay()) {
+
+        settingsChanged = true;
+
+    }
+
+
     if (clearOneOffPaymentsFromPreviousPeriods()) {
+
+        settingsChanged = true;
+
+    }
+
+
+    if (settingsChanged) {
 
         saveData();
 
@@ -2829,6 +2846,8 @@ function renderAll() {
     renderCalendar();
 
     updateBudgetPeriodDisplay();
+
+    updateScheduleSelector();
 
 }
 
@@ -5698,6 +5717,153 @@ function renderUpcomingPayments() {
 // CURRENT BUDGET PERIOD
 // ============================================================
 
+function advancePayDayDate(date, schedule) {
+
+    switch (schedule) {
+
+        case "Weekly":
+
+            date.setDate(date.getDate() + 7);
+
+            break;
+
+
+        case "Fortnightly":
+
+            date.setDate(date.getDate() + 14);
+
+            break;
+
+
+        case "Monthly":
+
+            date.setMonth(date.getMonth() + 1);
+
+            break;
+
+
+        default:
+
+            date.setDate(date.getDate() + 14);
+
+            break;
+
+    }
+
+
+    return date;
+
+}
+
+
+function getRolledNextPayDayString(
+    anchorDateString,
+    schedule
+) {
+
+    if (!anchorDateString) {
+
+        return "";
+
+    }
+
+
+    const today =
+        new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+
+    let payDay =
+        new Date(
+            anchorDateString + "T00:00:00"
+        );
+
+
+    if (Number.isNaN(payDay.getTime())) {
+
+        return "";
+
+    }
+
+
+    payDay.setHours(0, 0, 0, 0);
+
+
+    // Keep advancing until payday is today or
+    // still in the future
+    while (payDay < today) {
+
+        advancePayDayDate(
+            payDay,
+            schedule || "Fortnightly"
+        );
+
+    }
+
+
+    return formatDateForInput(payDay);
+
+}
+
+
+function rollForwardNextPayDay() {
+
+    if (
+        !budget.settings ||
+        !budget.settings.useBudgetPeriod ||
+        !budget.settings.anchorDate
+    ) {
+
+        return false;
+
+    }
+
+
+    const schedule =
+        budget.settings.schedule || "Fortnightly";
+
+
+    const nextPayDay =
+        getRolledNextPayDayString(
+            budget.settings.anchorDate,
+            schedule
+        );
+
+
+    if (
+        !nextPayDay ||
+        nextPayDay === budget.settings.anchorDate
+    ) {
+
+        return false;
+
+    }
+
+
+    budget.settings.anchorDate =
+        nextPayDay;
+
+
+    if (budgetAnchorDate) {
+
+        budgetAnchorDate.value =
+            nextPayDay;
+
+    }
+
+
+    console.log(
+        "Next Pay Day rolled forward to",
+        nextPayDay
+    );
+
+
+    return true;
+
+}
+
+
 function getCurrentBudgetPeriod() {
 
     if (
@@ -5725,59 +5891,27 @@ function getCurrentBudgetPeriod() {
     }
 
 
-    const today =
-        new Date();
+    const nextPayDayString =
+        getRolledNextPayDayString(
+            anchorDateString,
+            schedule
+        );
 
-    today.setHours(0, 0, 0, 0);
+
+    if (!nextPayDayString) {
+
+        return null;
+
+    }
 
 
-    let periodEnd =
+    const periodEnd =
         new Date(
-            anchorDateString + "T00:00:00"
+            nextPayDayString + "T00:00:00"
         );
 
 
     periodEnd.setHours(0, 0, 0, 0);
-
-
-    // ========================================================
-    // MOVE THE ANCHOR FORWARD UNTIL IT IS
-    // THE NEXT PAY DAY
-    // ========================================================
-
-    while (periodEnd < today) {
-
-        switch (schedule) {
-
-            case "Weekly":
-
-                periodEnd.setDate(
-                    periodEnd.getDate() + 7
-                );
-
-                break;
-
-
-            case "Fortnightly":
-
-                periodEnd.setDate(
-                    periodEnd.getDate() + 14
-                );
-
-                break;
-
-
-            case "Monthly":
-
-                periodEnd.setMonth(
-                    periodEnd.getMonth() + 1
-                );
-
-                break;
-
-        }
-
-    }
 
 
     // ========================================================
