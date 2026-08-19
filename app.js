@@ -3369,45 +3369,29 @@ function setupPaymentsDragAndDrop() {
     let draggedId = null;
 
 
+    function isInteractiveTarget(target) {
+
+        return Boolean(
+            target &&
+            target.closest(
+                "button, a, input, select, textarea, label"
+            )
+        );
+
+    }
+
+
     rows.forEach(row => {
 
-        const handle =
-            row.querySelector(".drag-handle");
-
-
-        // Only allow dragging from the grip handle
-        row.draggable = false;
-
-
-        if (handle) {
-
-            handle.addEventListener(
-                "mousedown",
-                () => {
-
-                    row.draggable = true;
-
-                }
-            );
-
-
-            handle.addEventListener(
-                "mouseup",
-                () => {
-
-                    row.draggable = false;
-
-                }
-            );
-
-        }
+        // Whole-row drag (no grip dots); skip when clicking controls
+        row.draggable = true;
 
 
         row.addEventListener(
             "dragstart",
             event => {
 
-                if (!row.draggable) {
+                if (isInteractiveTarget(event.target)) {
 
                     event.preventDefault();
 
@@ -3444,8 +3428,6 @@ function setupPaymentsDragAndDrop() {
             () => {
 
                 row.classList.remove("dragging");
-
-                row.draggable = false;
 
 
                 paymentTable
@@ -3672,19 +3654,6 @@ function renderPayments() {
             <tr
                 data-payment-id="${item.id}"
                 class="${paidThisPeriod ? "is-paid" : ""}">
-
-                <td class="drag-col">
-
-                    <span
-                        class="drag-handle"
-                        title="Drag to reorder"
-                        aria-label="Drag to reorder">
-
-                        <i class="fa-solid fa-grip-vertical"></i>
-
-                    </span>
-
-                </td>
 
                 <td>
                     ${escapeHtml(item.name)}
