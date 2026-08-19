@@ -76,6 +76,15 @@
 			</button>
 
             <button class="nav-btn"
+                    data-page="savings">
+
+                <i class="fa-solid fa-piggy-bank"></i>
+
+                Savings Calculator
+
+            </button>
+
+            <button class="nav-btn"
                     data-page="calendar">
 
                 <i class="fa-solid fa-calendar-days"></i>
@@ -476,6 +485,193 @@
 			</table>
 
 		</section>
+
+        <!-- ================================ -->
+        <!-- SAVINGS CALCULATOR -->
+        <!-- ================================ -->
+
+        <section
+            id="savings"
+            class="page">
+
+            <div class="page-header">
+
+                <h3>Savings Calculator</h3>
+
+                <button
+                    type="button"
+                    id="addSavingsGoalBtn"
+                    class="primary-btn">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Add Savings Goal
+
+                </button>
+
+            </div>
+
+            <div
+                id="savingsGoalFormCard"
+                class="savings-form-card hidden">
+
+                <div class="savings-form-header">
+
+                    <h4 id="savingsGoalFormTitle">
+                        New Savings Goal
+                    </h4>
+
+                    <button
+                        type="button"
+                        id="cancelSavingsGoalBtn"
+                        class="secondary-btn">
+
+                        Cancel
+
+                    </button>
+
+                </div>
+
+                <form id="savingsGoalForm">
+
+                    <div class="savings-form-grid">
+
+                        <div class="form-group">
+
+                            <label for="savingsGoalName">
+                                Goal Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="savingsGoalName"
+                                placeholder="e.g. New Car"
+                                required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="savingsGoalAmount">
+                                Target Amount
+                            </label>
+
+                            <input
+                                type="number"
+                                id="savingsGoalAmount"
+                                min="0"
+                                step="0.01"
+                                placeholder="5000"
+                                required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="savingsGoalDate">
+                                Save By
+                            </label>
+
+                            <input
+                                type="date"
+                                id="savingsGoalDate"
+                                required>
+
+                        </div>
+
+                    </div>
+
+                    <label class="checkbox-row">
+
+                        <input
+                            type="checkbox"
+                            id="savingsGoalIncludeInBudget">
+
+                        <span>
+                            Add to calendar and include in Remaining
+                        </span>
+
+                        <span class="tooltip">
+
+                            <i class="fa-solid fa-circle-info"></i>
+
+                            <span class="tooltip-text">
+                                When enabled, this goal appears on
+                                the calendar and its required
+                                savings contribution is subtracted
+                                from your Remaining amount.
+                            </span>
+
+                        </span>
+
+                    </label>
+
+                    <div class="savings-preview" id="savingsGoalPreview">
+
+                        <div class="savings-preview-item">
+
+                            <span>Time Remaining</span>
+
+                            <strong id="savingsPreviewWeeks">—</strong>
+
+                        </div>
+
+                        <div class="savings-preview-item">
+
+                            <span>Save Each Week</span>
+
+                            <strong id="savingsPreviewWeekly">—</strong>
+
+                        </div>
+
+                        <div class="savings-preview-item">
+
+                            <span>Save Each Fortnight</span>
+
+                            <strong id="savingsPreviewFortnightly">—</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-buttons">
+
+                        <button
+                            type="submit"
+                            class="primary-btn">
+
+                            Save Goal
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div
+                id="savingsGoalsEmpty"
+                class="savings-empty hidden">
+
+                <i class="fa-solid fa-piggy-bank"></i>
+
+                <h4>No savings goals yet</h4>
+
+                <p>
+                    Create a goal with a target amount and date
+                    to see how much you need to save each week.
+                </p>
+
+            </div>
+
+            <div
+                id="savingsGoalsList"
+                class="savings-goals-list">
+
+            </div>
+
+        </section>
 
         <!-- ================================ -->
         <!-- CALENDAR -->

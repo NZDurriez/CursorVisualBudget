@@ -8,6 +8,7 @@ let budget = {
     income: [],
     payments: [],
     oneOffPayments: [],
+    savingsGoals: [],
     settings: {
         schedule: "Fortnightly",
         anchorDate: ""
@@ -20,6 +21,7 @@ let activeProfileId = null;
 
 let editingType = null;
 let editingId = null;
+let editingSavingsGoalId = null;
 
 let calendarDate = new Date();
 
@@ -71,6 +73,48 @@ const addOneOffBtn =
 
 const oneOffTable =
     document.getElementById("oneOffTable");
+
+const addSavingsGoalBtn =
+    document.getElementById("addSavingsGoalBtn");
+
+const cancelSavingsGoalBtn =
+    document.getElementById("cancelSavingsGoalBtn");
+
+const savingsGoalFormCard =
+    document.getElementById("savingsGoalFormCard");
+
+const savingsGoalForm =
+    document.getElementById("savingsGoalForm");
+
+const savingsGoalFormTitle =
+    document.getElementById("savingsGoalFormTitle");
+
+const savingsGoalName =
+    document.getElementById("savingsGoalName");
+
+const savingsGoalAmount =
+    document.getElementById("savingsGoalAmount");
+
+const savingsGoalDate =
+    document.getElementById("savingsGoalDate");
+
+const savingsGoalIncludeInBudget =
+    document.getElementById("savingsGoalIncludeInBudget");
+
+const savingsPreviewWeeks =
+    document.getElementById("savingsPreviewWeeks");
+
+const savingsPreviewWeekly =
+    document.getElementById("savingsPreviewWeekly");
+
+const savingsPreviewFortnightly =
+    document.getElementById("savingsPreviewFortnightly");
+
+const savingsGoalsEmpty =
+    document.getElementById("savingsGoalsEmpty");
+
+const savingsGoalsList =
+    document.getElementById("savingsGoalsList");
 	
 const modal =
     document.getElementById("modal");
@@ -292,6 +336,60 @@ function setupEvents() {
 		});
 
 	}
+
+    // Savings Calculator
+    if (addSavingsGoalBtn) {
+
+        addSavingsGoalBtn.addEventListener(
+            "click",
+            () => {
+
+                openSavingsGoalForm();
+
+            }
+        );
+
+    }
+
+    if (cancelSavingsGoalBtn) {
+
+        cancelSavingsGoalBtn.addEventListener(
+            "click",
+            () => {
+
+                closeSavingsGoalForm();
+
+            }
+        );
+
+    }
+
+    if (savingsGoalForm) {
+
+        savingsGoalForm.addEventListener(
+            "submit",
+            saveSavingsGoal
+        );
+
+    }
+
+    [
+        savingsGoalAmount,
+        savingsGoalDate
+    ].forEach(input => {
+
+        if (!input) {
+
+            return;
+
+        }
+
+        input.addEventListener(
+            "input",
+            updateSavingsGoalPreview
+        );
+
+    });
 	
 	// Budget Schedule
 	if (budgetSchedule) {
@@ -717,6 +815,8 @@ function loadData() {
 
                 oneOffPayments: [],
 
+                savingsGoals: [],
+
                 settings: {
 
 				useBudgetPeriod: true,
@@ -792,6 +892,8 @@ function loadData() {
 
                         oneOffPayments: [],
 
+                        savingsGoals: [],
+
                         settings: {
 
                             schedule:
@@ -864,6 +966,17 @@ function loadData() {
             ) {
 
                 budget.oneOffPayments = [];
+
+            }
+
+
+            if (
+                !Array.isArray(
+                    budget.savingsGoals
+                )
+            ) {
+
+                budget.savingsGoals = [];
 
             }
 
@@ -942,6 +1055,13 @@ function loadData() {
                     ? data.oneOffPayments
                     : [],
 
+            savingsGoals:
+                Array.isArray(
+                    data.savingsGoals
+                )
+                    ? data.savingsGoals
+                    : [],
+
             settings: {
 
                 schedule:
@@ -1015,6 +1135,8 @@ function loadData() {
                 payments: [],
 
                 oneOffPayments: [],
+
+                savingsGoals: [],
 
                 settings: {
 
@@ -1353,6 +1475,8 @@ function saveProfile(event) {
 
             oneOffPayments: [],
 
+            savingsGoals: [],
+
             settings: {
 
                 useBudgetPeriod:
@@ -1616,12 +1740,22 @@ function showPage(page) {
     pageTitle.textContent =
         page === "payments"
             ? "Recurring Payments"
-            : page.charAt(0).toUpperCase() + page.slice(1);
+            : page === "oneoff"
+                ? "One-Off Payments"
+                : page === "savings"
+                    ? "Savings Calculator"
+                    : page.charAt(0).toUpperCase() + page.slice(1);
 
 
     if (page === "calendar") {
 
         renderCalendar();
+
+    }
+
+    if (page === "savings") {
+
+        renderSavingsGoals();
 
     }
 
@@ -2305,6 +2439,8 @@ function renderAll() {
 
     renderOneOffPayments();
 
+    renderSavingsGoals();
+
     renderDashboard();
 
     renderUpcomingPayments();
@@ -2604,11 +2740,845 @@ function renderOneOffPayments() {
 
 }
 
+
+// ============================================================
+// SAVINGS CALCULATOR
+// ============================================================
+
+function ensureSavingsGoalsArray() {
+
+    if (!Array.isArray(budget.savingsGoals)) {
+
+        budget.savingsGoals = [];
+
+    }
+
+}
+
+
+function getSavingsBreakdown(amount, targetDate) {
+
+    const goalAmount =
+        Number(amount) || 0;
+
+
+    if (!targetDate || goalAmount <= 0) {
+
+        return {
+            valid: false,
+            weeks: 0,
+            days: 0,
+            weekly: 0,
+            fortnightly: 0,
+            overdue: false
+        };
+
+    }
+
+
+    const today =
+        new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+
+    const target =
+        new Date(targetDate + "T00:00:00");
+
+    target.setHours(0, 0, 0, 0);
+
+
+    const diffMs =
+        target.getTime() - today.getTime();
+
+    const days =
+        Math.ceil(
+            diffMs / (1000 * 60 * 60 * 24)
+        );
+
+
+    if (days <= 0) {
+
+        return {
+            valid: true,
+            weeks: 0,
+            days: days,
+            weekly: goalAmount,
+            fortnightly: goalAmount,
+            overdue: true
+        };
+
+    }
+
+
+    const weeks =
+        Math.max(
+            1,
+            Math.ceil(days / 7)
+        );
+
+
+    const weekly =
+        goalAmount / weeks;
+
+
+    return {
+        valid: true,
+        weeks: weeks,
+        days: days,
+        weekly: weekly,
+        fortnightly: weekly * 2,
+        overdue: false
+    };
+
+}
+
+
+function formatSavingsWeeksLabel(breakdown) {
+
+    if (!breakdown || !breakdown.valid) {
+
+        return "—";
+
+    }
+
+
+    if (breakdown.overdue) {
+
+        return "Date reached";
+
+    }
+
+
+    if (breakdown.weeks === 1) {
+
+        return "1 week";
+
+    }
+
+
+    return `${breakdown.weeks} weeks`;
+
+}
+
+
+function updateSavingsGoalPreview() {
+
+    if (
+        !savingsPreviewWeeks ||
+        !savingsPreviewWeekly ||
+        !savingsPreviewFortnightly
+    ) {
+
+        return;
+
+    }
+
+
+    const breakdown =
+        getSavingsBreakdown(
+            savingsGoalAmount &&
+                savingsGoalAmount.value,
+            savingsGoalDate &&
+                savingsGoalDate.value
+        );
+
+
+    if (!breakdown.valid) {
+
+        savingsPreviewWeeks.textContent = "—";
+
+        savingsPreviewWeekly.textContent = "—";
+
+        savingsPreviewFortnightly.textContent = "—";
+
+        return;
+
+    }
+
+
+    savingsPreviewWeeks.textContent =
+        formatSavingsWeeksLabel(breakdown);
+
+
+    savingsPreviewWeekly.textContent =
+        breakdown.overdue
+            ? formatCurrency(breakdown.weekly) + " left"
+            : formatCurrency(breakdown.weekly);
+
+
+    savingsPreviewFortnightly.textContent =
+        breakdown.overdue
+            ? formatCurrency(breakdown.fortnightly) + " left"
+            : formatCurrency(breakdown.fortnightly);
+
+}
+
+
+function openSavingsGoalForm(id = null) {
+
+    ensureSavingsGoalsArray();
+
+
+    if (!savingsGoalFormCard || !savingsGoalForm) {
+
+        return;
+
+    }
+
+
+    editingSavingsGoalId = id;
+
+
+    savingsGoalForm.reset();
+
+
+    if (savingsGoalIncludeInBudget) {
+
+        savingsGoalIncludeInBudget.checked = false;
+
+    }
+
+
+    if (savingsGoalDate) {
+
+        const tomorrow =
+            new Date();
+
+        tomorrow.setDate(
+            tomorrow.getDate() + 1
+        );
+
+        const tomorrowString =
+            formatDateForInput(tomorrow);
+
+        savingsGoalDate.min =
+            tomorrowString;
+
+        savingsGoalDate.value =
+            tomorrowString;
+
+    }
+
+
+    if (id) {
+
+        const goal =
+            budget.savingsGoals.find(
+                item => item.id === id
+            );
+
+
+        if (!goal) {
+
+            alert(
+                "Could not find that savings goal."
+            );
+
+            editingSavingsGoalId = null;
+
+            return;
+
+        }
+
+
+        if (savingsGoalFormTitle) {
+
+            savingsGoalFormTitle.textContent =
+                "Edit Savings Goal";
+
+        }
+
+
+        if (savingsGoalName) {
+
+            savingsGoalName.value =
+                goal.name;
+
+        }
+
+
+        if (savingsGoalAmount) {
+
+            savingsGoalAmount.value =
+                goal.amount;
+
+        }
+
+
+        if (savingsGoalDate) {
+
+            savingsGoalDate.value =
+                goal.targetDate;
+
+            savingsGoalDate.min = "";
+
+        }
+
+
+        if (savingsGoalIncludeInBudget) {
+
+            savingsGoalIncludeInBudget.checked =
+                !!goal.includeInBudget;
+
+        }
+
+    } else if (savingsGoalFormTitle) {
+
+        savingsGoalFormTitle.textContent =
+            "New Savings Goal";
+
+    }
+
+
+    savingsGoalFormCard.classList.remove("hidden");
+
+
+    updateSavingsGoalPreview();
+
+
+    if (savingsGoalName) {
+
+        savingsGoalName.focus();
+
+    }
+
+}
+
+
+function closeSavingsGoalForm() {
+
+    editingSavingsGoalId = null;
+
+
+    if (savingsGoalForm) {
+
+        savingsGoalForm.reset();
+
+    }
+
+
+    if (savingsGoalIncludeInBudget) {
+
+        savingsGoalIncludeInBudget.checked = false;
+
+    }
+
+
+    if (savingsGoalFormCard) {
+
+        savingsGoalFormCard.classList.add("hidden");
+
+    }
+
+
+    updateSavingsGoalPreview();
+
+}
+
+
+function saveSavingsGoal(event) {
+
+    event.preventDefault();
+
+
+    ensureSavingsGoalsArray();
+
+
+    const name =
+        savingsGoalName
+            ? savingsGoalName.value.trim()
+            : "";
+
+    const amount =
+        Number(
+            savingsGoalAmount &&
+                savingsGoalAmount.value
+        );
+
+    const targetDate =
+        savingsGoalDate
+            ? savingsGoalDate.value
+            : "";
+
+    const includeInBudget =
+        !!(
+            savingsGoalIncludeInBudget &&
+            savingsGoalIncludeInBudget.checked
+        );
+
+
+    if (!name) {
+
+        alert("Please enter a goal name.");
+
+        return;
+
+    }
+
+
+    if (isNaN(amount) || amount <= 0) {
+
+        alert(
+            "Please enter a valid target amount."
+        );
+
+        return;
+
+    }
+
+
+    if (!targetDate) {
+
+        alert("Please select a target date.");
+
+        return;
+
+    }
+
+
+    const breakdown =
+        getSavingsBreakdown(
+            amount,
+            targetDate
+        );
+
+
+    if (!breakdown.valid || breakdown.overdue) {
+
+        alert(
+            "Please choose a future date for your savings goal."
+        );
+
+        return;
+
+    }
+
+
+    const goal = {
+
+        id:
+            editingSavingsGoalId ||
+            generateId(),
+
+        name:
+            name,
+
+        amount:
+            amount,
+
+        targetDate:
+            targetDate,
+
+        includeInBudget:
+            includeInBudget
+
+    };
+
+
+    if (editingSavingsGoalId) {
+
+        const index =
+            budget.savingsGoals.findIndex(
+                item =>
+                    item.id ===
+                    editingSavingsGoalId
+            );
+
+
+        if (index === -1) {
+
+            alert(
+                "Could not find the savings goal you're editing."
+            );
+
+            return;
+
+        }
+
+
+        budget.savingsGoals[index] =
+            goal;
+
+    } else {
+
+        budget.savingsGoals.push(goal);
+
+    }
+
+
+    saveData();
+
+    closeSavingsGoalForm();
+
+    renderAll();
+
+}
+
+
+function deleteSavingsGoal(id) {
+
+    ensureSavingsGoalsArray();
+
+
+    const goal =
+        budget.savingsGoals.find(
+            item => item.id === id
+        );
+
+
+    if (!goal) {
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            `Delete savings goal "${goal.name}"?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    budget.savingsGoals =
+        budget.savingsGoals.filter(
+            item => item.id !== id
+        );
+
+
+    if (editingSavingsGoalId === id) {
+
+        closeSavingsGoalForm();
+
+    }
+
+
+    saveData();
+
+    renderAll();
+
+}
+
+
+function renderSavingsGoals() {
+
+    ensureSavingsGoalsArray();
+
+
+    if (!savingsGoalsList || !savingsGoalsEmpty) {
+
+        return;
+
+    }
+
+
+    savingsGoalsList.innerHTML = "";
+
+
+    if (budget.savingsGoals.length === 0) {
+
+        savingsGoalsEmpty.classList.remove(
+            "hidden"
+        );
+
+        return;
+
+    }
+
+
+    savingsGoalsEmpty.classList.add("hidden");
+
+
+    const sorted =
+        [...budget.savingsGoals].sort(
+            (a, b) =>
+                new Date(a.targetDate) -
+                new Date(b.targetDate)
+        );
+
+
+    sorted.forEach(goal => {
+
+        const breakdown =
+            getSavingsBreakdown(
+                goal.amount,
+                goal.targetDate
+            );
+
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "savings-goal-card";
+
+
+        const weeklyLabel =
+            breakdown.overdue
+                ? formatCurrency(goal.amount) +
+                  " still needed"
+                : formatCurrency(
+                      breakdown.weekly
+                  ) + " / week";
+
+
+        card.innerHTML = `
+
+            <div class="savings-goal-top">
+
+                <div>
+
+                    <h4>
+                        ${escapeHtml(goal.name)}
+                    </h4>
+
+                </div>
+
+                <div class="savings-goal-actions">
+
+                    <button
+                        type="button"
+                        class="action-btn edit-btn"
+                        data-edit-savings="${goal.id}"
+                        title="Edit">
+
+                        <i class="fa-solid fa-pen"></i>
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="action-btn delete-btn"
+                        data-delete-savings="${goal.id}"
+                        title="Delete">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="savings-goal-highlight">
+
+                <span>
+                    ${breakdown.overdue ? "Goal date reached" : "Required weekly savings"}
+                </span>
+
+                <strong>
+                    ${weeklyLabel}
+                </strong>
+
+            </div>
+
+            <div class="savings-goal-meta">
+
+                <div>
+
+                    <span>Target</span>
+
+                    <strong>
+                        ${formatCurrency(goal.amount)}
+                    </strong>
+
+                </div>
+
+                <div>
+
+                    <span>Save By</span>
+
+                    <strong>
+                        ${formatDate(goal.targetDate)}
+                    </strong>
+
+                </div>
+
+                <div>
+
+                    <span>Time Left</span>
+
+                    <strong>
+                        ${formatSavingsWeeksLabel(breakdown)}
+                    </strong>
+
+                </div>
+
+                <div>
+
+                    <span>Fortnightly</span>
+
+                    <strong>
+                        ${formatCurrency(breakdown.fortnightly)}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="savings-goal-badge ${goal.includeInBudget ? "is-included" : "is-tracker"}">
+
+                <i class="fa-solid ${goal.includeInBudget ? "fa-calendar-check" : "fa-calculator"}"></i>
+
+                ${
+                    goal.includeInBudget
+                        ? "On calendar · affects Remaining"
+                        : "Tracker only"
+                }
+
+            </div>
+
+        `;
+
+
+        savingsGoalsList.appendChild(card);
+
+    });
+
+
+    savingsGoalsList
+        .querySelectorAll("[data-edit-savings]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    openSavingsGoalForm(
+                        button.dataset.editSavings
+                    );
+
+                }
+            );
+
+        });
+
+
+    savingsGoalsList
+        .querySelectorAll("[data-delete-savings]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    deleteSavingsGoal(
+                        button.dataset.deleteSavings
+                    );
+
+                }
+            );
+
+        });
+
+}
+
+
+function getSavingsGoalsPeriodTotal() {
+
+    ensureSavingsGoalsArray();
+
+
+    const schedule =
+        budget.settings.schedule || "Fortnightly";
+
+
+    let total = 0;
+
+
+    budget.savingsGoals.forEach(goal => {
+
+        if (!goal.includeInBudget) {
+
+            return;
+
+        }
+
+
+        const breakdown =
+            getSavingsBreakdown(
+                goal.amount,
+                goal.targetDate
+            );
+
+
+        if (!breakdown.valid) {
+
+            return;
+
+        }
+
+
+        // If the date is already reached, treat the
+        // remaining goal amount as due in this period
+        if (breakdown.overdue) {
+
+            total +=
+                Number(goal.amount) || 0;
+
+            return;
+
+        }
+
+
+        switch (schedule) {
+
+            case "Weekly":
+
+                total +=
+                    breakdown.weekly;
+
+                break;
+
+
+            case "Monthly":
+
+                total +=
+                    breakdown.weekly * 52 / 12;
+
+                break;
+
+
+            case "Fortnightly":
+            default:
+
+                total +=
+                    breakdown.fortnightly;
+
+                break;
+
+        }
+
+    });
+
+
+    return total;
+
+}
+
+
 // ============================================================
 // EDIT
 // ============================================================
 
 function editItem(type, id) {
+
+    if (type === "savings") {
+
+        showPage("savings");
+
+        openSavingsGoalForm(id);
+
+        return;
+
+    }
 
     openModal(type, id);
 
@@ -2664,9 +3634,13 @@ function renderDashboard() {
     const oneOffPayments =
     getOneOffPaymentsTotal();
 
+    const savingsContributions =
+    getSavingsGoalsPeriodTotal();
+
     const payments =
         recurringPayments +
-        oneOffPayments;
+        oneOffPayments +
+        savingsContributions;
 
     const remaining =
         income -
@@ -4123,6 +5097,42 @@ function getCalendarEvents(dateString) {
         }
 
     });
+
+
+    // ----------------------------------------
+    // SAVINGS GOALS
+    // ----------------------------------------
+
+    if (Array.isArray(budget.savingsGoals)) {
+
+        budget.savingsGoals.forEach(item => {
+
+            if (
+                !item.includeInBudget ||
+                item.targetDate !== dateString
+            ) {
+
+                return;
+
+            }
+
+            events.push({
+
+                type: "savings-event",
+
+                editType: "savings",
+
+                id: item.id,
+
+                name: `Save: ${item.name}`,
+
+                amount: item.amount
+
+            });
+
+        });
+
+    }
 
 
     return events;
