@@ -6562,25 +6562,25 @@ function renderUpcomingPayments() {
 
         } else if (days === 0) {
 
-            label = "Due today";
+            label = "today";
 
             className = "status-warning";
 
         } else if (days === 1) {
 
-            label = "Due in 1 day";
+            label = "1 day";
 
             className = "status-warning";
 
         } else if (days <= 7) {
 
-            label = `Due in ${days} days`;
+            label = `${days} days`;
 
             className = "status-warning";
 
         } else {
 
-            label = `Due in ${days} days`;
+            label = `${days} days`;
 
         }
 

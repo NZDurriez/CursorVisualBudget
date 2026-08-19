@@ -3522,6 +3522,36 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
     margin-top: 4px;
 
+    width: 100%;
+
+    table-layout: auto;
+
+}
+
+
+
+.upcoming-payments-table thead th {
+
+    white-space: nowrap;
+
+}
+
+
+
+.upcoming-payments-table tbody td {
+
+    vertical-align: middle;
+
+}
+
+
+
+.upcoming-payments-table tbody td:first-child {
+
+    font-weight: 650;
+
+    color: var(--text);
+
 }
 
 
