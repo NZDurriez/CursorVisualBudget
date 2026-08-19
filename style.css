@@ -57,8 +57,8 @@
 
 body.light-mode {
 
-    /* Soft cool wash — less flat/harsh between white cards */
-    --bg: #eef2f7;
+    /* Cool near-white page; still enough contrast for white cards */
+    --bg: #f4f7fb;
 
     --sidebar: #ffffff;
 
@@ -90,7 +90,7 @@ body.light-mode {
 
     --input-bg: #ffffff;
 
-    --table-header: #e8eef6;
+    --table-header: #f4f7fb;
 
     --calendar-bg: #ffffff;
 
@@ -158,20 +158,20 @@ body.light-mode {
 
     background:
         radial-gradient(
-            1200px 600px at 100% -10%,
-            rgba(147, 197, 253, 0.28),
-            transparent 55%
+            1100px 520px at 100% -8%,
+            rgba(191, 219, 254, 0.18),
+            transparent 58%
         ),
         radial-gradient(
-            900px 500px at 0% 100%,
-            rgba(186, 230, 253, 0.22),
-            transparent 50%
+            800px 420px at 0% 100%,
+            rgba(219, 234, 254, 0.14),
+            transparent 52%
         ),
         linear-gradient(
             180deg,
-            #f8fafc 0%,
-            #eef2f7 45%,
-            #e8eef6 100%
+            #fafcfe 0%,
+            #f4f7fb 48%,
+            #f1f5f9 100%
         );
 
 }
@@ -1174,11 +1174,11 @@ body.light-mode .panel:hover {
 
 body.light-mode .data-table th {
 
-    background: #dbe4f0;
+    background: var(--table-header);
 
-    color: #334155;
+    color: #475569;
 
-    border-bottom: 1px solid rgba(15, 23, 42, 0.16);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.35);
 
 }
 
