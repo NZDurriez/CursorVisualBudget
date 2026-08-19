@@ -3968,13 +3968,15 @@ body.light-mode .paid-status-label.is-unpaid {
 
     .sidebar {
 
-        flex-direction: row;
+        flex-direction: column;
 
-        justify-content: center;
+        justify-content: flex-start;
 
-        align-items: center;
+        align-items: stretch;
 
-        padding: 10px 15px;
+        gap: 8px;
+
+        padding: 10px 12px;
 
         border-right: none;
 
@@ -3997,6 +3999,49 @@ body.light-mode .paid-status-label.is-unpaid {
         justify-content: center;
 
         gap: 5px;
+
+    }
+
+    /* Keep Google sign-in visible under mobile nav */
+    .auth-panel {
+
+        margin-top: 0;
+
+        padding-top: 8px;
+
+        flex-direction: row;
+
+        flex-wrap: wrap;
+
+        align-items: center;
+
+        gap: 8px;
+
+    }
+
+    .auth-user {
+
+        flex: 1 1 140px;
+
+        min-width: 0;
+
+    }
+
+    .auth-copy small {
+
+        display: none;
+
+    }
+
+    .auth-btn {
+
+        width: auto;
+
+        flex: 1 1 160px;
+
+        min-width: 150px;
+
+        height: 34px;
 
     }
 
