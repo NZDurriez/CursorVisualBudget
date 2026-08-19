@@ -22,6 +22,7 @@ let activeProfileId = null;
 let editingType = null;
 let editingId = null;
 let editingSavingsGoalId = null;
+let editingProfileId = null;
 
 let calendarDate = new Date();
 
@@ -196,6 +197,12 @@ const profileManagerView =
 
 const profileCreateView =
     document.getElementById("profileCreateView");
+
+const profileFormTitle =
+    document.getElementById("profileFormTitle");
+
+const profileSubmitBtn =
+    document.getElementById("profileSubmitBtn");
 
 const profileForm =
     document.getElementById("profileForm");
@@ -669,9 +676,7 @@ if (cancelCreateProfileBtn) {
         "click",
         () => {
 
-            profileCreateView.style.display = "none";
-
-            profileManagerView.style.display = "block";
+            showProfileManagerView();
 
         }
     );
@@ -1269,6 +1274,8 @@ function renderProfiles() {
 
 function openProfileManager() {
 
+    showProfileManagerView();
+
     renderProfileManager();
 
     profileModal.classList.remove("hidden");
@@ -1278,7 +1285,50 @@ function openProfileManager() {
 
 function closeProfileManager() {
 
+    editingProfileId = null;
+
+    showProfileManagerView();
+
     profileModal.classList.add("hidden");
+
+}
+
+
+function showProfileManagerView() {
+
+    editingProfileId = null;
+
+
+    if (profileManagerView) {
+
+        profileManagerView.classList.remove("hidden");
+
+    }
+
+
+    if (profileCreateView) {
+
+        profileCreateView.classList.add("hidden");
+
+    }
+
+}
+
+
+function showProfileFormView() {
+
+    if (profileManagerView) {
+
+        profileManagerView.classList.add("hidden");
+
+    }
+
+
+    if (profileCreateView) {
+
+        profileCreateView.classList.remove("hidden");
+
+    }
 
 }
 
@@ -1331,8 +1381,8 @@ function renderProfileManager() {
                 <button
                     type="button"
                     class="action-btn edit-btn"
-                    onclick="renameProfile('${profile.id}')"
-                    title="Rename">
+                    onclick="editProfile('${profile.id}')"
+                    title="Edit">
 
                     <i class="fa-solid fa-pen"></i>
 
@@ -1360,29 +1410,221 @@ function renderProfileManager() {
 
 
 // ============================================================
-// OPEN CREATE PROFILE FORM
+// OPEN CREATE / EDIT PROFILE FORM
 // ============================================================
+
+function setProfilePaydayMode(useBudgetPeriod) {
+
+    if (
+        !profilePaydayYes ||
+        !profilePaydayNo ||
+        !profilePaydaySettings
+    ) {
+
+        return;
+
+    }
+
+
+    if (useBudgetPeriod) {
+
+        profilePaydayYes.classList.add("active");
+
+        profilePaydayNo.classList.remove("active");
+
+        profilePaydaySettings.style.display = "";
+
+    } else {
+
+        profilePaydayNo.classList.add("active");
+
+        profilePaydayYes.classList.remove("active");
+
+        profilePaydaySettings.style.display = "none";
+
+    }
+
+}
+
+
+function updateProfileFormMode(isEditing) {
+
+    if (profileFormTitle) {
+
+        profileFormTitle.textContent =
+            isEditing
+                ? "Edit Profile"
+                : "Create New Profile";
+
+    }
+
+
+    if (profileSubmitBtn) {
+
+        const icon =
+            profileSubmitBtn.querySelector("i");
+
+        const label =
+            profileSubmitBtn.querySelector("span");
+
+
+        if (icon) {
+
+            icon.className =
+                isEditing
+                    ? "fa-solid fa-floppy-disk"
+                    : "fa-solid fa-plus";
+
+        }
+
+
+        if (label) {
+
+            label.textContent =
+                isEditing
+                    ? "Save Changes"
+                    : "Create Profile";
+
+        }
+
+    }
+
+}
+
 
 function openCreateProfileForm() {
 
-    profileManagerView.style.display = "none";
+    editingProfileId = null;
 
-    profileCreateView.style.display = "block";
 
-    profileForm.reset();
+    if (profileForm) {
 
-    profilePaydayYes.classList.add("active");
+        profileForm.reset();
 
-    profilePaydayNo.classList.remove("active");
+    }
 
-    profilePaydaySettings.style.display = "";
 
-    profileSchedule.value = "Fortnightly";
+    setProfilePaydayMode(true);
 
-    profileAnchorDate.value =
-        getTodayString();
+
+    if (profileSchedule) {
+
+        profileSchedule.value = "Fortnightly";
+
+    }
+
+
+    if (profileAnchorDate) {
+
+        profileAnchorDate.value =
+            getTodayString();
+
+    }
+
+
+    updateProfileFormMode(false);
+
+    showProfileFormView();
+
+
+    if (profileName) {
+
+        profileName.focus();
+
+    }
 
 }
+
+
+function editProfile(profileId) {
+
+    const profile =
+        profiles.find(
+            entry => entry.id === profileId
+        );
+
+
+    if (!profile) {
+
+        return;
+
+    }
+
+
+    editingProfileId = profileId;
+
+
+    if (profileForm) {
+
+        profileForm.reset();
+
+    }
+
+
+    if (profileName) {
+
+        profileName.value =
+            profile.name || "";
+
+    }
+
+
+    const settings =
+        profile.budget &&
+        profile.budget.settings
+            ? profile.budget.settings
+            : {};
+
+
+    const useBudgetPeriod =
+        typeof settings.useBudgetPeriod === "boolean"
+            ? settings.useBudgetPeriod
+            : !!settings.anchorDate;
+
+
+    setProfilePaydayMode(useBudgetPeriod);
+
+
+    if (profileSchedule) {
+
+        profileSchedule.value =
+            settings.schedule || "Fortnightly";
+
+    }
+
+
+    if (profileAnchorDate) {
+
+        profileAnchorDate.value =
+            settings.anchorDate ||
+            getTodayString();
+
+    }
+
+
+    updateProfileFormMode(true);
+
+    showProfileFormView();
+
+
+    if (profileName) {
+
+        profileName.focus();
+
+        profileName.select();
+
+    }
+
+}
+
+
+// Keep older name working if referenced elsewhere
+function renameProfile(profileId) {
+
+    editProfile(profileId);
+
+}
+
 
 // ============================================================
 // CREATE PROFILE
@@ -1456,6 +1698,106 @@ function saveProfile(event) {
 
 
     // ========================================================
+    // EDIT EXISTING PROFILE
+    // ========================================================
+
+    if (editingProfileId) {
+
+        const profile =
+            profiles.find(
+                entry =>
+                    entry.id === editingProfileId
+            );
+
+
+        if (!profile) {
+
+            alert(
+                "Could not find the profile you're editing."
+            );
+
+            return;
+
+        }
+
+
+        if (!profile.budget) {
+
+            profile.budget = {
+                income: [],
+                payments: [],
+                oneOffPayments: [],
+                savingsGoals: [],
+                settings: {}
+            };
+
+        }
+
+
+        if (!profile.budget.settings) {
+
+            profile.budget.settings = {};
+
+        }
+
+
+        profile.name = name;
+
+        profile.budget.settings.useBudgetPeriod =
+            useBudgetPeriod;
+
+        profile.budget.settings.schedule =
+            useBudgetPeriod
+                ? schedule
+                : (
+                    profile.budget.settings.schedule ||
+                    "Fortnightly"
+                );
+
+        profile.budget.settings.anchorDate =
+            useBudgetPeriod
+                ? anchorDate
+                : "";
+
+
+        // If the edited profile is active, refresh
+        // the live budget reference/settings UI
+        if (profile.id === activeProfileId) {
+
+            budget = profile.budget;
+
+            updateScheduleSelector();
+
+            updateRecurringDates();
+
+            renderAll();
+
+        }
+
+
+        saveData();
+
+        editingProfileId = null;
+
+        renderProfiles();
+
+        renderProfileManager();
+
+        showProfileManagerView();
+
+
+        console.log(
+            "Updated profile:",
+            name,
+            profile
+        );
+
+        return;
+
+    }
+
+
+    // ========================================================
     // CREATE PROFILE
     // ========================================================
 
@@ -1483,10 +1825,10 @@ function saveProfile(event) {
                     useBudgetPeriod,
 
                 schedule:
-                    schedule,
+                    schedule || "Fortnightly",
 
                 anchorDate:
-                    anchorDate
+                    anchorDate || ""
 
             }
 
@@ -1526,84 +1868,17 @@ function saveProfile(event) {
     renderAll();
 
 
-   // ========================================================
-// CLOSE PROFILE MODAL
-// ========================================================
+    // ========================================================
+    // RETURN TO PROFILE LIST
+    // ========================================================
 
-profileCreateView.classList.add("hidden");
-
-profileManagerView.classList.remove("hidden");
-
-profileModal.classList.add("hidden");
+    showProfileManagerView();
 
 
     console.log(
         "Created profile:",
         name,
         newProfile
-    );
-
-}
-
-
-// ============================================================
-// RENAME PROFILE
-// ============================================================
-
-function renameProfile(profileId) {
-
-    const profile =
-        profiles.find(
-            profile =>
-                profile.id === profileId
-        );
-
-    if (!profile) {
-
-        return;
-
-    }
-
-
-    const newName =
-        prompt(
-            "Enter a new profile name:",
-            profile.name
-        );
-
-    if (newName === null) {
-
-        return;
-
-    }
-
-
-    const trimmedName =
-        newName.trim();
-
-    if (!trimmedName) {
-
-        alert("Please enter a profile name.");
-
-        return;
-
-    }
-
-
-    profile.name =
-        trimmedName;
-
-
-    saveData();
-
-    renderProfiles();
-
-    renderProfileManager();
-
-
-    console.log(
-        "Renamed profile:",
-        trimmedName
     );
 
 }
