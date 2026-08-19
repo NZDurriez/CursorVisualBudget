@@ -212,6 +212,7 @@ const cancelSavingsProgressBtn =
     document.getElementById("cancelSavingsProgressBtn");
 
 let loggingSavingsGoalId = null;
+let editingContributionId = null;
 	
 const modal =
     document.getElementById("modal");
@@ -578,8 +579,23 @@ if (budgetAnchorDate) {
         "change",
         () => {
 
+            if (!budget.settings) {
+
+                budget.settings = {};
+
+            }
+
             budget.settings.anchorDate =
                 budgetAnchorDate.value;
+
+            // Setting a payday means this profile
+            // uses budget periods
+            if (budget.settings.anchorDate) {
+
+                budget.settings.useBudgetPeriod =
+                    true;
+
+            }
 
             saveData();
 
@@ -4436,7 +4452,10 @@ function getSavingsProgress(goal) {
 }
 
 
-function openSavingsProgressModal(goalId) {
+function openSavingsProgressModal(
+    goalId,
+    contributionId = null
+) {
 
     ensureSavingsGoalsArray();
 
@@ -4456,6 +4475,8 @@ function openSavingsProgressModal(goalId) {
 
     loggingSavingsGoalId = goalId;
 
+    editingContributionId = contributionId;
+
 
     const progress =
         getSavingsProgress(goal);
@@ -4464,7 +4485,9 @@ function openSavingsProgressModal(goalId) {
     if (savingsProgressTitle) {
 
         savingsProgressTitle.textContent =
-            `Log Progress · ${goal.name}`;
+            contributionId
+                ? `Edit Contribution · ${goal.name}`
+                : `Log Progress · ${goal.name}`;
 
     }
 
@@ -4484,9 +4507,73 @@ function openSavingsProgressModal(goalId) {
     }
 
 
-    if (savingsProgressAmount) {
+    if (contributionId) {
 
-        savingsProgressAmount.value = "";
+        const contribution =
+            (
+                Array.isArray(goal.contributions)
+                    ? goal.contributions
+                    : []
+            ).find(
+                item => item.id === contributionId
+            );
+
+
+        if (contribution) {
+
+            if (savingsProgressAmount) {
+
+                savingsProgressAmount.value =
+                    contribution.amount;
+
+            }
+
+            if (savingsProgressNote) {
+
+                savingsProgressNote.value =
+                    contribution.note || "";
+
+            }
+
+        }
+
+    }
+
+
+    const submitBtn =
+        savingsProgressForm &&
+        savingsProgressForm.querySelector(
+            "button[type='submit']"
+        );
+
+
+    if (submitBtn) {
+
+        const label =
+            submitBtn.querySelector("span") ||
+            submitBtn;
+
+
+        if (submitBtn.querySelector("span")) {
+
+            submitBtn.querySelector("span").textContent =
+                contributionId
+                    ? "Save Changes"
+                    : "Add Progress";
+
+        } else {
+
+            submitBtn.innerHTML =
+                contributionId
+                    ? `<i class="fa-solid fa-floppy-disk"></i> Save Changes`
+                    : `<i class="fa-solid fa-plus"></i> Add Progress`;
+
+        }
+
+    }
+
+
+    if (savingsProgressAmount) {
 
         savingsProgressAmount.focus();
 
@@ -4502,6 +4589,8 @@ function closeSavingsProgressModal() {
 
     loggingSavingsGoalId = null;
 
+    editingContributionId = null;
+
 
     if (savingsProgressForm) {
 
@@ -4515,6 +4604,39 @@ function closeSavingsProgressModal() {
         savingsProgressModal.classList.add("hidden");
 
     }
+
+}
+
+
+function recalculateSavingsSavedAmount(goal) {
+
+    if (!goal) {
+
+        return 0;
+
+    }
+
+
+    const contributions =
+        Array.isArray(goal.contributions)
+            ? goal.contributions
+            : [];
+
+
+    const total =
+        contributions.reduce(
+            (sum, item) =>
+                sum + (Number(item.amount) || 0),
+            0
+        );
+
+
+    goal.savedAmount = total;
+
+    goal.contributions = contributions;
+
+
+    return total;
 
 }
 
@@ -4574,26 +4696,139 @@ function saveSavingsProgress(event) {
     }
 
 
-    goal.contributions.push({
+    if (editingContributionId) {
 
-        id: generateId(),
-
-        amount: amount,
-
-        note: note,
-
-        date: getTodayString()
-
-    });
+        const index =
+            goal.contributions.findIndex(
+                item =>
+                    item.id === editingContributionId
+            );
 
 
-    goal.savedAmount =
-        getSavingsSavedAmount(goal) + amount;
+        if (index === -1) {
+
+            alert(
+                "Could not find that contribution."
+            );
+
+            return;
+
+        }
+
+
+        goal.contributions[index] = {
+
+            ...goal.contributions[index],
+
+            amount: amount,
+
+            note: note
+
+        };
+
+    } else {
+
+        goal.contributions.push({
+
+            id: generateId(),
+
+            amount: amount,
+
+            note: note,
+
+            date: getTodayString()
+
+        });
+
+    }
+
+
+    recalculateSavingsSavedAmount(goal);
 
 
     saveData();
 
     closeSavingsProgressModal();
+
+    renderAll();
+
+}
+
+
+function editSavingsContribution(
+    goalId,
+    contributionId
+) {
+
+    openSavingsProgressModal(
+        goalId,
+        contributionId
+    );
+
+}
+
+
+function deleteSavingsContribution(
+    goalId,
+    contributionId
+) {
+
+    ensureSavingsGoalsArray();
+
+
+    const goal =
+        budget.savingsGoals.find(
+            item => item.id === goalId
+        );
+
+
+    if (!goal) {
+
+        return;
+
+    }
+
+
+    const contribution =
+        (
+            Array.isArray(goal.contributions)
+                ? goal.contributions
+                : []
+        ).find(
+            item => item.id === contributionId
+        );
+
+
+    if (!contribution) {
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            `Delete contribution of ${formatCurrency(contribution.amount)}?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    goal.contributions =
+        goal.contributions.filter(
+            item => item.id !== contributionId
+        );
+
+
+    recalculateSavingsSavedAmount(goal);
+
+
+    saveData();
 
     renderAll();
 
@@ -4810,6 +5045,75 @@ function renderSavingsGoals() {
 
                 </div>
 
+                <div class="savings-contribution-list">
+
+                    <h5>Contribution History</h5>
+
+                    ${
+                        (
+                            Array.isArray(goal.contributions) &&
+                            goal.contributions.length > 0
+                        )
+                            ? [...goal.contributions]
+                                .sort(
+                                    (a, b) =>
+                                        new Date(b.date) -
+                                        new Date(a.date)
+                                )
+                                .map(contribution => `
+                                    <div class="savings-contribution-item">
+
+                                        <div>
+
+                                            <strong>
+                                                ${formatCurrency(contribution.amount)}
+                                            </strong>
+
+                                            <small>
+                                                ${formatDate(contribution.date)}${
+                                                    contribution.note
+                                                        ? ` · ${escapeHtml(contribution.note)}`
+                                                        : ""
+                                                }
+                                            </small>
+
+                                        </div>
+
+                                        <div class="row-actions">
+
+                                            <button
+                                                type="button"
+                                                class="action-btn edit-btn"
+                                                data-edit-contribution="${contribution.id}"
+                                                data-goal-id="${goal.id}"
+                                                title="Edit"
+                                                aria-label="Edit contribution">
+
+                                                <i class="fa-solid fa-pen"></i>
+
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                class="action-btn delete-btn"
+                                                data-delete-contribution="${contribution.id}"
+                                                data-goal-id="${goal.id}"
+                                                title="Delete"
+                                                aria-label="Delete contribution">
+
+                                                <i class="fa-solid fa-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+                                `).join("")
+                            : `<div class="savings-contribution-empty">No contributions logged yet.</div>`
+                    }
+
+                </div>
+
             </div>
 
             <div class="savings-goal-highlight">
@@ -4958,6 +5262,44 @@ function renderSavingsGoals() {
 
                     resetSavingsProgress(
                         button.dataset.resetSavings
+                    );
+
+                }
+            );
+
+        });
+
+
+    savingsGoalsList
+        .querySelectorAll("[data-edit-contribution]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    editSavingsContribution(
+                        button.dataset.goalId,
+                        button.dataset.editContribution
+                    );
+
+                }
+            );
+
+        });
+
+
+    savingsGoalsList
+        .querySelectorAll("[data-delete-contribution]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    deleteSavingsContribution(
+                        button.dataset.goalId,
+                        button.dataset.deleteContribution
                     );
 
                 }
@@ -5840,34 +6182,50 @@ function updateBudgetPeriodDisplay() {
     }
 
 
-    // Profile does not use a payday/budget period
+    const budgetPeriodElement =
+        budgetPeriodBox ||
+        currentBudgetPeriod.closest(".budget-period");
+
+
+    if (!budget.settings) {
+
+        budget.settings = {};
+
+    }
+
+
+    // If a payday exists, treat budget periods as enabled
     if (
-        !budget.settings ||
-        !budget.settings.useBudgetPeriod
+        budget.settings.anchorDate &&
+        budget.settings.useBudgetPeriod !== true
     ) {
 
-        currentBudgetPeriod.textContent = "";
+        budget.settings.useBudgetPeriod = true;
 
-        const budgetPeriodElement =
-            budgetPeriodBox ||
-            currentBudgetPeriod.closest(".budget-period");
+    }
+
+
+    // Profile does not use a payday/budget period
+    if (
+        !budget.settings.useBudgetPeriod &&
+        !budget.settings.anchorDate
+    ) {
+
+        currentBudgetPeriod.textContent =
+            "Set your next pay day";
 
         if (budgetPeriodElement) {
 
-            budgetPeriodElement.style.display = "none";
+            budgetPeriodElement.style.display = "";
 
         }
 
-        setBudgetPeriodActionable(false);
+        setBudgetPeriodActionable(true);
 
         return;
 
     }
 
-
-    const budgetPeriodElement =
-        budgetPeriodBox ||
-        currentBudgetPeriod.closest(".budget-period");
 
     if (budgetPeriodElement) {
 
@@ -6398,13 +6756,16 @@ function rollForwardNextPayDay() {
 
     if (
         !budget.settings ||
-        !budget.settings.useBudgetPeriod ||
         !budget.settings.anchorDate
     ) {
 
         return false;
 
     }
+
+
+    // Payday set implies budget periods are in use
+    budget.settings.useBudgetPeriod = true;
 
 
     const schedule =
@@ -6453,9 +6814,18 @@ function rollForwardNextPayDay() {
 
 function getCurrentBudgetPeriod() {
 
+    if (!budget.settings) {
+
+        return null;
+
+    }
+
+
+    // Allow period calculation whenever a payday is set,
+    // even if the flag was previously left unset
     if (
-        !budget.settings ||
-        !budget.settings.useBudgetPeriod
+        !budget.settings.useBudgetPeriod &&
+        !budget.settings.anchorDate
     ) {
 
         return null;

@@ -448,9 +448,15 @@ body.light-mode .topbar {
 
     gap: 12px;
 
-    min-height: 48px;
+    min-height: 56px;
 
-    padding: 10px 34px 8px;
+    padding: 12px 34px;
+
+    background: var(--panel);
+
+    border-bottom: 1px solid var(--border);
+
+    z-index: 50;
 
 }
 
@@ -469,13 +475,13 @@ body.light-mode .topbar {
 
     text-overflow: ellipsis;
 
-    background: var(--panel);
+    background: var(--bg);
 
     border: 1px solid var(--border);
 
     border-radius: 8px;
 
-    padding: 7px 12px;
+    padding: 8px 12px;
 
     color: var(--text-muted);
 
@@ -483,8 +489,7 @@ body.light-mode .topbar {
 
     white-space: nowrap;
 
-    box-shadow:
-        0 8px 20px rgba(0,0,0,0.06);
+    box-shadow: none;
 
 }
 
@@ -700,30 +705,29 @@ body.light-mode .topbar {
 
     grid-column: 2;
 
-    display: flex;
+    display: inline-flex;
 
     align-items: center;
 
-    gap: 8px;
+    gap: 10px;
 
-    padding: 6px 12px;
+    padding: 10px 14px;
 
-    background: var(--panel);
+    background: rgba(59,130,246,0.10);
 
-    border: 1px solid var(--border);
+    border: 1px solid rgba(59,130,246,0.28);
 
-    border-radius: 8px;
+    border-radius: 10px;
 
     color: var(--text-muted);
 
-    font-size: 11px;
+    font-size: 12px;
 
     white-space: nowrap;
 
-    box-shadow:
-        0 8px 20px rgba(0,0,0,0.08);
+    box-shadow: none;
 
-    z-index: 1;
+    z-index: 2;
 
     transition:
         background var(--transition),
@@ -738,7 +742,7 @@ body.light-mode .topbar {
 
     cursor: pointer;
 
-    border-color: rgba(59, 130, 246, 0.35);
+    border-color: rgba(59, 130, 246, 0.45);
 
 }
 
@@ -746,7 +750,7 @@ body.light-mode .topbar {
 .budget-period.is-actionable:hover,
 .budget-period.is-actionable:focus-visible {
 
-    background: var(--panel-hover);
+    background: rgba(59,130,246,0.16);
 
     border-color: var(--primary);
 
@@ -773,7 +777,7 @@ body.light-mode .topbar {
 
     color: var(--text-muted);
 
-    font-weight: 500;
+    font-weight: 600;
 
 }
 
@@ -782,7 +786,7 @@ body.light-mode .topbar {
 
     color: var(--text);
 
-    font-weight: 600;
+    font-weight: 700;
 
 }
 
@@ -3399,6 +3403,86 @@ body.light-mode .modal {
     padding: 8px 12px;
 
     font-size: 12px;
+
+}
+
+
+.savings-contribution-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-top: 4px;
+
+}
+
+
+.savings-contribution-list h5 {
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: var(--text-muted);
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.4px;
+
+}
+
+
+.savings-contribution-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 10px 12px;
+
+    border-radius: 10px;
+
+    background: var(--panel-hover);
+
+    border: 1px solid var(--border);
+
+}
+
+
+.savings-contribution-item strong {
+
+    display: block;
+
+    color: var(--text);
+
+    font-size: 13px;
+
+}
+
+
+.savings-contribution-item small {
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+
+}
+
+
+.savings-contribution-empty {
+
+    font-size: 12px;
+
+    color: var(--text-muted);
+
+    padding: 4px 0;
 
 }
 
