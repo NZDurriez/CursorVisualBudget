@@ -986,20 +986,72 @@ body.light-mode .topbar {
 
 .secondary-btn {
 
-    background: var(--panel-hover);
+    background: rgba(148,163,184,0.14);
 
     color: var(--text);
 
-    border: 1px solid var(--border);
+    border: 1px solid rgba(148,163,184,0.40);
 
 }
 
 
 .secondary-btn:hover {
 
-    background: rgba(100,116,139,0.18);
+    background: rgba(148,163,184,0.22);
+
+    border-color: rgba(148,163,184,0.55);
 
     transform: translateY(-1px);
+
+}
+
+
+.cancel-btn,
+#cancelSavingsGoalBtn,
+#cancelSavingsProgressBtn,
+#cancelBtn,
+#cancelCreateProfileBtn,
+#closeProfileModalBtn {
+
+    background: rgba(245,158,11,0.14);
+
+    color: #fbbf24;
+
+    border: 1px solid rgba(245,158,11,0.40);
+
+}
+
+
+.cancel-btn:hover,
+#cancelSavingsGoalBtn:hover,
+#cancelSavingsProgressBtn:hover,
+#cancelBtn:hover,
+#cancelCreateProfileBtn:hover,
+#closeProfileModalBtn:hover {
+
+    background: rgba(245,158,11,0.22);
+
+    border-color: rgba(245,158,11,0.55);
+
+    color: #fcd34d;
+
+    transform: translateY(-1px);
+
+}
+
+
+body.light-mode .cancel-btn,
+body.light-mode #cancelSavingsGoalBtn,
+body.light-mode #cancelSavingsProgressBtn,
+body.light-mode #cancelBtn,
+body.light-mode #cancelCreateProfileBtn,
+body.light-mode #closeProfileModalBtn {
+
+    background: rgba(245,158,11,0.12);
+
+    color: #d97706;
+
+    border-color: rgba(217,119,6,0.35);
 
 }
 
@@ -2943,19 +2995,32 @@ body.light-mode .modal {
 
     cursor: help;
 
+    text-transform: none;
+
+    letter-spacing: normal;
+
+    font-weight: 400;
+
 }
 
 
 .tooltip > i {
 
-    font-size: 11px;
+    font-size: 12px;
 
-    opacity: 0.6;
+    opacity: 0.7;
+
+    color: var(--text-muted);
 
 }
 
 
-.tooltip-text {
+.tooltip-text,
+.schedule-selector .tooltip-text,
+.profile-selector .tooltip-text,
+.form-group .tooltip-text,
+label .tooltip-text,
+.checkbox-row .tooltip-text {
 
     position: absolute;
 
@@ -2967,20 +3032,25 @@ body.light-mode .modal {
 
     width: 240px;
 
+    max-width: min(240px, 70vw);
+
     padding: 10px 12px;
 
-    background:
-        var(--sidebar);
+    background: #0f172a;
 
-    color: var(--text);
+    color: #e2e8f0;
 
-    border: 1px solid var(--border);
+    border: 1px solid rgba(148,163,184,0.22);
 
     border-radius: 8px;
 
-    font-size: 11px;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+
+    font-size: 12px;
 
     font-weight: 400;
+
+    font-style: normal;
 
     line-height: 1.5;
 
@@ -2993,7 +3063,7 @@ body.light-mode .modal {
     white-space: normal;
 
     box-shadow:
-        0 12px 30px rgba(0,0,0,0.20);
+        0 12px 30px rgba(0,0,0,0.28);
 
     opacity: 0;
 
@@ -3006,6 +3076,25 @@ body.light-mode .modal {
         visibility 0.15s ease;
 
     z-index: 4000;
+
+}
+
+
+body.light-mode .tooltip-text,
+body.light-mode .schedule-selector .tooltip-text,
+body.light-mode .profile-selector .tooltip-text,
+body.light-mode .form-group .tooltip-text,
+body.light-mode label .tooltip-text,
+body.light-mode .checkbox-row .tooltip-text {
+
+    background: #ffffff;
+
+    color: #334155;
+
+    border-color: rgba(148,163,184,0.35);
+
+    box-shadow:
+        0 12px 30px rgba(15,23,42,0.12);
 
 }
 
