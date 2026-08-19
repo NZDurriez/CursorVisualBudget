@@ -397,7 +397,7 @@ body {
 
     backdrop-filter: blur(12px);
 
-    z-index: 100;
+    z-index: 300;
 
 }
 
@@ -723,7 +723,7 @@ body.light-mode .topbar {
     box-shadow:
         0 8px 20px rgba(0,0,0,0.08);
 
-    z-index: 101;
+    z-index: 1;
 
     transition:
         background var(--transition),
@@ -2319,6 +2319,12 @@ body.light-mode .modal {
 
     text-align: left;
 
+    text-transform: none;
+
+    letter-spacing: normal;
+
+    white-space: normal;
+
     box-shadow:
         0 12px 30px rgba(0,0,0,0.20);
 
@@ -2332,12 +2338,13 @@ body.light-mode .modal {
         opacity 0.15s ease,
         visibility 0.15s ease;
 
-    z-index: 2000;
+    z-index: 4000;
 
 }
 
 
-.tooltip:hover .tooltip-text {
+.tooltip:hover .tooltip-text,
+.tooltip:focus-within .tooltip-text {
 
     opacity: 1;
 
@@ -2346,7 +2353,39 @@ body.light-mode .modal {
 }
 
 
-.topbar .tooltip-text {
+/* Smart placement modifiers (set by JS) */
+
+.tooltip.tooltip-bottom .tooltip-text {
+
+    top: calc(100% + 8px);
+
+    bottom: auto;
+
+}
+
+
+.tooltip.tooltip-left .tooltip-text {
+
+    left: auto;
+
+    right: 0;
+
+    transform: none;
+
+}
+
+
+.tooltip.tooltip-right .tooltip-text {
+
+    left: 0;
+
+    transform: none;
+
+}
+
+
+.tooltip.tooltip-bottom.tooltip-left .tooltip-text,
+.tooltip.tooltip-bottom.tooltip-right .tooltip-text {
 
     top: calc(100% + 8px);
 

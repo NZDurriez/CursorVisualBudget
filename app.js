@@ -5595,16 +5595,36 @@ function positionTooltip(tooltip) {
     }
 
 
+    // Temporarily reveal for accurate measurement
+    const previousOpacity =
+        tooltipText.style.opacity;
+
+    const previousVisibility =
+        tooltipText.style.visibility;
+
+
+    tooltipText.style.opacity = "1";
+
+    tooltipText.style.visibility = "hidden";
+
+
     const rect =
         tooltip.getBoundingClientRect();
 
 
     const tooltipWidth =
-        tooltipText.offsetWidth;
+        tooltipText.offsetWidth || 240;
 
 
     const tooltipHeight =
-        tooltipText.offsetHeight;
+        tooltipText.offsetHeight || 80;
+
+
+    tooltipText.style.opacity =
+        previousOpacity;
+
+    tooltipText.style.visibility =
+        previousVisibility;
 
 
     const spacing = 8;
@@ -5612,6 +5632,7 @@ function positionTooltip(tooltip) {
 
     // ========================================================
     // CHECK VERTICAL SPACE
+    // Prefer above; only flip below when needed
     // ========================================================
 
     const spaceAbove =
@@ -5622,15 +5643,12 @@ function positionTooltip(tooltip) {
         window.innerHeight - rect.bottom;
 
 
-    // If there isn't enough room above,
-    // show the tooltip below.
-
     if (
         spaceAbove <
-        tooltipHeight + spacing
+            tooltipHeight + spacing
         &&
-        spaceBelow >
-        spaceAbove
+        spaceBelow >=
+            tooltipHeight + spacing
     ) {
 
         tooltip.classList.add(
