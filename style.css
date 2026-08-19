@@ -3176,6 +3176,29 @@ body.light-mode .data-table .tooltip-text {
 }
 
 
+
+/* Flat tooltips on table headers (no heavy drop shadow) */
+
+th .tooltip-text,
+.data-table .tooltip-text,
+body.light-mode th .tooltip-text,
+body.light-mode .data-table .tooltip-text {
+
+    box-shadow: none;
+
+}
+
+
+th .tooltip-text,
+.data-table .tooltip-text {
+
+    width: 280px;
+
+    max-width: min(280px, 75vw);
+
+}
+
+
 .tooltip:hover .tooltip-text,
 .tooltip:focus-within .tooltip-text {
 
