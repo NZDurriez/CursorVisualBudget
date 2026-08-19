@@ -85,6 +85,15 @@
             </button>
 
             <button class="nav-btn"
+                    data-page="paycalc">
+
+                <i class="fa-solid fa-calculator"></i>
+
+                Pay Calculator
+
+            </button>
+
+            <button class="nav-btn"
                     data-page="calendar">
 
                 <i class="fa-solid fa-calendar-days"></i>
@@ -719,6 +728,317 @@
             <div
                 id="savingsGoalsList"
                 class="savings-goals-list">
+
+            </div>
+
+        </section>
+
+        <!-- ================================ -->
+        <!-- PAY CALCULATOR -->
+        <!-- ================================ -->
+
+        <section
+            id="paycalc"
+            class="page">
+
+            <div class="page-header">
+
+                <h3>NZ Pay Calculator</h3>
+
+            </div>
+
+            <p class="paycalc-intro">
+                Enter your hourly rate to estimate take-home pay using
+                2026/27 New Zealand PAYE, ACC, Student Loan, and KiwiSaver rates.
+                This is an estimate only — use IRD tools for official figures.
+            </p>
+
+            <div class="paycalc-layout">
+
+                <div class="paycalc-card">
+
+                    <h4>Your Details</h4>
+
+                    <div class="paycalc-form-grid">
+
+                        <div class="form-group">
+
+                            <label for="payHourlyRate">
+                                Hourly Rate ($)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="payHourlyRate"
+                                min="0"
+                                step="0.01"
+                                placeholder="e.g. 32.50">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="payHoursPerWeek">
+                                Hours Per Week
+                            </label>
+
+                            <input
+                                type="number"
+                                id="payHoursPerWeek"
+                                min="0"
+                                step="0.25"
+                                value="40">
+
+                        </div>
+
+                    </div>
+
+                    <div class="paycalc-options">
+
+                        <label class="checkbox-row">
+
+                            <input
+                                type="checkbox"
+                                id="payStudentLoan">
+
+                            <span>
+                                Student Loan repayments
+                            </span>
+
+                            <span class="tooltip">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                <span class="tooltip-text">
+                                    Deducts 12% of income above the
+                                    $24,128 annual repayment threshold
+                                    (2026/27).
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        <label class="checkbox-row">
+
+                            <input
+                                type="checkbox"
+                                id="payKiwiSaver">
+
+                            <span>
+                                KiwiSaver contributions
+                            </span>
+
+                            <span class="tooltip">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                <span class="tooltip-text">
+                                    Employee contribution deducted from
+                                    your pay. Employer contribution is
+                                    shown separately and is not taken
+                                    from your wages.
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        <div
+                            id="payKiwiSaverOptions"
+                            class="paycalc-kiwisaver-options hidden">
+
+                            <div class="form-group">
+
+                                <label for="payKiwiSaverRate">
+                                    Employee KiwiSaver %
+                                </label>
+
+                                <select id="payKiwiSaverRate">
+
+                                    <option value="3.5" selected>
+                                        3.5% (default)
+                                    </option>
+
+                                    <option value="4">
+                                        4%
+                                    </option>
+
+                                    <option value="6">
+                                        6%
+                                    </option>
+
+                                    <option value="8">
+                                        8%
+                                    </option>
+
+                                    <option value="10">
+                                        10%
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <label class="checkbox-row">
+
+                                <input
+                                    type="checkbox"
+                                    id="payShowEmployerKiwisaver"
+                                    checked>
+
+                                <span>
+                                    Show employer contribution (3%)
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <div class="paycalc-note">
+                        Based on 52 paid weeks per year. Assumes primary
+                        employment tax code (M / M SL).
+                    </div>
+
+                </div>
+
+                <div class="paycalc-card paycalc-results-card">
+
+                    <div class="paycalc-results-header">
+
+                        <h4>Estimated Take-Home</h4>
+
+                        <div class="paycalc-period-tabs">
+
+                            <button
+                                type="button"
+                                class="paycalc-period-btn active"
+                                data-pay-period="weekly">
+                                Weekly
+                            </button>
+
+                            <button
+                                type="button"
+                                class="paycalc-period-btn"
+                                data-pay-period="fortnightly">
+                                Fortnightly
+                            </button>
+
+                            <button
+                                type="button"
+                                class="paycalc-period-btn"
+                                data-pay-period="monthly">
+                                Monthly
+                            </button>
+
+                            <button
+                                type="button"
+                                class="paycalc-period-btn"
+                                data-pay-period="annual">
+                                Annual
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="paycalc-net">
+
+                        <span id="payNetLabel">Net pay / week</span>
+
+                        <strong id="payNetAmount">$0.00</strong>
+
+                    </div>
+
+                    <div class="paycalc-breakdown">
+
+                        <div class="paycalc-row">
+
+                            <span>Gross pay</span>
+
+                            <strong id="payGrossAmount">$0.00</strong>
+
+                        </div>
+
+                        <div class="paycalc-row is-deduction">
+
+                            <span>Income tax (PAYE)</span>
+
+                            <strong id="payIncomeTaxAmount">$0.00</strong>
+
+                        </div>
+
+                        <div class="paycalc-row is-deduction">
+
+                            <span>ACC earner levy</span>
+
+                            <strong id="payAccAmount">$0.00</strong>
+
+                        </div>
+
+                        <div
+                            class="paycalc-row is-deduction"
+                            id="payStudentLoanRow">
+
+                            <span>Student loan</span>
+
+                            <strong id="payStudentLoanAmount">$0.00</strong>
+
+                        </div>
+
+                        <div
+                            class="paycalc-row is-deduction"
+                            id="payKiwiSaverRow">
+
+                            <span id="payKiwiSaverLabel">KiwiSaver</span>
+
+                            <strong id="payKiwiSaverAmount">$0.00</strong>
+
+                        </div>
+
+                        <div class="paycalc-row is-total">
+
+                            <span>Total deductions</span>
+
+                            <strong id="payDeductionsAmount">$0.00</strong>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="payEmployerKiwisaverBox"
+                        class="paycalc-employer-box hidden">
+
+                        <span>Employer KiwiSaver (3%)</span>
+
+                        <strong id="payEmployerKiwisaverAmount">$0.00</strong>
+
+                    </div>
+
+                    <div class="paycalc-summary-grid">
+
+                        <div>
+
+                            <span>Effective tax rate</span>
+
+                            <strong id="payEffectiveRate">0%</strong>
+
+                        </div>
+
+                        <div>
+
+                            <span>Hourly take-home</span>
+
+                            <strong id="payNetHourly">$0.00</strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 

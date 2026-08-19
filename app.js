@@ -23,6 +23,7 @@ let editingType = null;
 let editingId = null;
 let editingSavingsGoalId = null;
 let editingProfileId = null;
+let payCalcPeriod = "weekly";
 
 let calendarDate = new Date();
 
@@ -119,6 +120,72 @@ const savingsGoalsEmpty =
 
 const savingsGoalsList =
     document.getElementById("savingsGoalsList");
+
+const payHourlyRate =
+    document.getElementById("payHourlyRate");
+
+const payHoursPerWeek =
+    document.getElementById("payHoursPerWeek");
+
+const payStudentLoan =
+    document.getElementById("payStudentLoan");
+
+const payKiwiSaver =
+    document.getElementById("payKiwiSaver");
+
+const payKiwiSaverOptions =
+    document.getElementById("payKiwiSaverOptions");
+
+const payKiwiSaverRate =
+    document.getElementById("payKiwiSaverRate");
+
+const payShowEmployerKiwisaver =
+    document.getElementById("payShowEmployerKiwisaver");
+
+const payNetLabel =
+    document.getElementById("payNetLabel");
+
+const payNetAmount =
+    document.getElementById("payNetAmount");
+
+const payGrossAmount =
+    document.getElementById("payGrossAmount");
+
+const payIncomeTaxAmount =
+    document.getElementById("payIncomeTaxAmount");
+
+const payAccAmount =
+    document.getElementById("payAccAmount");
+
+const payStudentLoanRow =
+    document.getElementById("payStudentLoanRow");
+
+const payStudentLoanAmount =
+    document.getElementById("payStudentLoanAmount");
+
+const payKiwiSaverRow =
+    document.getElementById("payKiwiSaverRow");
+
+const payKiwiSaverLabel =
+    document.getElementById("payKiwiSaverLabel");
+
+const payKiwiSaverAmount =
+    document.getElementById("payKiwiSaverAmount");
+
+const payDeductionsAmount =
+    document.getElementById("payDeductionsAmount");
+
+const payEmployerKiwisaverBox =
+    document.getElementById("payEmployerKiwisaverBox");
+
+const payEmployerKiwisaverAmount =
+    document.getElementById("payEmployerKiwisaverAmount");
+
+const payEffectiveRate =
+    document.getElementById("payEffectiveRate");
+
+const payNetHourly =
+    document.getElementById("payNetHourly");
 	
 const modal =
     document.getElementById("modal");
@@ -418,6 +485,8 @@ function setupEvents() {
         );
 
     });
+
+    setupPayCalculatorEvents();
 	
 	// Budget Schedule
 	if (budgetSchedule) {
@@ -2048,7 +2117,9 @@ function showPage(page) {
                 ? "One-Off Payments"
                 : page === "savings"
                     ? "Savings Calculator"
-                    : page.charAt(0).toUpperCase() + page.slice(1);
+                    : page === "paycalc"
+                        ? "Pay Calculator"
+                        : page.charAt(0).toUpperCase() + page.slice(1);
 
 
     if (page === "calendar") {
@@ -2060,6 +2131,12 @@ function showPage(page) {
     if (page === "savings") {
 
         renderSavingsGoals();
+
+    }
+
+    if (page === "paycalc") {
+
+        updatePayCalculator();
 
     }
 
@@ -4398,6 +4475,507 @@ function getSavingsGoalsPeriodTotal() {
 
 
     return total;
+
+}
+
+
+// ============================================================
+// NZ PAY CALCULATOR (2026/27)
+// ============================================================
+
+const NZ_PAY_TAX = {
+
+    yearLabel: "2026/27",
+
+    brackets: [
+        { upTo: 15600, rate: 0.105 },
+        { upTo: 53500, rate: 0.175 },
+        { upTo: 78100, rate: 0.30 },
+        { upTo: 180000, rate: 0.33 },
+        { upTo: Infinity, rate: 0.39 }
+    ],
+
+    accRate: 0.0175,
+
+    accMaxEarnings: 156641,
+
+    studentLoanRate: 0.12,
+
+    studentLoanThreshold: 24128,
+
+    employerKiwiSaverRate: 0.03,
+
+    weeksPerYear: 52
+
+};
+
+
+function setupPayCalculatorEvents() {
+
+    const inputs = [
+        payHourlyRate,
+        payHoursPerWeek,
+        payStudentLoan,
+        payKiwiSaver,
+        payKiwiSaverRate,
+        payShowEmployerKiwisaver
+    ];
+
+
+    inputs.forEach(input => {
+
+        if (!input) {
+
+            return;
+
+        }
+
+        const eventName =
+            input.tagName === "SELECT" ||
+            input.type === "checkbox"
+                ? "change"
+                : "input";
+
+
+        input.addEventListener(
+            eventName,
+            () => {
+
+                if (input === payKiwiSaver) {
+
+                    updatePayKiwiSaverOptions();
+
+                }
+
+                updatePayCalculator();
+
+            }
+        );
+
+    });
+
+
+    document
+        .querySelectorAll("[data-pay-period]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    payCalcPeriod =
+                        button.dataset.payPeriod ||
+                        "weekly";
+
+
+                    document
+                        .querySelectorAll("[data-pay-period]")
+                        .forEach(entry => {
+
+                            entry.classList.toggle(
+                                "active",
+                                entry === button
+                            );
+
+                        });
+
+
+                    updatePayCalculator();
+
+                }
+            );
+
+        });
+
+
+    updatePayKiwiSaverOptions();
+
+    updatePayCalculator();
+
+}
+
+
+function updatePayKiwiSaverOptions() {
+
+    if (!payKiwiSaverOptions || !payKiwiSaver) {
+
+        return;
+
+    }
+
+
+    payKiwiSaverOptions.classList.toggle(
+        "hidden",
+        !payKiwiSaver.checked
+    );
+
+}
+
+
+function calculateNzIncomeTax(annualIncome) {
+
+    let remaining =
+        Math.max(0, Number(annualIncome) || 0);
+
+    let previousCap = 0;
+
+    let tax = 0;
+
+
+    NZ_PAY_TAX.brackets.forEach(bracket => {
+
+        if (remaining <= 0) {
+
+            return;
+
+        }
+
+
+        const bandSize =
+            bracket.upTo === Infinity
+                ? remaining
+                : Math.max(
+                    0,
+                    Math.min(
+                        remaining,
+                        bracket.upTo - previousCap
+                    )
+                );
+
+
+        tax += bandSize * bracket.rate;
+
+        remaining -= bandSize;
+
+        previousCap = bracket.upTo;
+
+    });
+
+
+    return tax;
+
+}
+
+
+function calculateNzPayBreakdown({
+    hourlyRate,
+    hoursPerWeek,
+    hasStudentLoan,
+    hasKiwiSaver,
+    kiwiSaverPercent,
+    showEmployerKiwiSaver
+}) {
+
+    const hourly =
+        Math.max(0, Number(hourlyRate) || 0);
+
+    const hours =
+        Math.max(0, Number(hoursPerWeek) || 0);
+
+    const weeklyGross =
+        hourly * hours;
+
+    const annualGross =
+        weeklyGross * NZ_PAY_TAX.weeksPerYear;
+
+
+    const annualIncomeTax =
+        calculateNzIncomeTax(annualGross);
+
+
+    const accLiable =
+        Math.min(
+            annualGross,
+            NZ_PAY_TAX.accMaxEarnings
+        );
+
+    const annualAcc =
+        accLiable * NZ_PAY_TAX.accRate;
+
+
+    const annualStudentLoan =
+        hasStudentLoan
+            ? Math.max(
+                0,
+                annualGross -
+                    NZ_PAY_TAX.studentLoanThreshold
+              ) * NZ_PAY_TAX.studentLoanRate
+            : 0;
+
+
+    const kiwiSaverRate =
+        hasKiwiSaver
+            ? (Number(kiwiSaverPercent) || 0) / 100
+            : 0;
+
+    const annualKiwiSaver =
+        annualGross * kiwiSaverRate;
+
+
+    const annualEmployerKiwiSaver =
+        hasKiwiSaver && showEmployerKiwiSaver
+            ? annualGross *
+              NZ_PAY_TAX.employerKiwiSaverRate
+            : 0;
+
+
+    const annualDeductions =
+        annualIncomeTax +
+        annualAcc +
+        annualStudentLoan +
+        annualKiwiSaver;
+
+
+    const annualNet =
+        annualGross - annualDeductions;
+
+
+    return {
+
+        hourly,
+        hours,
+        weeklyGross,
+        annualGross,
+        annualIncomeTax,
+        annualAcc,
+        annualStudentLoan,
+        annualKiwiSaver,
+        annualEmployerKiwiSaver,
+        annualDeductions,
+        annualNet,
+        hasStudentLoan,
+        hasKiwiSaver,
+        kiwiSaverPercent:
+            hasKiwiSaver
+                ? Number(kiwiSaverPercent) || 0
+                : 0,
+        showEmployerKiwiSaver:
+            !!(hasKiwiSaver && showEmployerKiwiSaver)
+
+    };
+
+}
+
+
+function scalePayAmount(annualAmount, period) {
+
+    switch (period) {
+
+        case "weekly":
+            return annualAmount / NZ_PAY_TAX.weeksPerYear;
+
+        case "fortnightly":
+            return annualAmount / (NZ_PAY_TAX.weeksPerYear / 2);
+
+        case "monthly":
+            return annualAmount / 12;
+
+        case "annual":
+        default:
+            return annualAmount;
+
+    }
+
+}
+
+
+function getPayPeriodLabel(period) {
+
+    switch (period) {
+
+        case "weekly":
+            return "week";
+
+        case "fortnightly":
+            return "fortnight";
+
+        case "monthly":
+            return "month";
+
+        case "annual":
+        default:
+            return "year";
+
+    }
+
+}
+
+
+function updatePayCalculator() {
+
+    if (!payNetAmount) {
+
+        return;
+
+    }
+
+
+    updatePayKiwiSaverOptions();
+
+
+    const breakdown =
+        calculateNzPayBreakdown({
+            hourlyRate:
+                payHourlyRate
+                    ? payHourlyRate.value
+                    : 0,
+            hoursPerWeek:
+                payHoursPerWeek
+                    ? payHoursPerWeek.value
+                    : 40,
+            hasStudentLoan:
+                !!(payStudentLoan &&
+                    payStudentLoan.checked),
+            hasKiwiSaver:
+                !!(payKiwiSaver &&
+                    payKiwiSaver.checked),
+            kiwiSaverPercent:
+                payKiwiSaverRate
+                    ? payKiwiSaverRate.value
+                    : 3.5,
+            showEmployerKiwiSaver:
+                !!(
+                    payShowEmployerKiwisaver &&
+                    payShowEmployerKiwisaver.checked
+                )
+        });
+
+
+    const period =
+        payCalcPeriod || "weekly";
+
+
+    const setMoney = (element, annualValue) => {
+
+        if (!element) {
+
+            return;
+
+        }
+
+        element.textContent =
+            formatCurrency(
+                scalePayAmount(
+                    annualValue,
+                    period
+                )
+            );
+
+    };
+
+
+    if (payNetLabel) {
+
+        payNetLabel.textContent =
+            `Net pay / ${getPayPeriodLabel(period)}`;
+
+    }
+
+
+    setMoney(payNetAmount, breakdown.annualNet);
+
+    setMoney(payGrossAmount, breakdown.annualGross);
+
+    setMoney(
+        payIncomeTaxAmount,
+        breakdown.annualIncomeTax
+    );
+
+    setMoney(payAccAmount, breakdown.annualAcc);
+
+    setMoney(
+        payStudentLoanAmount,
+        breakdown.annualStudentLoan
+    );
+
+    setMoney(
+        payKiwiSaverAmount,
+        breakdown.annualKiwiSaver
+    );
+
+    setMoney(
+        payDeductionsAmount,
+        breakdown.annualDeductions
+    );
+
+    setMoney(
+        payEmployerKiwisaverAmount,
+        breakdown.annualEmployerKiwiSaver
+    );
+
+
+    if (payStudentLoanRow) {
+
+        payStudentLoanRow.style.display =
+            breakdown.hasStudentLoan
+                ? ""
+                : "none";
+
+    }
+
+
+    if (payKiwiSaverRow) {
+
+        payKiwiSaverRow.style.display =
+            breakdown.hasKiwiSaver
+                ? ""
+                : "none";
+
+    }
+
+
+    if (payKiwiSaverLabel) {
+
+        payKiwiSaverLabel.textContent =
+            breakdown.hasKiwiSaver
+                ? `KiwiSaver (${breakdown.kiwiSaverPercent}%)`
+                : "KiwiSaver";
+
+    }
+
+
+    if (payEmployerKiwisaverBox) {
+
+        payEmployerKiwisaverBox.classList.toggle(
+            "hidden",
+            !breakdown.showEmployerKiwiSaver
+        );
+
+    }
+
+
+    if (payEffectiveRate) {
+
+        const rate =
+            breakdown.annualGross > 0
+                ? (
+                    (
+                        breakdown.annualIncomeTax +
+                        breakdown.annualAcc
+                    ) /
+                    breakdown.annualGross
+                  ) * 100
+                : 0;
+
+
+        payEffectiveRate.textContent =
+            `${rate.toFixed(1)}%`;
+
+    }
+
+
+    if (payNetHourly) {
+
+        payNetHourly.textContent =
+            breakdown.hours > 0
+                ? formatCurrency(
+                    breakdown.annualNet /
+                    (breakdown.hours *
+                        NZ_PAY_TAX.weeksPerYear)
+                  )
+                : formatCurrency(0);
+
+    }
 
 }
 
