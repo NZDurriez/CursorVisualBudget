@@ -3645,15 +3645,9 @@ function renderPayments() {
         }
 
 
-        const paidThisPeriod =
-            isPaymentPaidThisPeriod(item);
-
-
         paymentTable.innerHTML += `
 
-            <tr
-                data-payment-id="${item.id}"
-                class="${paidThisPeriod ? "is-paid" : ""}">
+            <tr data-payment-id="${item.id}">
 
                 <td>
                     ${escapeHtml(item.name)}
@@ -3669,17 +3663,6 @@ function renderPayments() {
 
                 <td class="${statusClass}">
                     ${formatDate(item.nextDate)}
-                </td>
-
-                <td>
-
-                    <span
-                        class="paid-status-label ${paidThisPeriod ? "is-paid" : "is-unpaid"}">
-
-                        ${paidThisPeriod ? "Paid" : "Unpaid"}
-
-                    </span>
-
                 </td>
 
                 <td>
@@ -6509,6 +6492,13 @@ function getFortnightlyTotal(items) {
 
 function renderUpcomingPayments() {
 
+    if (!upcomingPayments) {
+
+        return;
+
+    }
+
+
     upcomingPayments.innerHTML = "";
 
 
@@ -6528,8 +6518,13 @@ function renderUpcomingPayments() {
 
     if (budget.payments.length === 0) {
 
-        upcomingPayments.innerHTML =
-            "<p>No upcoming payments.</p>";
+        upcomingPayments.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    No upcoming payments.
+                </td>
+            </tr>
+        `;
 
         return;
 
@@ -6556,31 +6551,36 @@ function renderUpcomingPayments() {
 
         if (days < 0) {
 
-            label = "Overdue";
+            const overdueDays = Math.abs(days);
+
+            label =
+                overdueDays === 1
+                    ? "Overdue by 1 day"
+                    : `Overdue by ${overdueDays} days`;
 
             className = "status-danger";
 
         } else if (days === 0) {
 
-            label = "Today";
+            label = "Due today";
 
             className = "status-warning";
 
         } else if (days === 1) {
 
-            label = "Tomorrow";
+            label = "Due in 1 day";
 
             className = "status-warning";
 
         } else if (days <= 7) {
 
-            label = `${days} days`;
+            label = `Due in ${days} days`;
 
             className = "status-warning";
 
         } else {
 
-            label = `${days} days`;
+            label = `Due in ${days} days`;
 
         }
 
@@ -6591,23 +6591,17 @@ function renderUpcomingPayments() {
 
         upcomingPayments.innerHTML += `
 
-            <div class="payment-item ${paidThisPeriod ? "is-paid" : ""}">
+            <tr class="${paidThisPeriod ? "is-paid" : ""}">
 
-                <div>
+                <td>
+                    ${escapeHtml(payment.name)}
+                </td>
 
-                    <strong>
-                        ${escapeHtml(payment.name)}
-                    </strong>
+                <td>
+                    ${formatCurrency(payment.amount)}
+                </td>
 
-                    <br>
-
-                    <small>
-                        ${formatCurrency(payment.amount)}
-                    </small>
-
-                </div>
-
-                <div class="payment-item-right">
+                <td>
 
                     <button
                         type="button"
@@ -6619,13 +6613,13 @@ function renderUpcomingPayments() {
 
                     </button>
 
-                    <div class="payment-due ${className}">
-                        ${paidThisPeriod ? "Done" : label}
-                    </div>
+                </td>
 
-                </div>
+                <td class="${className}">
+                    ${label}
+                </td>
 
-            </div>
+            </tr>
 
         `;
 
