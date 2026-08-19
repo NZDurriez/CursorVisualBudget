@@ -50,6 +50,9 @@ const upcomingPayments =
 
 const currentBudgetPeriod =
     document.getElementById("currentBudgetPeriod");
+
+const budgetPeriodBox =
+    document.getElementById("budgetPeriodBox");
 	
 const incomeTable =
     document.getElementById("incomeTable");
@@ -322,6 +325,58 @@ if (budgetAnchorDate) {
             saveData();
 
             renderAll();
+
+        }
+    );
+
+}
+
+// Current Budget Period → set next pay day
+if (budgetPeriodBox) {
+
+    budgetPeriodBox.addEventListener(
+        "click",
+        () => {
+
+            if (
+                !budgetPeriodBox.classList.contains(
+                    "is-actionable"
+                )
+            ) {
+
+                return;
+
+            }
+
+            openNextPayDayPicker();
+
+        }
+    );
+
+    budgetPeriodBox.addEventListener(
+        "keydown",
+        (event) => {
+
+            if (
+                !budgetPeriodBox.classList.contains(
+                    "is-actionable"
+                )
+            ) {
+
+                return;
+
+            }
+
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+
+                event.preventDefault();
+
+                openNextPayDayPicker();
+
+            }
 
         }
     );
@@ -2674,6 +2729,135 @@ function renderDashboard() {
 // UPDATE CURRENT BUDGET PERIOD DISPLAY
 // ============================================================
 
+function setBudgetPeriodActionable(isActionable) {
+
+    const budgetPeriodElement =
+        budgetPeriodBox ||
+        (
+            currentBudgetPeriod &&
+            currentBudgetPeriod.closest(".budget-period")
+        );
+
+
+    if (!budgetPeriodElement) {
+
+        return;
+
+    }
+
+
+    if (isActionable) {
+
+        budgetPeriodElement.classList.add(
+            "is-actionable"
+        );
+
+        budgetPeriodElement.setAttribute(
+            "role",
+            "button"
+        );
+
+        budgetPeriodElement.setAttribute(
+            "tabindex",
+            "0"
+        );
+
+        budgetPeriodElement.setAttribute(
+            "title",
+            "Click to set your next pay day"
+        );
+
+        budgetPeriodElement.setAttribute(
+            "aria-label",
+            "Set your next pay day"
+        );
+
+    } else {
+
+        budgetPeriodElement.classList.remove(
+            "is-actionable"
+        );
+
+        budgetPeriodElement.removeAttribute("role");
+
+        budgetPeriodElement.removeAttribute("tabindex");
+
+        budgetPeriodElement.removeAttribute("title");
+
+        budgetPeriodElement.removeAttribute(
+            "aria-label"
+        );
+
+    }
+
+}
+
+
+function openNextPayDayPicker() {
+
+    if (!budget.settings) {
+
+        budget.settings = {};
+
+    }
+
+
+    // Ensure payday/budget period mode is enabled
+    // so the Next Pay Day field is visible
+    budget.settings.useBudgetPeriod = true;
+
+
+    updateScheduleSelector();
+
+
+    if (!budgetAnchorDate) {
+
+        return;
+
+    }
+
+
+    budgetAnchorDateContainer &&
+        (budgetAnchorDateContainer.style.display = "");
+
+
+    budgetAnchorDate.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest"
+    });
+
+
+    budgetAnchorDate.focus();
+
+
+    // Native date picker where supported
+    if (
+        typeof budgetAnchorDate.showPicker ===
+        "function"
+    ) {
+
+        try {
+
+            budgetAnchorDate.showPicker();
+
+        } catch (error) {
+
+            // Some browsers only allow showPicker
+            // after a direct user gesture; focus is
+            // still enough as a fallback.
+            console.warn(
+                "Could not open date picker:",
+                error
+            );
+
+        }
+
+    }
+
+}
+
+
 function updateBudgetPeriodDisplay() {
 
     if (!currentBudgetPeriod) {
@@ -2692,6 +2876,7 @@ function updateBudgetPeriodDisplay() {
         currentBudgetPeriod.textContent = "";
 
         const budgetPeriodElement =
+            budgetPeriodBox ||
             currentBudgetPeriod.closest(".budget-period");
 
         if (budgetPeriodElement) {
@@ -2700,12 +2885,15 @@ function updateBudgetPeriodDisplay() {
 
         }
 
+        setBudgetPeriodActionable(false);
+
         return;
 
     }
 
 
     const budgetPeriodElement =
+        budgetPeriodBox ||
         currentBudgetPeriod.closest(".budget-period");
 
     if (budgetPeriodElement) {
@@ -2724,6 +2912,8 @@ function updateBudgetPeriodDisplay() {
         currentBudgetPeriod.textContent =
             "Set your next pay day";
 
+        setBudgetPeriodActionable(true);
+
         return;
 
     }
@@ -2731,6 +2921,8 @@ function updateBudgetPeriodDisplay() {
 
     currentBudgetPeriod.textContent =
         `${formatDate(period.start)} → ${formatDate(period.end)}`;
+
+    setBudgetPeriodActionable(false);
 
 }
 
