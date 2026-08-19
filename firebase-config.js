@@ -16,17 +16,12 @@ export const firebaseConfig = {
 export const firebaseEnabled = true;
 
 /**
- * Discord OAuth (requires Cloud Function deploy — see README).
- * 1. Create an app at https://discord.com/developers/applications
- * 2. OAuth2 → redirect URL must match your site exactly, e.g.
- *    https://nzdurriez.github.io/CursorVisualBudget/
- * 3. Paste Client ID below, set enabled true after function is deployed
- * 4. Put Client Secret only in Cloud Function config (never here)
+ * Discord OAuth — not enabled.
+ * Requires Blaze + Cloud Functions; left disabled on purpose.
  */
 export const discordConfig = {
-    enabled: true,
-    clientId: "1539746036103258212",
-    // Leave empty to use: https://us-central1-<projectId>.cloudfunctions.net/exchangeDiscordCode
+    enabled: false,
+    clientId: "",
     functionUrl: ""
 };
 
