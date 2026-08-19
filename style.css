@@ -4563,6 +4563,7 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
+    /* Stack tables into cards — no sideways scrolling */
     .data-table,
     .upcoming-payments-table {
 
@@ -4572,18 +4573,156 @@ body.light-mode .paid-status-label.is-unpaid {
 
         max-width: 100%;
 
-        overflow-x: auto;
+        overflow: visible;
 
-        -webkit-overflow-scrolling: touch;
+        border: none;
+
+        background: transparent;
+
+        box-shadow: none;
 
     }
 
-    .data-table th,
+    .data-table thead,
+    .upcoming-payments-table thead {
+
+        display: none;
+
+    }
+
+    .data-table tbody,
+    .upcoming-payments-table tbody {
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+    }
+
+    .data-table tr,
+    .upcoming-payments-table tr {
+
+        display: block;
+
+        background: var(--panel);
+
+        border: 1px solid var(--border);
+
+        border-radius: 12px;
+
+        padding: 10px 12px;
+
+        box-shadow:
+            0 1px 2px rgba(15, 23, 42, 0.05),
+            0 6px 18px rgba(15, 23, 42, 0.06);
+
+    }
+
     .data-table td,
-    .upcoming-payments-table th,
     .upcoming-payments-table td {
 
-        white-space: nowrap;
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 12px;
+
+        width: 100%;
+
+        padding: 8px 0;
+
+        border: none;
+
+        border-top: 1px solid var(--border);
+
+        white-space: normal;
+
+        text-align: right;
+
+        font-size: 13px;
+
+    }
+
+    .data-table tr td:first-child,
+    .upcoming-payments-table tr td:first-child {
+
+        border-top: none;
+
+        padding-top: 2px;
+
+        font-weight: 700;
+
+        font-size: 14px;
+
+        color: var(--text);
+
+        text-align: left;
+
+        justify-content: flex-start;
+
+    }
+
+    .data-table td::before,
+    .upcoming-payments-table td::before {
+
+        content: attr(data-label);
+
+        font-size: 11px;
+
+        font-weight: 650;
+
+        letter-spacing: 0.3px;
+
+        text-transform: uppercase;
+
+        color: var(--text-muted);
+
+        text-align: left;
+
+        flex: 0 0 auto;
+
+    }
+
+    .data-table tr td:first-child::before,
+    .upcoming-payments-table tr td:first-child::before {
+
+        display: none;
+
+    }
+
+    .data-table td.actions,
+    .data-table td[data-label="Actions"],
+    .upcoming-payments-table td[data-label="Paid"] {
+
+        justify-content: space-between;
+
+    }
+
+    .data-table td[data-label="Actions"] .row-actions {
+
+        margin-left: auto;
+
+    }
+
+    .data-table td[colspan],
+    .upcoming-payments-table td[colspan] {
+
+        display: block;
+
+        text-align: left;
+
+        border-top: none;
+
+    }
+
+    .data-table td[colspan]::before,
+    .upcoming-payments-table td[colspan]::before {
+
+        display: none;
 
     }
 
@@ -4591,7 +4730,13 @@ body.light-mode .paid-status-label.is-unpaid {
 
         padding: 14px;
 
-        overflow-x: auto;
+        overflow: visible;
+
+    }
+
+    #paymentsTable tbody tr[data-payment-id] {
+
+        cursor: grab;
 
     }
 

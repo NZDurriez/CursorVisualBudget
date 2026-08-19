@@ -3338,23 +3338,23 @@ function renderIncome() {
 
             <tr>
 
-                <td>
+                <td data-label="Name">
                     ${escapeHtml(item.name)}
                 </td>
 
-                <td>
+                <td data-label="Amount">
                     ${formatCurrency(item.amount)}
                 </td>
 
-                <td>
+                <td data-label="Frequency">
                     ${escapeHtml(item.frequency)}
                 </td>
 
-                <td>
+                <td data-label="Next Payment">
                     ${formatDate(item.nextDate)}
                 </td>
 
-                <td class="actions">
+                <td class="actions" data-label="Actions">
 
                     <div class="row-actions">
 
@@ -3940,23 +3940,23 @@ function renderPayments() {
 
             <tr data-payment-id="${item.id}">
 
-                <td>
+                <td data-label="Name">
                     ${escapeHtml(item.name)}
                 </td>
 
-                <td>
+                <td data-label="Amount">
                     ${formatCurrency(item.amount)}
                 </td>
 
-                <td>
+                <td data-label="Frequency">
                     ${escapeHtml(item.frequency)}
                 </td>
 
-                <td class="${statusClass}">
+                <td class="${statusClass}" data-label="Next Due">
                     ${formatDate(item.nextDate)}
                 </td>
 
-                <td>
+                <td data-label="Actions">
 
                     <div class="row-actions">
 
@@ -4045,19 +4045,19 @@ function renderOneOffPayments() {
 
             <tr>
 
-                <td>
+                <td data-label="Name">
                     ${escapeHtml(item.name)}
                 </td>
 
-                <td>
+                <td data-label="Amount">
                     ${formatCurrency(item.amount)}
                 </td>
 
-                <td>
+                <td data-label="Date">
                     ${formatDate(item.nextDate)}
                 </td>
 
-                <td>
+                <td data-label="Actions">
 
                     <div class="row-actions">
 
@@ -6884,15 +6884,15 @@ function renderUpcomingPayments() {
 
             <tr class="${paidThisPeriod ? "is-paid" : ""}">
 
-                <td>
+                <td data-label="Name">
                     ${escapeHtml(payment.name)}
                 </td>
 
-                <td>
+                <td data-label="Amount">
                     ${formatCurrency(payment.amount)}
                 </td>
 
-                <td>
+                <td data-label="Paid">
 
                     <button
                         type="button"
@@ -6906,7 +6906,7 @@ function renderUpcomingPayments() {
 
                 </td>
 
-                <td class="${className}">
+                <td class="${className}" data-label="Due in">
                     ${label}
                 </td>
 
