@@ -4205,7 +4205,7 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
-    .mobile-budget-settings > summary {
+    .budget-settings-toggle {
 
         display: flex;
 
@@ -4213,11 +4213,17 @@ body.light-mode .paid-status-label.is-unpaid {
 
         gap: 8px;
 
-        list-style: none;
+        width: 100%;
+
+        border: none;
+
+        background: transparent;
 
         cursor: pointer;
 
         padding: 11px 12px;
+
+        font-family: inherit;
 
         font-size: 13px;
 
@@ -4225,17 +4231,17 @@ body.light-mode .paid-status-label.is-unpaid {
 
         color: var(--text);
 
-        user-select: none;
+        text-align: left;
 
     }
 
-    .mobile-budget-settings > summary::-webkit-details-marker {
+    .budget-settings-toggle i {
 
-        display: none;
+        color: var(--primary);
 
     }
 
-    .mobile-budget-settings > summary::after {
+    .budget-settings-toggle::after {
 
         content: "\f078";
 
@@ -4253,15 +4259,23 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
-    .mobile-budget-settings[open] > summary::after {
+    .mobile-budget-settings.is-open .budget-settings-toggle::after {
 
         transform: rotate(180deg);
 
     }
 
-    .mobile-budget-settings > summary i {
+    .budget-settings-body {
 
-        color: var(--primary);
+        display: none;
+
+        flex-direction: column;
+
+    }
+
+    .mobile-budget-settings.is-open .budget-settings-body {
+
+        display: flex;
 
     }
 
@@ -4847,9 +4861,15 @@ body.light-mode .paid-status-label.is-unpaid {
 
 }
 
-.mobile-budget-settings > summary {
+.budget-settings-toggle {
 
     display: none;
+
+}
+
+.budget-settings-body {
+
+    display: contents;
 
 }
 

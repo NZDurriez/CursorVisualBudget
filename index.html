@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=2" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2">
 
-    <link rel="stylesheet" href="style.css?v=mobile-table-cards-1">
+    <link rel="stylesheet" href="style.css?v=budget-settings-fix-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -179,15 +179,24 @@
 
 </button>
 
-		<details class="mobile-budget-settings">
+		<div class="mobile-budget-settings">
 
-			<summary>
+			<button
+				type="button"
+				id="budgetSettingsToggle"
+				class="budget-settings-toggle"
+				aria-expanded="false"
+				aria-controls="budgetSettingsBody">
 
 				<i class="fa-solid fa-sliders"></i>
 
 				Budget settings
 
-			</summary>
+			</button>
+
+			<div
+				id="budgetSettingsBody"
+				class="budget-settings-body">
 
 		<!-- Budget Schedule -->
 		<div class="schedule-selector">
@@ -300,7 +309,9 @@
 
 		</div>
 
-		</details>
+			</div>
+
+		</div>
 
 		</div>
 
@@ -1632,7 +1643,7 @@
 </div>
 
 <script type="module" src="cloud.js?v=no-discord-1"></script>
-<script src="app.js?v=mobile-table-cards-1"></script>
+<script src="app.js?v=budget-settings-fix-1"></script>
 
 </body>
 </html>

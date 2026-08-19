@@ -436,7 +436,51 @@ if (document.readyState === "loading") {
 // EVENTS
 // ============================================================
 
+function setupBudgetSettingsToggle() {
+
+    const panel =
+        document.querySelector(
+            ".mobile-budget-settings"
+        );
+
+    const toggle =
+        document.getElementById(
+            "budgetSettingsToggle"
+        );
+
+
+    if (!panel || !toggle) {
+
+        return;
+
+    }
+
+
+    toggle.addEventListener(
+        "click",
+        () => {
+
+            const open =
+                panel.classList.toggle(
+                    "is-open"
+                );
+
+
+            toggle.setAttribute(
+                "aria-expanded",
+                open ? "true" : "false"
+            );
+
+        }
+    );
+
+}
+
+
+
 function setupEvents() {
+
+    setupBudgetSettingsToggle();
 
     // Navigation
     navButtons.forEach(button => {
