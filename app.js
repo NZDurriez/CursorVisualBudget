@@ -3606,7 +3606,7 @@ function renderPayments() {
 
         paymentTable.innerHTML = `
             <tr>
-                <td colspan="7">
+                <td colspan="5">
                     No recurring payments added yet.
                 </td>
             </tr>
