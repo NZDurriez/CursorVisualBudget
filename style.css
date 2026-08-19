@@ -4138,6 +4138,245 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
+    .sidebar .nav-btn .nav-label {
+
+        display: none;
+
+    }
+
+    .sidebar .nav-btn {
+
+        min-width: 44px;
+
+        max-width: 52px;
+
+        padding: 10px 6px;
+
+    }
+
+    .sidebar .nav-btn i {
+
+        font-size: 16px;
+
+    }
+
+    .auth-panel {
+
+        padding-top: 6px;
+
+        gap: 6px;
+
+    }
+
+    .auth-copy strong {
+
+        font-size: 11px;
+
+    }
+
+    .auth-btn {
+
+        height: 32px;
+
+        font-size: 11px;
+
+        padding: 0 10px;
+
+    }
+
+    /* Collapse schedule / payday / profile behind one control */
+    .mobile-budget-settings {
+
+        display: block;
+
+        grid-column: 1 / -1;
+
+        width: 100%;
+
+        border: 1px solid var(--border);
+
+        border-radius: 11px;
+
+        background: var(--panel);
+
+        padding: 0;
+
+        overflow: hidden;
+
+    }
+
+    .mobile-budget-settings > summary {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        list-style: none;
+
+        cursor: pointer;
+
+        padding: 11px 12px;
+
+        font-size: 13px;
+
+        font-weight: 650;
+
+        color: var(--text);
+
+        user-select: none;
+
+    }
+
+    .mobile-budget-settings > summary::-webkit-details-marker {
+
+        display: none;
+
+    }
+
+    .mobile-budget-settings > summary::after {
+
+        content: "\f078";
+
+        font-family: "Font Awesome 6 Free";
+
+        font-weight: 900;
+
+        margin-left: auto;
+
+        font-size: 11px;
+
+        color: var(--text-muted);
+
+        transition: transform 0.15s ease;
+
+    }
+
+    .mobile-budget-settings[open] > summary::after {
+
+        transform: rotate(180deg);
+
+    }
+
+    .mobile-budget-settings > summary i {
+
+        color: var(--primary);
+
+    }
+
+    .mobile-budget-settings .schedule-selector,
+    .mobile-budget-settings .profile-selector {
+
+        width: 100%;
+
+        border: none;
+
+        border-top: 1px solid var(--border);
+
+        border-radius: 0;
+
+        box-shadow: none;
+
+        margin: 0;
+
+    }
+
+    .topbar-right {
+
+        grid-template-columns: auto 1fr;
+
+        gap: 8px;
+
+    }
+
+    .topbar-right .theme-toggle {
+
+        grid-column: auto;
+
+        width: 38px;
+
+        height: 38px;
+
+    }
+
+    .topbar h2 {
+
+        font-size: 18px;
+
+        margin: 0;
+
+    }
+
+    .topbar {
+
+        gap: 10px;
+
+        padding: 12px;
+
+    }
+
+    .main-status {
+
+        padding: 8px 12px 0;
+
+        gap: 6px;
+
+        min-height: 0;
+
+    }
+
+    #currentDate,
+    .budget-period {
+
+        padding: 8px 10px;
+
+        font-size: 11px;
+
+    }
+
+    .page {
+
+        padding: 12px;
+
+    }
+
+    .dashboard-cards {
+
+        gap: 10px;
+
+        margin-bottom: 14px;
+
+    }
+
+    .card {
+
+        padding: 14px;
+
+        min-height: 0;
+
+    }
+
+    .card h3 {
+
+        margin-bottom: 6px;
+
+        font-size: 11px;
+
+    }
+
+    .card h2 {
+
+        font-size: 22px;
+
+    }
+
+    .panel {
+
+        padding: 12px;
+
+    }
+
     .topbar {
 
         flex-wrap: wrap;
@@ -4451,6 +4690,24 @@ body.light-mode .paid-status-label.is-unpaid {
     }
 
 }
+
+
+/* ==========================================================
+   BUDGET SETTINGS (collapsible on mobile)
+========================================================== */
+
+.mobile-budget-settings {
+
+    display: contents;
+
+}
+
+.mobile-budget-settings > summary {
+
+    display: none;
+
+}
+
 
 /* ==========================================================
    AUTH PANEL (Google / guest)
