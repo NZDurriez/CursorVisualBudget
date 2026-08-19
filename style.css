@@ -1445,18 +1445,14 @@ body.light-mode .card::after {
 
     pointer-events: none;
 
+    color: inherit;
+
 }
 
 
 .action-btn:hover {
 
     transform: translateY(-1px);
-
-    color: var(--text);
-
-    border-color: var(--border-hover);
-
-    background: var(--panel-hover);
 
     box-shadow:
         0 6px 14px rgba(0,0,0,0.08);
@@ -1471,104 +1467,130 @@ body.light-mode .card::after {
 }
 
 
-.edit-btn {
+.action-btn.edit-btn {
 
     color: #3b82f6;
 
-    border-color: rgba(59,130,246,0.28);
+    border-color: rgba(59,130,246,0.40);
 
-    background: rgba(59,130,246,0.10);
+    background: rgba(59,130,246,0.16);
 
 }
 
 
-.edit-btn:hover,
-.edit-btn:focus-visible {
+.action-btn.edit-btn:hover,
+.action-btn.edit-btn:focus-visible {
 
-    color: #60a5fa;
+    color: #93c5fd;
 
-    border-color: rgba(59,130,246,0.45);
+    border-color: rgba(59,130,246,0.55);
 
-    background: rgba(59,130,246,0.18);
+    background: rgba(59,130,246,0.24);
 
     outline: none;
 
 }
 
 
-.delete-btn {
+.action-btn.delete-btn {
 
     color: #ef4444;
 
-    border-color: rgba(239,68,68,0.28);
+    border-color: rgba(239,68,68,0.40);
 
-    background: rgba(239,68,68,0.10);
+    background: rgba(239,68,68,0.16);
 
 }
 
 
-.delete-btn:hover,
-.delete-btn:focus-visible {
+.action-btn.delete-btn:hover,
+.action-btn.delete-btn:focus-visible {
 
-    color: #f87171;
+    color: #fca5a5;
 
-    border-color: rgba(239,68,68,0.45);
+    border-color: rgba(239,68,68,0.55);
 
-    background: rgba(239,68,68,0.18);
+    background: rgba(239,68,68,0.24);
 
     outline: none;
 
 }
 
 
-.paid-btn {
+.action-btn.paid-btn {
 
     color: #22c55e;
 
-    border-color: rgba(34,197,94,0.28);
+    border-color: rgba(34,197,94,0.40);
 
-    background: rgba(34,197,94,0.10);
+    background: rgba(34,197,94,0.16);
 
 }
 
 
-.paid-btn:hover,
-.paid-btn:focus-visible {
+.action-btn.paid-btn:hover,
+.action-btn.paid-btn:focus-visible {
 
-    color: #4ade80;
+    color: #86efac;
 
-    border-color: rgba(34,197,94,0.45);
+    border-color: rgba(34,197,94,0.55);
 
-    background: rgba(34,197,94,0.18);
+    background: rgba(34,197,94,0.24);
 
     outline: none;
 
 }
 
 
-body.light-mode .edit-btn {
+body.light-mode .action-btn.edit-btn {
 
     color: #2563eb;
 
-    background: rgba(37,99,235,0.08);
+    border-color: rgba(37,99,235,0.35);
+
+    background: rgba(37,99,235,0.12);
 
 }
 
 
-body.light-mode .delete-btn {
+body.light-mode .action-btn.edit-btn:hover,
+body.light-mode .action-btn.edit-btn:focus-visible {
+
+    color: #1d4ed8;
+
+    background: rgba(37,99,235,0.18);
+
+}
+
+
+body.light-mode .action-btn.delete-btn {
 
     color: #dc2626;
 
-    background: rgba(220,38,38,0.08);
+    border-color: rgba(220,38,38,0.35);
+
+    background: rgba(220,38,38,0.12);
 
 }
 
 
-body.light-mode .paid-btn {
+body.light-mode .action-btn.delete-btn:hover,
+body.light-mode .action-btn.delete-btn:focus-visible {
+
+    color: #b91c1c;
+
+    background: rgba(220,38,38,0.18);
+
+}
+
+
+body.light-mode .action-btn.paid-btn {
 
     color: #16a34a;
 
-    background: rgba(22,163,74,0.08);
+    border-color: rgba(22,163,74,0.35);
+
+    background: rgba(22,163,74,0.12);
 
 }
 
