@@ -1,2 +1,10 @@
-# Optional local override (copy from firebase-config.js if you prefer not to commit keys)
+# Dependencies
+functions/node_modules/
+
+# Logs / local firebase
+firebase-debug.log
+firebase-debug.*.log
+*.local
+
+# Optional local override
 # firebase-config.local.js

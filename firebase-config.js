@@ -1,7 +1,5 @@
 // ============================================================
 // Firebase web config
-// ------------------------------------------------------------
-// Discord login is planned for a later phase (custom OAuth).
 // ============================================================
 
 export const firebaseConfig = {
@@ -14,8 +12,23 @@ export const firebaseConfig = {
     measurementId: "G-F9E6RT1BZ1"
 };
 
-/** Flip to true once the config above is filled in. */
+/** Flip to true once the Firebase config above is filled in. */
 export const firebaseEnabled = true;
+
+/**
+ * Discord OAuth (requires Cloud Function deploy — see README).
+ * 1. Create an app at https://discord.com/developers/applications
+ * 2. OAuth2 → redirect URL must match your site exactly, e.g.
+ *    https://nzdurriez.github.io/CursorVisualBudget/
+ * 3. Paste Client ID below, set enabled true after function is deployed
+ * 4. Put Client Secret only in Cloud Function config (never here)
+ */
+export const discordConfig = {
+    enabled: false,
+    clientId: "YOUR_DISCORD_CLIENT_ID",
+    // Leave empty to use: https://us-central1-<projectId>.cloudfunctions.net/exchangeDiscordCode
+    functionUrl: ""
+};
 
 export function isFirebaseConfigured() {
 
@@ -33,5 +46,30 @@ export function isFirebaseConfigured() {
         firebaseConfig.appId &&
         firebaseConfig.appId !== "YOUR_APP_ID"
     );
+
+}
+
+export function isDiscordConfigured() {
+
+    return Boolean(
+        isFirebaseConfigured() &&
+        discordConfig.enabled &&
+        discordConfig.clientId &&
+        discordConfig.clientId !== "YOUR_DISCORD_CLIENT_ID"
+    );
+
+}
+
+export function getDiscordFunctionUrl() {
+
+    if (discordConfig.functionUrl) {
+
+        return discordConfig.functionUrl;
+
+    }
+
+    const projectId = firebaseConfig.projectId;
+
+    return `https://us-central1-${projectId}.cloudfunctions.net/exchangeDiscordCode`;
 
 }

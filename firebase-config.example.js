@@ -1,14 +1,5 @@
 // ============================================================
-// Firebase web config
-// ------------------------------------------------------------
-// 1. Create a Firebase project (https://console.firebase.google.com)
-// 2. Enable Authentication → Google sign-in
-// 3. Create a Firestore database
-// 4. Project settings → Your apps → Web app → copy config
-// 5. Paste values below and set enabled: true
-// 6. Deploy firestore.rules (see README)
-//
-// Discord login is planned for a later phase (custom OAuth).
+// Firebase web config EXAMPLE — copy values into firebase-config.js
 // ============================================================
 
 export const firebaseConfig = {
@@ -17,20 +8,20 @@ export const firebaseConfig = {
     projectId: "YOUR_PROJECT_ID",
     storageBucket: "YOUR_PROJECT_ID.appspot.com",
     messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    appId: "YOUR_APP_ID",
+    measurementId: "YOUR_MEASUREMENT_ID"
 };
 
-/** Flip to true once the config above is filled in. */
 export const firebaseEnabled = false;
 
+export const discordConfig = {
+    enabled: false,
+    clientId: "YOUR_DISCORD_CLIENT_ID",
+    functionUrl: ""
+};
+
 export function isFirebaseConfigured() {
-
-    if (!firebaseEnabled) {
-
-        return false;
-
-    }
-
+    if (!firebaseEnabled) return false;
     return Boolean(
         firebaseConfig.apiKey &&
         firebaseConfig.apiKey !== "YOUR_API_KEY" &&
@@ -39,5 +30,18 @@ export function isFirebaseConfigured() {
         firebaseConfig.appId &&
         firebaseConfig.appId !== "YOUR_APP_ID"
     );
+}
 
+export function isDiscordConfigured() {
+    return Boolean(
+        isFirebaseConfigured() &&
+        discordConfig.enabled &&
+        discordConfig.clientId &&
+        discordConfig.clientId !== "YOUR_DISCORD_CLIENT_ID"
+    );
+}
+
+export function getDiscordFunctionUrl() {
+    if (discordConfig.functionUrl) return discordConfig.functionUrl;
+    return `https://us-central1-${firebaseConfig.projectId}.cloudfunctions.net/exchangeDiscordCode`;
 }

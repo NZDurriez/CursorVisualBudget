@@ -4490,6 +4490,36 @@ body.light-mode .auth-btn-google {
 
 
 
+.auth-btn-discord {
+
+    background: rgba(88, 101, 242, 0.14);
+
+    border-color: rgba(88, 101, 242, 0.4);
+
+}
+
+
+
+.auth-btn-discord i {
+
+    color: #5865f2;
+
+}
+
+
+
+body.light-mode .auth-btn-discord {
+
+    background: #eef0ff;
+
+    border-color: #a5b4fc;
+
+    color: #312e81;
+
+}
+
+
+
 .auth-btn-signout {
 
     background: transparent;

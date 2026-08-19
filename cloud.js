@@ -1,5 +1,5 @@
 // ============================================================
-// Cloud layer — Firebase Auth (Google) + Firestore
+// Cloud layer — Firebase Auth (Google + Discord) + Firestore
 // Guest / unconfigured mode keeps using localStorage only.
 // ============================================================
 
@@ -9,6 +9,7 @@ import {
     getAuth,
     GoogleAuthProvider,
     onAuthStateChanged,
+    signInWithCustomToken,
     signInWithPopup,
     signOut
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
@@ -22,18 +23,22 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
 import {
+    discordConfig,
     firebaseConfig,
+    getDiscordFunctionUrl,
+    isDiscordConfigured,
     isFirebaseConfigured
 } from "./firebase-config.js";
 
 
 const SAVE_DEBOUNCE_MS = 450;
+const DISCORD_OAUTH_STATE = "budget_discord_oauth";
 
 
 let app = null;
 let auth = null;
 let db = null;
-let provider = null;
+let googleProvider = null;
 let currentUser = null;
 let saveTimer = null;
 let readyResolve;
@@ -55,6 +60,37 @@ const authReadyPromise = new Promise(resolve => {
 function userDocRef(uid) {
 
     return doc(db, "users", uid);
+
+}
+
+
+function getAuthProviderLabel(user) {
+
+    if (!user) {
+
+        return "";
+
+    }
+
+    if (
+        String(user.uid || "").startsWith("discord:")
+    ) {
+
+        return "Discord";
+
+    }
+
+    return "Google";
+
+}
+
+
+function getDiscordRedirectUri() {
+
+    // Must match an exact Redirect URL in the Discord developer portal
+    const url = new URL(window.location.href);
+
+    return `${url.origin}${url.pathname}`;
 
 }
 
@@ -84,9 +120,9 @@ async function initFirebase() {
 
         db = getFirestore(app);
 
-        provider = new GoogleAuthProvider();
+        googleProvider = new GoogleAuthProvider();
 
-        provider.setCustomParameters({
+        googleProvider.setCustomParameters({
             prompt: "select_account"
         });
 
@@ -123,6 +159,10 @@ async function initFirebase() {
 
         console.info("[BudgetCloud] Firebase ready.");
 
+
+        // Finish Discord OAuth redirect if present
+        await handleDiscordRedirectCallback();
+
     } catch (error) {
 
         console.error("[BudgetCloud] Init failed:", error);
@@ -150,6 +190,8 @@ function updateAuthUi() {
 
     const configured = isFirebaseConfigured();
 
+    const discordReady = isDiscordConfigured();
+
     const signedIn = Boolean(currentUser);
 
 
@@ -169,8 +211,11 @@ function updateAuthUi() {
     const avatar =
         root.querySelector("[data-auth-avatar]");
 
-    const signInBtn =
+    const googleBtn =
         document.getElementById("googleSignInBtn");
+
+    const discordBtn =
+        document.getElementById("discordSignInBtn");
 
     const signOutBtn =
         document.getElementById("googleSignOutBtn");
@@ -181,7 +226,7 @@ function updateAuthUi() {
         if (status) {
 
             status.textContent =
-                "Cloud sync off — add Firebase config to enable Google login.";
+                "Cloud sync off — add Firebase config to enable login.";
 
         }
 
@@ -197,9 +242,15 @@ function updateAuthUi() {
 
         }
 
-        if (signInBtn) {
+        if (googleBtn) {
 
-            signInBtn.hidden = true;
+            googleBtn.hidden = true;
+
+        }
+
+        if (discordBtn) {
+
+            discordBtn.hidden = true;
 
         }
 
@@ -216,10 +267,13 @@ function updateAuthUi() {
 
     if (signedIn) {
 
+        const providerLabel =
+            getAuthProviderLabel(currentUser);
+
         if (status) {
 
             status.textContent =
-                "Synced to your Google account";
+                `Synced via ${providerLabel}`;
 
         }
 
@@ -248,9 +302,15 @@ function updateAuthUi() {
 
         }
 
-        if (signInBtn) {
+        if (googleBtn) {
 
-            signInBtn.hidden = true;
+            googleBtn.hidden = true;
+
+        }
+
+        if (discordBtn) {
+
+            discordBtn.hidden = true;
 
         }
 
@@ -281,9 +341,23 @@ function updateAuthUi() {
 
         }
 
-        if (signInBtn) {
+        if (googleBtn) {
 
-            signInBtn.hidden = false;
+            googleBtn.hidden = false;
+
+        }
+
+        if (discordBtn) {
+
+            // Show the button even before Discord is fully configured
+            // so users know it's coming; click explains setup if needed.
+            discordBtn.hidden = false;
+
+            discordBtn.disabled = false;
+
+            discordBtn.title = discordReady
+                ? "Sign in with Discord"
+                : "Discord setup still needed (see README)";
 
         }
 
@@ -300,10 +374,10 @@ function updateAuthUi() {
 
 async function signInWithGoogle() {
 
-    if (!auth || !provider) {
+    if (!auth || !googleProvider) {
 
         alert(
-            "Firebase is not configured yet. Add your project keys to firebase-config.js and set firebaseEnabled to true."
+            "Firebase is not configured yet."
         );
 
         return;
@@ -313,11 +387,11 @@ async function signInWithGoogle() {
 
     try {
 
-        await signInWithPopup(auth, provider);
+        await signInWithPopup(auth, googleProvider);
 
     } catch (error) {
 
-        console.error("[BudgetCloud] Sign-in failed:", error);
+        console.error("[BudgetCloud] Google sign-in failed:", error);
 
         alert(
             error?.message ||
@@ -325,6 +399,206 @@ async function signInWithGoogle() {
         );
 
     }
+
+}
+
+
+function beginDiscordSignIn() {
+
+    if (!isFirebaseConfigured()) {
+
+        alert("Firebase is not configured yet.");
+
+        return;
+
+    }
+
+
+    if (!isDiscordConfigured()) {
+
+        alert(
+            "Discord sign-in is not fully enabled yet.\n\n" +
+            "1) Create a Discord application and paste the Client ID into firebase-config.js\n" +
+            "2) Set discordConfig.enabled = true\n" +
+            "3) Deploy the exchangeDiscordCode Cloud Function (see README)\n\n" +
+            "Google sign-in still works in the meantime."
+        );
+
+        return;
+
+    }
+
+
+    const redirectUri = getDiscordRedirectUri();
+
+    sessionStorage.setItem(
+        DISCORD_OAUTH_STATE,
+        "1"
+    );
+
+    sessionStorage.setItem(
+        "budget_discord_redirect_uri",
+        redirectUri
+    );
+
+
+    const params = new URLSearchParams({
+        client_id: discordConfig.clientId,
+        response_type: "code",
+        scope: "identify email",
+        redirect_uri: redirectUri,
+        state: DISCORD_OAUTH_STATE,
+        prompt: "consent"
+    });
+
+
+    window.location.href =
+        `https://discord.com/api/oauth2/authorize?${params.toString()}`;
+
+}
+
+
+async function handleDiscordRedirectCallback() {
+
+    const params =
+        new URLSearchParams(window.location.search);
+
+    const code = params.get("code");
+
+    const state = params.get("state");
+
+    const oauthError = params.get("error");
+
+
+    if (oauthError) {
+
+        cleanupDiscordQueryParams();
+
+        alert(
+            "Discord sign-in was cancelled or failed."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !code ||
+        state !== DISCORD_OAUTH_STATE
+    ) {
+
+        return;
+
+    }
+
+
+    if (!auth) {
+
+        return;
+
+    }
+
+
+    const expected =
+        sessionStorage.getItem(DISCORD_OAUTH_STATE);
+
+
+    if (expected !== "1") {
+
+        cleanupDiscordQueryParams();
+
+        return;
+
+    }
+
+
+    const redirectUri =
+        sessionStorage.getItem("budget_discord_redirect_uri") ||
+        getDiscordRedirectUri();
+
+
+    try {
+
+        const response = await fetch(
+            getDiscordFunctionUrl(),
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    code,
+                    redirectUri
+                })
+            }
+        );
+
+
+        const payload = await response.json();
+
+
+        if (!response.ok || !payload.token) {
+
+            throw new Error(
+                payload.error ||
+                "Discord sign-in failed"
+            );
+
+        }
+
+
+        await signInWithCustomToken(
+            auth,
+            payload.token
+        );
+
+
+        sessionStorage.removeItem(DISCORD_OAUTH_STATE);
+
+        sessionStorage.removeItem(
+            "budget_discord_redirect_uri"
+        );
+
+
+        cleanupDiscordQueryParams();
+
+    } catch (error) {
+
+        console.error(
+            "[BudgetCloud] Discord callback failed:",
+            error
+        );
+
+        cleanupDiscordQueryParams();
+
+        alert(
+            error?.message ||
+            "Discord sign-in failed. Is the Cloud Function deployed?"
+        );
+
+    }
+
+}
+
+
+function cleanupDiscordQueryParams() {
+
+    const url = new URL(window.location.href);
+
+    url.searchParams.delete("code");
+
+    url.searchParams.delete("state");
+
+    url.searchParams.delete("error");
+
+    url.searchParams.delete("error_description");
+
+    window.history.replaceState(
+        {},
+        document.title,
+        `${url.pathname}${url.search}${url.hash}`
+    );
 
 }
 
@@ -396,7 +670,8 @@ async function saveNow(storageData) {
                 : [],
         updatedAt: serverTimestamp(),
         email: currentUser.email || "",
-        displayName: currentUser.displayName || ""
+        displayName: currentUser.displayName || "",
+        authProvider: getAuthProviderLabel(currentUser)
     };
 
 
@@ -463,20 +738,37 @@ function getUser() {
 
 function setupAuthButtons() {
 
-    const signInBtn =
+    const googleBtn =
         document.getElementById("googleSignInBtn");
+
+    const discordBtn =
+        document.getElementById("discordSignInBtn");
 
     const signOutBtn =
         document.getElementById("googleSignOutBtn");
 
 
-    if (signInBtn) {
+    if (googleBtn) {
 
-        signInBtn.addEventListener(
+        googleBtn.addEventListener(
             "click",
             () => {
 
                 signInWithGoogle();
+
+            }
+        );
+
+    }
+
+
+    if (discordBtn) {
+
+        discordBtn.addEventListener(
+            "click",
+            () => {
+
+                beginDiscordSignIn();
 
             }
         );
@@ -507,12 +799,14 @@ window.BudgetCloud = {
     ready: readyPromise,
     authReady: authReadyPromise,
     isConfigured: isFirebaseConfigured,
+    isDiscordConfigured,
     isSignedIn,
     getUser,
     queueSave,
     saveNow,
     loadUserData,
     signInWithGoogle,
+    beginDiscordSignIn,
     signOutUser,
     refreshAuthUi: updateAuthUi
 };

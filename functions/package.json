@@ -1,0 +1,14 @@
+{
+  "name": "visualbudget-functions",
+  "description": "Cloud Functions for VisualBudget (Discord → Firebase custom token)",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "cors": "^2.8.5",
+    "firebase-admin": "^13.0.2",
+    "firebase-functions": "^6.3.0"
+  }
+}
