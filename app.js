@@ -2238,6 +2238,12 @@ function calculateNextDate(
 
 function renderAll() {
 
+    if (clearOneOffPaymentsFromPreviousPeriods()) {
+
+        saveData();
+
+    }
+
     renderIncome();
 
     renderPayments();
@@ -2594,19 +2600,22 @@ function renderDashboard() {
         budget.income
     );
 
-const payments =
+    const recurringPayments =
     getBudgetPeriodTotal(
         budget.payments
     );
 
 
     const oneOffPayments =
-    getCurrentPeriodOneOffTotal();
+    getOneOffPaymentsTotal();
 
-const remaining =
-    income -
-    payments -
-    oneOffPayments;
+    const payments =
+        recurringPayments +
+        oneOffPayments;
+
+    const remaining =
+        income -
+        payments;
 
 
     monthlyIncome.textContent =
@@ -3245,10 +3254,10 @@ function getCurrentBudgetPeriod() {
 }
 
 // ============================================================
-// ONE-OFF PAYMENTS IN CURRENT BUDGET PERIOD
+// ONE-OFF PAYMENTS TOTAL
 // ============================================================
 
-function getCurrentPeriodOneOffTotal() {
+function getOneOffPaymentsTotal() {
 
     if (
         !Array.isArray(budget.oneOffPayments) ||
@@ -3260,37 +3269,136 @@ function getCurrentPeriodOneOffTotal() {
     }
 
 
-    const period =
-        getCurrentBudgetPeriod();
-
-
-    // No anchor date has been configured yet
-    if (!period) {
-
-        return 0;
-
-    }
-
-
     let total = 0;
 
 
     budget.oneOffPayments.forEach(item => {
 
-        if (
-            item.nextDate >= period.start &&
-            item.nextDate <= period.end
-        ) {
-
-            total +=
-                Number(item.amount) || 0;
-
-        }
+        total +=
+            Number(item.amount) || 0;
 
     });
 
 
     return total;
+
+}
+
+
+// Keep older name working for any remaining callers
+function getCurrentPeriodOneOffTotal() {
+
+    return getOneOffPaymentsTotal();
+
+}
+
+
+// ============================================================
+// CLEAR ONE-OFF PAYMENTS WHEN A NEW BUDGET CYCLE BEGINS
+// ============================================================
+
+function clearOneOffPaymentsFromPreviousPeriods() {
+
+    if (
+        !Array.isArray(budget.oneOffPayments)
+    ) {
+
+        budget.oneOffPayments = [];
+
+        return false;
+
+    }
+
+
+    if (!budget.settings) {
+
+        budget.settings = {};
+
+    }
+
+
+    const period =
+        getCurrentBudgetPeriod();
+
+
+    // Without a configured budget period we cannot
+    // safely detect cycle rollover
+    if (!period) {
+
+        return false;
+
+    }
+
+
+    const lastSeenPeriodStart =
+        budget.settings.lastSeenPeriodStart || "";
+
+
+    // First time seeing a period for this profile —
+    // record it, but do not delete existing one-offs yet
+    if (!lastSeenPeriodStart) {
+
+        budget.settings.lastSeenPeriodStart =
+            period.start;
+
+        return true;
+
+    }
+
+
+    // Period has not advanced
+    if (lastSeenPeriodStart === period.start) {
+
+        return false;
+
+    }
+
+
+    // Period moved backwards (e.g. schedule/anchor edited) —
+    // just sync the tracker
+    if (period.start < lastSeenPeriodStart) {
+
+        budget.settings.lastSeenPeriodStart =
+            period.start;
+
+        return true;
+
+    }
+
+
+    // New fortnight/week/month cycle has begun —
+    // remove one-offs from the previous cycle
+    const previousCount =
+        budget.oneOffPayments.length;
+
+
+    budget.oneOffPayments =
+        budget.oneOffPayments.filter(item => {
+
+            if (!item || !item.nextDate) {
+
+                return false;
+
+            }
+
+
+            return item.nextDate >= period.start;
+
+        });
+
+
+    budget.settings.lastSeenPeriodStart =
+        period.start;
+
+
+    console.log(
+        "New budget cycle detected. Cleared",
+        previousCount - budget.oneOffPayments.length,
+        "one-off payment(s) from the previous period."
+    );
+
+
+    return true;
 
 }
 
