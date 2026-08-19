@@ -57,8 +57,8 @@
 
 body.light-mode {
 
-    /* Cool grey page so white cards/tables lift clearly */
-    --bg: #e2e8f0;
+    /* Soft cool wash — less flat/harsh between white cards */
+    --bg: #eef2f7;
 
     --sidebar: #ffffff;
 
@@ -149,6 +149,30 @@ body {
     transition:
         background 0.25s ease,
         color 0.25s ease;
+
+}
+
+
+
+body.light-mode {
+
+    background:
+        radial-gradient(
+            1200px 600px at 100% -10%,
+            rgba(147, 197, 253, 0.28),
+            transparent 55%
+        ),
+        radial-gradient(
+            900px 500px at 0% 100%,
+            rgba(186, 230, 253, 0.22),
+            transparent 50%
+        ),
+        linear-gradient(
+            180deg,
+            #f8fafc 0%,
+            #eef2f7 45%,
+            #e8eef6 100%
+        );
 
 }
 
@@ -1125,11 +1149,11 @@ body.light-mode .calendar-day,
 body.light-mode .calendar-header button,
 body.light-mode .savings-preview-item {
 
-    border-color: rgba(15, 23, 42, 0.16);
+    border-color: rgba(148, 163, 184, 0.35);
 
     box-shadow:
-        0 1px 2px rgba(15, 23, 42, 0.05),
-        0 6px 18px rgba(15, 23, 42, 0.08);
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 10px 28px rgba(15, 23, 42, 0.06);
 
 }
 
