@@ -1401,9 +1401,9 @@ body.light-mode .card::after {
 
 .action-btn {
 
-    width: 32px;
+    width: 34px;
 
-    height: 32px;
+    height: 34px;
 
     padding: 0;
 
@@ -1413,17 +1413,17 @@ body.light-mode .card::after {
 
     justify-content: center;
 
-    border: 1px solid var(--border);
+    border: none;
 
-    border-radius: 9px;
+    border-radius: 10px;
 
-    background: transparent;
+    background: var(--panel-hover);
 
     color: var(--text-muted);
 
     cursor: pointer;
 
-    font-size: 12px;
+    font-size: 13px;
 
     line-height: 1;
 
@@ -1434,8 +1434,8 @@ body.light-mode .card::after {
     transition:
         background var(--transition),
         color var(--transition),
-        border-color var(--transition),
         transform var(--transition),
+        filter var(--transition),
         box-shadow var(--transition);
 
 }
@@ -1454,8 +1454,10 @@ body.light-mode .card::after {
 
     transform: translateY(-1px);
 
+    filter: brightness(1.08);
+
     box-shadow:
-        0 6px 14px rgba(0,0,0,0.08);
+        0 8px 18px rgba(0,0,0,0.18);
 
 }
 
@@ -1464,16 +1466,16 @@ body.light-mode .card::after {
 
     transform: translateY(0);
 
+    filter: brightness(0.96);
+
 }
 
 
 .action-btn.edit-btn {
 
-    color: #3b82f6;
+    background: #3b82f6;
 
-    border-color: rgba(59,130,246,0.40);
-
-    background: rgba(59,130,246,0.16);
+    color: #ffffff;
 
 }
 
@@ -1481,11 +1483,9 @@ body.light-mode .card::after {
 .action-btn.edit-btn:hover,
 .action-btn.edit-btn:focus-visible {
 
-    color: #93c5fd;
+    background: #2563eb;
 
-    border-color: rgba(59,130,246,0.55);
-
-    background: rgba(59,130,246,0.24);
+    color: #ffffff;
 
     outline: none;
 
@@ -1494,11 +1494,9 @@ body.light-mode .card::after {
 
 .action-btn.delete-btn {
 
-    color: #ef4444;
+    background: #ef4444;
 
-    border-color: rgba(239,68,68,0.40);
-
-    background: rgba(239,68,68,0.16);
+    color: #ffffff;
 
 }
 
@@ -1506,11 +1504,9 @@ body.light-mode .card::after {
 .action-btn.delete-btn:hover,
 .action-btn.delete-btn:focus-visible {
 
-    color: #fca5a5;
+    background: #dc2626;
 
-    border-color: rgba(239,68,68,0.55);
-
-    background: rgba(239,68,68,0.24);
+    color: #ffffff;
 
     outline: none;
 
@@ -1519,11 +1515,9 @@ body.light-mode .card::after {
 
 .action-btn.paid-btn {
 
-    color: #22c55e;
+    background: #22c55e;
 
-    border-color: rgba(34,197,94,0.40);
-
-    background: rgba(34,197,94,0.16);
+    color: #ffffff;
 
 }
 
@@ -1531,11 +1525,9 @@ body.light-mode .card::after {
 .action-btn.paid-btn:hover,
 .action-btn.paid-btn:focus-visible {
 
-    color: #86efac;
+    background: #16a34a;
 
-    border-color: rgba(34,197,94,0.55);
-
-    background: rgba(34,197,94,0.24);
+    color: #ffffff;
 
     outline: none;
 
@@ -1544,53 +1536,27 @@ body.light-mode .card::after {
 
 body.light-mode .action-btn.edit-btn {
 
-    color: #2563eb;
+    background: #3b82f6;
 
-    border-color: rgba(37,99,235,0.35);
-
-    background: rgba(37,99,235,0.12);
-
-}
-
-
-body.light-mode .action-btn.edit-btn:hover,
-body.light-mode .action-btn.edit-btn:focus-visible {
-
-    color: #1d4ed8;
-
-    background: rgba(37,99,235,0.18);
+    color: #ffffff;
 
 }
 
 
 body.light-mode .action-btn.delete-btn {
 
-    color: #dc2626;
+    background: #ef4444;
 
-    border-color: rgba(220,38,38,0.35);
-
-    background: rgba(220,38,38,0.12);
-
-}
-
-
-body.light-mode .action-btn.delete-btn:hover,
-body.light-mode .action-btn.delete-btn:focus-visible {
-
-    color: #b91c1c;
-
-    background: rgba(220,38,38,0.18);
+    color: #ffffff;
 
 }
 
 
 body.light-mode .action-btn.paid-btn {
 
-    color: #16a34a;
+    background: #22c55e;
 
-    border-color: rgba(22,163,74,0.35);
-
-    background: rgba(22,163,74,0.12);
+    color: #ffffff;
 
 }
 
