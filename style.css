@@ -1372,33 +1372,78 @@ body.light-mode .card::after {
 
 }
 
-    border-top: none;
-
-}
-
 
 /* ==========================================================
    ACTION BUTTONS
 ========================================================== */
 
+.row-actions,
+.savings-goal-actions,
+.profile-management-actions {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+
+.data-table td:last-child {
+
+    width: 1%;
+
+    white-space: nowrap;
+
+}
+
+
 .action-btn {
 
-    width: 34px;
-    height: 34px;
+    width: 32px;
 
-    border: 1px solid transparent;
+    height: 32px;
 
-    border-radius: 8px;
+    padding: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid var(--border);
+
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: var(--text-muted);
 
     cursor: pointer;
 
-    color: white;
+    font-size: 12px;
 
-    margin-right: 5px;
+    line-height: 1;
+
+    box-shadow: none;
+
+    margin: 0;
 
     transition:
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition),
         transform var(--transition),
-        filter var(--transition);
+        box-shadow var(--transition);
+
+}
+
+
+.action-btn i {
+
+    pointer-events: none;
 
 }
 
@@ -1407,31 +1452,77 @@ body.light-mode .card::after {
 
     transform: translateY(-1px);
 
-    filter: brightness(1.12);
+    color: var(--text);
+
+    border-color: var(--border-hover);
+
+    background: var(--panel-hover);
+
+    box-shadow:
+        0 6px 14px rgba(0,0,0,0.08);
 
 }
 
 
-.edit-btn {
+.action-btn:active {
 
-    background:
-        rgba(59,130,246,0.85);
-
-}
-
-
-.delete-btn {
-
-    background:
-        rgba(239,68,68,0.85);
+    transform: translateY(0);
 
 }
 
 
-.paid-btn {
+.edit-btn:hover,
+.edit-btn:focus-visible {
 
-    background:
-        rgba(34,197,94,0.85);
+    color: #60a5fa;
+
+    border-color: rgba(59,130,246,0.35);
+
+    background: rgba(59,130,246,0.12);
+
+    outline: none;
+
+}
+
+
+.delete-btn:hover,
+.delete-btn:focus-visible {
+
+    color: #f87171;
+
+    border-color: rgba(239,68,68,0.35);
+
+    background: rgba(239,68,68,0.12);
+
+    outline: none;
+
+}
+
+
+.paid-btn:hover,
+.paid-btn:focus-visible {
+
+    color: #4ade80;
+
+    border-color: rgba(34,197,94,0.35);
+
+    background: rgba(34,197,94,0.12);
+
+    outline: none;
+
+}
+
+
+body.light-mode .action-btn {
+
+    background: rgba(255,255,255,0.7);
+
+}
+
+
+body.light-mode .action-btn:hover {
+
+    background: #fff;
 
 }
 
@@ -1867,9 +1958,13 @@ body.light-mode .card::after {
 
 .savings-goal-actions {
 
-    display: flex;
+    display: inline-flex;
 
-    gap: 6px;
+    align-items: center;
+
+    gap: 8px;
+
+    flex-shrink: 0;
 
 }
 

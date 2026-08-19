@@ -2905,23 +2905,31 @@ function renderIncome() {
 
                 <td class="actions">
 
-                    <button
-                        class="action-btn edit-btn"
-                        onclick="editItem('income', '${item.id}')"
-                        title="Edit">
+                    <div class="row-actions">
 
-                        <i class="fa-solid fa-pen"></i>
+                        <button
+                            type="button"
+                            class="action-btn edit-btn"
+                            onclick="editItem('income', '${item.id}')"
+                            title="Edit"
+                            aria-label="Edit">
 
-                    </button>
+                            <i class="fa-solid fa-pen"></i>
 
-                    <button
-                        class="action-btn delete-btn"
-                        onclick="deleteItem('income', '${item.id}')"
-                        title="Delete">
+                        </button>
 
-                        <i class="fa-solid fa-trash"></i>
+                        <button
+                            type="button"
+                            class="action-btn delete-btn"
+                            onclick="deleteItem('income', '${item.id}')"
+                            title="Delete"
+                            aria-label="Delete">
 
-                    </button>
+                            <i class="fa-solid fa-trash"></i>
+
+                        </button>
+
+                    </div>
 
                 </td>
 
