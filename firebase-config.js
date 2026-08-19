@@ -24,8 +24,8 @@ export const firebaseEnabled = true;
  * 4. Put Client Secret only in Cloud Function config (never here)
  */
 export const discordConfig = {
-    enabled: false,
-    clientId: "YOUR_DISCORD_CLIENT_ID",
+    enabled: true,
+    clientId: "1539746036103258212",
     // Leave empty to use: https://us-central1-<projectId>.cloudfunctions.net/exchangeDiscordCode
     functionUrl: ""
 };
