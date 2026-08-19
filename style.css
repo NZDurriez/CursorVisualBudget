@@ -267,6 +267,24 @@ body.light-mode {
 }
 
 
+
+.logo-mark {
+
+    width: 38px;
+
+    height: 38px;
+
+    border-radius: 11px;
+
+    object-fit: cover;
+
+    flex-shrink: 0;
+
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+
+}
+
+
 .logo h1 {
 
     font-size: 22px;
