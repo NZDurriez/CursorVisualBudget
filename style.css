@@ -3093,9 +3093,7 @@ body.light-mode .modal {
 .profile-selector .tooltip-text,
 .form-group .tooltip-text,
 label .tooltip-text,
-.checkbox-row .tooltip-text,
-th .tooltip-text,
-.data-table .tooltip-text {
+.checkbox-row .tooltip-text {
 
     position: absolute;
 
@@ -3160,9 +3158,7 @@ body.light-mode .schedule-selector .tooltip-text,
 body.light-mode .profile-selector .tooltip-text,
 body.light-mode .form-group .tooltip-text,
 body.light-mode label .tooltip-text,
-body.light-mode .checkbox-row .tooltip-text,
-body.light-mode th .tooltip-text,
-body.light-mode .data-table .tooltip-text {
+body.light-mode .checkbox-row .tooltip-text {
 
     background: #ffffff;
 
@@ -3175,28 +3171,6 @@ body.light-mode .data-table .tooltip-text {
 
 }
 
-
-
-/* Flat tooltips on table headers (no heavy drop shadow) */
-
-th .tooltip-text,
-.data-table .tooltip-text,
-body.light-mode th .tooltip-text,
-body.light-mode .data-table .tooltip-text {
-
-    box-shadow: none;
-
-}
-
-
-th .tooltip-text,
-.data-table .tooltip-text {
-
-    width: 280px;
-
-    max-width: min(280px, 75vw);
-
-}
 
 
 .tooltip:hover .tooltip-text,
