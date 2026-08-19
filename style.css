@@ -1104,40 +1104,6 @@ body.light-mode #closeProfileModalBtn {
 }
 
 
-/* subtle decorative glow */
-
-.card::after {
-
-    content: "";
-
-    position: absolute;
-
-    right: -30px;
-    top: -30px;
-
-    width: 85px;
-    height: 85px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(59,130,246,0.035);
-
-    pointer-events: none;
-
-}
-
-
-/* Remove decorative circle in light mode */
-
-body.light-mode .card::after {
-
-    display: none;
-
-}
-
-
-
 /* ==========================================================
    LIGHT MODE — stronger surfaces (cards / tables / panels)
 ========================================================== */
