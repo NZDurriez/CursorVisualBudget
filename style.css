@@ -3093,7 +3093,9 @@ body.light-mode .modal {
 .profile-selector .tooltip-text,
 .form-group .tooltip-text,
 label .tooltip-text,
-.checkbox-row .tooltip-text {
+.checkbox-row .tooltip-text,
+th .tooltip-text,
+.data-table .tooltip-text {
 
     position: absolute;
 
@@ -3158,7 +3160,9 @@ body.light-mode .schedule-selector .tooltip-text,
 body.light-mode .profile-selector .tooltip-text,
 body.light-mode .form-group .tooltip-text,
 body.light-mode label .tooltip-text,
-body.light-mode .checkbox-row .tooltip-text {
+body.light-mode .checkbox-row .tooltip-text,
+body.light-mode th .tooltip-text,
+body.light-mode .data-table .tooltip-text {
 
     background: #ffffff;
 
@@ -3511,6 +3515,106 @@ body.light-mode .paid-status-btn.is-paid:hover {
     font-weight: 600;
 
 }
+
+
+.payment-item-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    flex-shrink: 0;
+
+}
+
+
+
+.payment-item-right .payment-due {
+
+    min-width: 72px;
+
+    text-align: right;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+
+
+.payment-item .paid-status-btn {
+
+    flex-shrink: 0;
+
+}
+
+
+
+.paid-status-label {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 64px;
+
+    height: 28px;
+
+    padding: 0 10px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+
+.paid-status-label.is-paid {
+
+    background: rgba(22, 163, 74, 0.16);
+
+    color: #16a34a;
+
+}
+
+
+
+.paid-status-label.is-unpaid {
+
+    background: rgba(100, 116, 139, 0.12);
+
+    color: var(--text-muted);
+
+}
+
+
+
+body.light-mode .paid-status-label.is-paid {
+
+    background: #dcfce7;
+
+    color: #14532d;
+
+}
+
+
+
+body.light-mode .paid-status-label.is-unpaid {
+
+    background: #f1f5f9;
+
+    color: #475569;
+
+}
+
 
 
 .payment-item.is-paid {

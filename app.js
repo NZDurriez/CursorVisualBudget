@@ -3673,15 +3673,12 @@ function renderPayments() {
 
                 <td>
 
-                    <button
-                        type="button"
-                        class="paid-status-btn ${isPaymentPaidThisPeriod(item) ? "is-paid" : "is-unpaid"}"
-                        onclick="markPaid('${item.id}')"
-                        title="${isPaymentPaidThisPeriod(item) ? "Undo paid for this period" : "Mark paid for this period"}">
+                    <span
+                        class="paid-status-label ${paidThisPeriod ? "is-paid" : "is-unpaid"}">
 
-                        ${isPaymentPaidThisPeriod(item) ? "Paid" : "Mark paid"}
+                        ${paidThisPeriod ? "Paid" : "Unpaid"}
 
-                    </button>
+                    </span>
 
                 </td>
 
@@ -6554,32 +6551,32 @@ function renderUpcomingPayments() {
 
 
         let label;
-        let className = "good";
+        let className = "status-good";
 
 
         if (days < 0) {
 
             label = "Overdue";
 
-            className = "bad";
+            className = "status-danger";
 
         } else if (days === 0) {
 
             label = "Today";
 
-            className = "warning";
+            className = "status-warning";
 
         } else if (days === 1) {
 
             label = "Tomorrow";
 
-            className = "warning";
+            className = "status-warning";
 
         } else if (days <= 7) {
 
             label = `${days} days`;
 
-            className = "warning";
+            className = "status-warning";
 
         } else {
 
@@ -6600,11 +6597,6 @@ function renderUpcomingPayments() {
 
                     <strong>
                         ${escapeHtml(payment.name)}
-                        ${
-                            paidThisPeriod
-                                ? `<span class="paid-tag">Paid</span>`
-                                : ""
-                        }
                     </strong>
 
                     <br>
@@ -6615,8 +6607,22 @@ function renderUpcomingPayments() {
 
                 </div>
 
-                <div class="${className}">
-                    ${paidThisPeriod ? "Done" : label}
+                <div class="payment-item-right">
+
+                    <button
+                        type="button"
+                        class="paid-status-btn ${paidThisPeriod ? "is-paid" : "is-unpaid"}"
+                        onclick="markPaid('${payment.id}')"
+                        title="${paidThisPeriod ? "Undo paid for this period" : "Mark paid for this period"}">
+
+                        ${paidThisPeriod ? "Paid" : "Mark paid"}
+
+                    </button>
+
+                    <div class="payment-due ${className}">
+                        ${paidThisPeriod ? "Done" : label}
+                    </div>
+
                 </div>
 
             </div>
