@@ -3170,6 +3170,9 @@ function saveSavingsGoal(event) {
         targetDate:
             targetDate,
 
+        startDate:
+            getTodayString(),
+
         includeInBudget:
             includeInBudget
 
@@ -3195,6 +3198,15 @@ function saveSavingsGoal(event) {
             return;
 
         }
+
+
+        const existing =
+            budget.savingsGoals[index];
+
+
+        goal.startDate =
+            existing.startDate ||
+            goal.startDate;
 
 
         budget.savingsGoals[index] =
@@ -5107,28 +5119,77 @@ function getCalendarEvents(dateString) {
 
         budget.savingsGoals.forEach(item => {
 
+            if (!item.includeInBudget) {
+
+                return;
+
+            }
+
+
+            const breakdown =
+                getSavingsBreakdown(
+                    item.amount,
+                    item.targetDate
+                );
+
+
+            // Deadline / goal target date
+            if (item.targetDate === dateString) {
+
+                events.push({
+
+                    type: "savings-event",
+
+                    editType: "savings",
+
+                    id: item.id,
+
+                    name: `Goal: ${item.name}`,
+
+                    amount: item.amount
+
+                });
+
+                return;
+
+            }
+
+
+            // Weekly contribution dates leading up
+            // to the goal so they appear on the
+            // current calendar month as well
             if (
-                !item.includeInBudget ||
-                item.targetDate !== dateString
+                !breakdown.valid ||
+                breakdown.overdue
             ) {
 
                 return;
 
             }
 
-            events.push({
 
-                type: "savings-event",
+            if (
+                isSavingsContributionOnDate(
+                    item,
+                    dateString
+                )
+            ) {
 
-                editType: "savings",
+                events.push({
 
-                id: item.id,
+                    type: "savings-event",
 
-                name: `Save: ${item.name}`,
+                    editType: "savings",
 
-                amount: item.amount
+                    id: item.id,
 
-            });
+                    name: `Save: ${item.name}`,
+
+                    amount: breakdown.weekly
+
+                });
+
+            }
 
         });
 
@@ -5136,6 +5197,83 @@ function getCalendarEvents(dateString) {
 
 
     return events;
+
+}
+
+
+// ============================================================
+// SAVINGS CONTRIBUTION DATES
+// ============================================================
+
+function isSavingsContributionOnDate(
+    goal,
+    dateString
+) {
+
+    if (
+        !goal ||
+        !goal.targetDate ||
+        !dateString
+    ) {
+
+        return false;
+
+    }
+
+
+    const date =
+        new Date(dateString + "T00:00:00");
+
+    const target =
+        new Date(goal.targetDate + "T00:00:00");
+
+    const today =
+        new Date(getTodayString() + "T00:00:00");
+
+
+    date.setHours(0, 0, 0, 0);
+
+    target.setHours(0, 0, 0, 0);
+
+    today.setHours(0, 0, 0, 0);
+
+
+    // Only show from today through the day before
+    // the deadline (deadline has its own event)
+    if (date < today || date >= target) {
+
+        return false;
+
+    }
+
+
+    const startDateString =
+        goal.startDate || getTodayString();
+
+    const startDate =
+        new Date(startDateString + "T00:00:00");
+
+    startDate.setHours(0, 0, 0, 0);
+
+
+    // If the stored start is in the future, wait
+    // until then; if in the past, align weekly
+    // from that original start date
+    if (date < startDate) {
+
+        return false;
+
+    }
+
+
+    const diffDays =
+        Math.round(
+            (date - startDate) /
+            (1000 * 60 * 60 * 24)
+        );
+
+
+    return diffDays % 7 === 0;
 
 }
 
