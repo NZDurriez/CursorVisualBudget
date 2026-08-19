@@ -348,9 +348,24 @@ const calendarAddCancel =
 // STARTUP
 // ============================================================
 
-function startApp() {
+async function startApp() {
 
     console.log("START APP 1");
+
+    // Wait for optional Firebase bootstrap (no-op if disabled)
+    if (window.BudgetCloudReady) {
+
+        try {
+
+            await window.BudgetCloudReady;
+
+        } catch (error) {
+
+            console.warn("Cloud ready failed:", error);
+
+        }
+
+    }
 
     loadData();
 
@@ -382,10 +397,36 @@ function startApp() {
 
     console.log("START APP 8");
 
+    // If already signed in (or signs in later), sync cloud ↔ local
+    if (window.BudgetCloud?.authReady) {
+
+        try {
+
+            await window.BudgetCloud.authReady;
+
+        } catch (error) {
+
+            console.warn("Auth ready failed:", error);
+
+        }
+
+    }
+
+    if (
+        window.BudgetCloud &&
+        window.BudgetCloud.isSignedIn()
+    ) {
+
+        await syncFromCloudOnLogin();
+
+    }
+
 }
 
 if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", startApp);
+    document.addEventListener("DOMContentLoaded", () => {
+        startApp();
+    });
 } else {
     startApp();
 }
@@ -946,21 +987,271 @@ function switchProfile(profileId) {
 
 }	
 
+
+// ============================================================
+// CLOUD SYNC (Firebase)
+// ============================================================
+
+function applyStoragePayload(data) {
+
+    if (
+        !data ||
+        !Array.isArray(data.profiles)
+    ) {
+
+        return false;
+
+    }
+
+
+    profiles = data.profiles;
+
+    activeProfileId =
+        data.activeProfileId;
+
+
+    if (profiles.length === 0) {
+
+        return false;
+
+    }
+
+
+    let activeProfile =
+        profiles.find(
+            profile =>
+                profile.id ===
+                activeProfileId
+        );
+
+
+    if (!activeProfile) {
+
+        activeProfile = profiles[0];
+
+        activeProfileId =
+            activeProfile.id;
+
+    }
+
+
+    budget =
+        activeProfile.budget;
+
+
+    if (!budget) {
+
+        budget = {
+            income: [],
+            payments: [],
+            oneOffPayments: [],
+            savingsGoals: [],
+            settings: {
+                schedule: "Fortnightly",
+                anchorDate: ""
+            }
+        };
+
+        activeProfile.budget = budget;
+
+    }
+
+
+    if (!Array.isArray(budget.income)) {
+
+        budget.income = [];
+
+    }
+
+
+    if (!Array.isArray(budget.payments)) {
+
+        budget.payments = [];
+
+    }
+
+
+    if (!Array.isArray(budget.oneOffPayments)) {
+
+        budget.oneOffPayments = [];
+
+    }
+
+
+    if (!Array.isArray(budget.savingsGoals)) {
+
+        budget.savingsGoals = [];
+
+    }
+
+
+    if (!budget.settings) {
+
+        budget.settings = {};
+
+    }
+
+
+    if (
+        typeof budget.settings.useBudgetPeriod !==
+        "boolean"
+    ) {
+
+        budget.settings.useBudgetPeriod =
+            !!budget.settings.anchorDate;
+
+    }
+
+
+    if (!budget.settings.schedule) {
+
+        budget.settings.schedule =
+            "Fortnightly";
+
+    }
+
+
+    if (!budget.settings.anchorDate) {
+
+        budget.settings.anchorDate = "";
+
+    }
+
+
+    if (!budget.settings.paymentsSort) {
+
+        budget.settings.paymentsSort =
+            "custom";
+
+    }
+
+
+    return true;
+
+}
+
+
+
+async function syncFromCloudOnLogin() {
+
+    if (
+        !window.BudgetCloud ||
+        !window.BudgetCloud.isSignedIn()
+    ) {
+
+        return;
+
+    }
+
+
+    const cloudData =
+        await window.BudgetCloud.loadUserData();
+
+
+    if (
+        cloudData &&
+        Array.isArray(cloudData.profiles) &&
+        cloudData.profiles.length > 0
+    ) {
+
+        applyStoragePayload(cloudData);
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(getStoragePayload())
+        );
+
+        updateScheduleSelector();
+
+        updateRecurringDates();
+
+        renderProfiles();
+
+        renderAll();
+
+        console.log(
+            "[BudgetCloud] Loaded budget from Firestore"
+        );
+
+        return;
+
+    }
+
+
+    const localPayload =
+        getStoragePayload();
+
+
+    await window.BudgetCloud.saveNow(
+        localPayload
+    );
+
+
+    console.log(
+        "[BudgetCloud] Uploaded local budget to Firestore"
+    );
+
+}
+
+
+
+window.onBudgetAuthChanged = async function onBudgetAuthChanged(user) {
+
+    if (user) {
+
+        await syncFromCloudOnLogin();
+
+        return;
+
+    }
+
+
+    if (window.BudgetCloud) {
+
+        window.BudgetCloud.refreshAuthUi();
+
+    }
+
+};
+
+
+
 // ============================================================
 // STORAGE
 // ============================================================
 
-function saveData() {
+function getStoragePayload() {
 
-    const storageData = {
+    return {
         activeProfileId: activeProfileId,
         profiles: profiles
     };
+
+}
+
+
+
+function saveData() {
+
+    const storageData =
+        getStoragePayload();
 
     localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify(storageData)
     );
+
+    // Mirror to Firestore when signed in (debounced in cloud.js)
+    if (
+        window.BudgetCloud &&
+        window.BudgetCloud.isSignedIn()
+    ) {
+
+        window.BudgetCloud.queueSave(
+            storageData
+        );
+
+    }
 
 }
 

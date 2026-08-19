@@ -4265,3 +4265,189 @@ body.light-mode .paid-status-label.is-unpaid {
     }
 
 }
+
+/* ==========================================================
+   AUTH PANEL (Google / guest)
+========================================================== */
+
+.auth-panel {
+
+    margin-top: auto;
+
+    padding-top: 18px;
+
+    border-top: 1px solid var(--border);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+}
+
+
+
+.auth-user {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+
+}
+
+
+
+.auth-avatar {
+
+    width: 34px;
+
+    height: 34px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 1px solid var(--border);
+
+    flex-shrink: 0;
+
+}
+
+
+
+.auth-copy {
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+}
+
+
+
+.auth-copy strong {
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    color: var(--text);
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+
+.auth-copy small {
+
+    font-size: 11px;
+
+    line-height: 1.35;
+
+    color: var(--text-muted);
+
+}
+
+
+
+.auth-btn {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    width: 100%;
+
+    height: 36px;
+
+    border-radius: 10px;
+
+    border: 1px solid var(--border);
+
+    background: var(--panel-hover);
+
+    color: var(--text);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition);
+
+}
+
+
+
+.auth-btn:hover {
+
+    border-color: var(--border-hover);
+
+    transform: translateY(-1px);
+
+}
+
+
+
+.auth-btn-google {
+
+    background: rgba(66, 133, 244, 0.12);
+
+    border-color: rgba(66, 133, 244, 0.35);
+
+    color: var(--text);
+
+}
+
+
+
+.auth-btn-google i {
+
+    color: #ea4335;
+
+}
+
+
+
+body.light-mode .auth-btn-google {
+
+    background: #eff6ff;
+
+    border-color: #93c5fd;
+
+    color: #1e3a8a;
+
+}
+
+
+
+.auth-btn-signout {
+
+    background: transparent;
+
+}
+

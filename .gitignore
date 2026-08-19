@@ -1,0 +1,2 @@
+# Optional local override (copy from firebase-config.js if you prefer not to commit keys)
+# firebase-config.local.js
