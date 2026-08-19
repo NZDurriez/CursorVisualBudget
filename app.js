@@ -186,6 +186,32 @@ const payEffectiveRate =
 
 const payNetHourly =
     document.getElementById("payNetHourly");
+
+const paymentsPaidSummary =
+    document.getElementById("paymentsPaidSummary");
+
+const savingsProgressModal =
+    document.getElementById("savingsProgressModal");
+
+const savingsProgressTitle =
+    document.getElementById("savingsProgressTitle");
+
+const savingsProgressSubtitle =
+    document.getElementById("savingsProgressSubtitle");
+
+const savingsProgressForm =
+    document.getElementById("savingsProgressForm");
+
+const savingsProgressAmount =
+    document.getElementById("savingsProgressAmount");
+
+const savingsProgressNote =
+    document.getElementById("savingsProgressNote");
+
+const cancelSavingsProgressBtn =
+    document.getElementById("cancelSavingsProgressBtn");
+
+let loggingSavingsGoalId = null;
 	
 const modal =
     document.getElementById("modal");
@@ -487,6 +513,44 @@ function setupEvents() {
     });
 
     setupPayCalculatorEvents();
+
+    if (savingsProgressForm) {
+
+        savingsProgressForm.addEventListener(
+            "submit",
+            saveSavingsProgress
+        );
+
+    }
+
+    if (cancelSavingsProgressBtn) {
+
+        cancelSavingsProgressBtn.addEventListener(
+            "click",
+            closeSavingsProgressModal
+        );
+
+    }
+
+    if (savingsProgressModal) {
+
+        savingsProgressModal.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    savingsProgressModal
+                ) {
+
+                    closeSavingsProgressModal();
+
+                }
+
+            }
+        );
+
+    }
 	
 	// Budget Schedule
 	if (budgetSchedule) {
@@ -2633,6 +2697,77 @@ if (deleteItemBtn) {
 // MARK PAYMENT PAID
 // ============================================================
 
+function getPaymentPeriodKey() {
+
+    const period =
+        getCurrentBudgetPeriod();
+
+
+    if (period && period.start) {
+
+        return period.start;
+
+    }
+
+
+    // Fallback when payday isn't configured:
+    // use the current calendar date as the period key
+    return getTodayString();
+
+}
+
+
+function isPaymentPaidThisPeriod(payment) {
+
+    if (!payment) {
+
+        return false;
+
+    }
+
+
+    return (
+        payment.paidPeriodStart ===
+        getPaymentPeriodKey()
+    );
+
+}
+
+
+function getPaymentsPaidSummary() {
+
+    if (
+        !Array.isArray(budget.payments) ||
+        budget.payments.length === 0
+    ) {
+
+        return {
+            paid: 0,
+            total: 0
+        };
+
+    }
+
+
+    const total =
+        budget.payments.length;
+
+
+    const paid =
+        budget.payments.filter(
+            item =>
+                isPaymentPaidThisPeriod(item)
+        ).length;
+
+
+    return {
+        paid,
+        total
+    };
+
+}
+
+
 function markPaid(id) {
 
     const payment =
@@ -2648,11 +2783,20 @@ function markPaid(id) {
     }
 
 
-    payment.nextDate =
-        calculateNextDate(
-            payment.nextDate,
-            payment.frequency
-        );
+    const periodKey =
+        getPaymentPeriodKey();
+
+
+    if (payment.paidPeriodStart === periodKey) {
+
+        payment.paidPeriodStart = "";
+
+    } else {
+
+        payment.paidPeriodStart =
+            periodKey;
+
+    }
 
 
     saveData();
@@ -3503,10 +3647,15 @@ function renderPayments() {
         }
 
 
+        const paidThisPeriod =
+            isPaymentPaidThisPeriod(item);
+
+
         paymentTable.innerHTML += `
 
             <tr
-                data-payment-id="${item.id}">
+                data-payment-id="${item.id}"
+                class="${paidThisPeriod ? "is-paid" : ""}">
 
                 <td class="drag-col">
 
@@ -3540,10 +3689,12 @@ function renderPayments() {
                 <td>
 
                     <button
-                        class="action-btn paid-btn"
-                        onclick="markPaid('${item.id}')">
+                        type="button"
+                        class="paid-status-btn ${isPaymentPaidThisPeriod(item) ? "is-paid" : "is-unpaid"}"
+                        onclick="markPaid('${item.id}')"
+                        title="${isPaymentPaidThisPeriod(item) ? "Undo paid for this period" : "Mark paid for this period"}">
 
-                        ✓
+                        ${isPaymentPaidThisPeriod(item) ? "Paid" : "Mark paid"}
 
                     </button>
 
@@ -4121,6 +4272,12 @@ function saveSavingsGoal(event) {
         startDate:
             getTodayString(),
 
+        savedAmount:
+            0,
+
+        contributions:
+            [],
+
         includeInBudget:
             includeInBudget
 
@@ -4155,6 +4312,14 @@ function saveSavingsGoal(event) {
         goal.startDate =
             existing.startDate ||
             goal.startDate;
+
+        goal.savedAmount =
+            Number(existing.savedAmount) || 0;
+
+        goal.contributions =
+            Array.isArray(existing.contributions)
+                ? existing.contributions
+                : [];
 
 
         budget.savingsGoals[index] =
@@ -4227,6 +4392,257 @@ function deleteSavingsGoal(id) {
 }
 
 
+function getSavingsSavedAmount(goal) {
+
+    return Math.max(
+        0,
+        Number(goal && goal.savedAmount) || 0
+    );
+
+}
+
+
+function getSavingsProgress(goal) {
+
+    const target =
+        Math.max(
+            0,
+            Number(goal && goal.amount) || 0
+        );
+
+    const saved =
+        getSavingsSavedAmount(goal);
+
+    const remaining =
+        Math.max(0, target - saved);
+
+    const percent =
+        target > 0
+            ? Math.min(
+                100,
+                (saved / target) * 100
+            )
+            : 0;
+
+
+    return {
+        target,
+        saved,
+        remaining,
+        percent,
+        complete: target > 0 && saved >= target
+    };
+
+}
+
+
+function openSavingsProgressModal(goalId) {
+
+    ensureSavingsGoalsArray();
+
+
+    const goal =
+        budget.savingsGoals.find(
+            item => item.id === goalId
+        );
+
+
+    if (!goal || !savingsProgressModal) {
+
+        return;
+
+    }
+
+
+    loggingSavingsGoalId = goalId;
+
+
+    const progress =
+        getSavingsProgress(goal);
+
+
+    if (savingsProgressTitle) {
+
+        savingsProgressTitle.textContent =
+            `Log Progress · ${goal.name}`;
+
+    }
+
+
+    if (savingsProgressSubtitle) {
+
+        savingsProgressSubtitle.textContent =
+            `${formatCurrency(progress.saved)} saved of ${formatCurrency(progress.target)} · ${formatCurrency(progress.remaining)} to go`;
+
+    }
+
+
+    if (savingsProgressForm) {
+
+        savingsProgressForm.reset();
+
+    }
+
+
+    if (savingsProgressAmount) {
+
+        savingsProgressAmount.value = "";
+
+        savingsProgressAmount.focus();
+
+    }
+
+
+    savingsProgressModal.classList.remove("hidden");
+
+}
+
+
+function closeSavingsProgressModal() {
+
+    loggingSavingsGoalId = null;
+
+
+    if (savingsProgressForm) {
+
+        savingsProgressForm.reset();
+
+    }
+
+
+    if (savingsProgressModal) {
+
+        savingsProgressModal.classList.add("hidden");
+
+    }
+
+}
+
+
+function saveSavingsProgress(event) {
+
+    event.preventDefault();
+
+
+    ensureSavingsGoalsArray();
+
+
+    const goal =
+        budget.savingsGoals.find(
+            item =>
+                item.id === loggingSavingsGoalId
+        );
+
+
+    if (!goal) {
+
+        alert("Could not find that savings goal.");
+
+        closeSavingsProgressModal();
+
+        return;
+
+    }
+
+
+    const amount =
+        Number(
+            savingsProgressAmount &&
+                savingsProgressAmount.value
+        );
+
+
+    if (isNaN(amount) || amount <= 0) {
+
+        alert("Please enter a valid amount.");
+
+        return;
+
+    }
+
+
+    const note =
+        savingsProgressNote
+            ? savingsProgressNote.value.trim()
+            : "";
+
+
+    if (!Array.isArray(goal.contributions)) {
+
+        goal.contributions = [];
+
+    }
+
+
+    goal.contributions.push({
+
+        id: generateId(),
+
+        amount: amount,
+
+        note: note,
+
+        date: getTodayString()
+
+    });
+
+
+    goal.savedAmount =
+        getSavingsSavedAmount(goal) + amount;
+
+
+    saveData();
+
+    closeSavingsProgressModal();
+
+    renderAll();
+
+}
+
+
+function resetSavingsProgress(goalId) {
+
+    ensureSavingsGoalsArray();
+
+
+    const goal =
+        budget.savingsGoals.find(
+            item => item.id === goalId
+        );
+
+
+    if (!goal) {
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            `Reset all progress for "${goal.name}"?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    goal.savedAmount = 0;
+
+    goal.contributions = [];
+
+
+    saveData();
+
+    renderAll();
+
+}
+
+
 function renderSavingsGoals() {
 
     ensureSavingsGoalsArray();
@@ -4266,9 +4682,15 @@ function renderSavingsGoals() {
 
     sorted.forEach(goal => {
 
+        const progress =
+            getSavingsProgress(goal);
+
+
         const breakdown =
             getSavingsBreakdown(
-                goal.amount,
+                progress.remaining > 0
+                    ? progress.remaining
+                    : goal.amount,
                 goal.targetDate
             );
 
@@ -4281,12 +4703,14 @@ function renderSavingsGoals() {
 
 
         const weeklyLabel =
-            breakdown.overdue
-                ? formatCurrency(goal.amount) +
-                  " still needed"
-                : formatCurrency(
-                      breakdown.weekly
-                  ) + " / week";
+            progress.complete
+                ? "Goal reached"
+                : breakdown.overdue
+                    ? formatCurrency(progress.remaining) +
+                      " still needed"
+                    : formatCurrency(
+                          breakdown.weekly
+                      ) + " / week";
 
 
         card.innerHTML = `
@@ -4327,10 +4751,77 @@ function renderSavingsGoals() {
 
             </div>
 
+            <div class="savings-progress-block">
+
+                <div class="savings-progress-bar">
+
+                    <div
+                        class="savings-progress-fill"
+                        style="width: ${progress.percent.toFixed(1)}%;">
+                    </div>
+
+                </div>
+
+                <div class="savings-progress-stats">
+
+                    <span>
+                        <strong>${formatCurrency(progress.saved)}</strong>
+                        saved
+                    </span>
+
+                    <span>
+                        <strong>${progress.percent.toFixed(0)}%</strong>
+                    </span>
+
+                    <span>
+                        <strong>${formatCurrency(progress.remaining)}</strong>
+                        to go
+                    </span>
+
+                </div>
+
+                <div class="savings-progress-actions">
+
+                    <button
+                        type="button"
+                        class="primary-btn"
+                        data-log-savings="${goal.id}">
+
+                        <i class="fa-solid fa-plus"></i>
+
+                        Log Progress
+
+                    </button>
+
+                    ${
+                        progress.saved > 0
+                            ? `
+                                <button
+                                    type="button"
+                                    class="secondary-btn"
+                                    data-reset-savings="${goal.id}">
+
+                                    Reset
+
+                                </button>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+
             <div class="savings-goal-highlight">
 
                 <span>
-                    ${breakdown.overdue ? "Goal date reached" : "Required weekly savings"}
+                    ${
+                        progress.complete
+                            ? "Completed"
+                            : breakdown.overdue
+                                ? "Goal date reached"
+                                : "Required weekly savings"
+                    }
                 </span>
 
                 <strong>
@@ -4438,6 +4929,42 @@ function renderSavingsGoals() {
 
         });
 
+
+    savingsGoalsList
+        .querySelectorAll("[data-log-savings]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    openSavingsProgressModal(
+                        button.dataset.logSavings
+                    );
+
+                }
+            );
+
+        });
+
+
+    savingsGoalsList
+        .querySelectorAll("[data-reset-savings]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    resetSavingsProgress(
+                        button.dataset.resetSavings
+                    );
+
+                }
+            );
+
+        });
+
 }
 
 
@@ -4462,9 +4989,20 @@ function getSavingsGoalsPeriodTotal() {
         }
 
 
+        const progress =
+            getSavingsProgress(goal);
+
+
+        if (progress.complete) {
+
+            return;
+
+        }
+
+
         const breakdown =
             getSavingsBreakdown(
-                goal.amount,
+                progress.remaining,
                 goal.targetDate
             );
 
@@ -4481,7 +5019,7 @@ function getSavingsGoalsPeriodTotal() {
         if (breakdown.overdue) {
 
             total +=
-                Number(goal.amount) || 0;
+                progress.remaining;
 
             return;
 
@@ -5650,6 +6188,20 @@ function renderUpcomingPayments() {
     upcomingPayments.innerHTML = "";
 
 
+    if (paymentsPaidSummary) {
+
+        const summary =
+            getPaymentsPaidSummary();
+
+
+        paymentsPaidSummary.textContent =
+            summary.total > 0
+                ? `${summary.paid}/${summary.total} paid this period`
+                : "";
+
+    }
+
+
     if (budget.payments.length === 0) {
 
         upcomingPayments.innerHTML =
@@ -5709,14 +6261,23 @@ function renderUpcomingPayments() {
         }
 
 
+        const paidThisPeriod =
+            isPaymentPaidThisPeriod(payment);
+
+
         upcomingPayments.innerHTML += `
 
-            <div class="payment-item">
+            <div class="payment-item ${paidThisPeriod ? "is-paid" : ""}">
 
                 <div>
 
                     <strong>
                         ${escapeHtml(payment.name)}
+                        ${
+                            paidThisPeriod
+                                ? `<span class="paid-tag">Paid</span>`
+                                : ""
+                        }
                     </strong>
 
                     <br>
@@ -5727,9 +6288,9 @@ function renderUpcomingPayments() {
 
                 </div>
 
-                <span class="${className}">
-                    ${label}
-                </span>
+                <div class="${className}">
+                    ${paidThisPeriod ? "Done" : label}
+                </div>
 
             </div>
 
@@ -6629,15 +7190,25 @@ function getCalendarEvents(dateString) {
 
         if (isRecurringOnDate(item, targetDate)) {
 
+            const paidThisPeriod =
+                isPaymentPaidThisPeriod(item);
+
+
             events.push({
 
-                type: "payment-event",
+                type:
+                    paidThisPeriod
+                        ? "payment-event paid-event"
+                        : "payment-event",
 
                 editType: "payment",
 
                 id: item.id,
 
-                name: item.name,
+                name:
+                    paidThisPeriod
+                        ? `${item.name} (Paid)`
+                        : item.name,
 
                 amount: item.amount
 

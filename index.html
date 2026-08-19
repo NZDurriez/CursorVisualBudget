@@ -7,7 +7,7 @@
 
     <title>Budget </title>
 
-    <link rel="stylesheet" href="style.css?v=action-solid-1">
+    <link rel="stylesheet" href="style.css?v=features-1-2-12">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -330,6 +330,11 @@
                         Upcoming Payments
 
                     </h3>
+
+                    <small
+                        id="paymentsPaidSummary"
+                        class="payments-paid-summary">
+                    </small>
 
                 </div>
 
@@ -1471,6 +1476,87 @@
     </button>
 
 </div>
+
+<!-- ===================================== -->
+<!-- SAVINGS PROGRESS MODAL -->
+<!-- ===================================== -->
+
+<div
+    id="savingsProgressModal"
+    class="modal hidden">
+
+    <div class="modal-content">
+
+        <h2 id="savingsProgressTitle">
+            Log Savings Progress
+        </h2>
+
+        <p
+            id="savingsProgressSubtitle"
+            class="paycalc-intro"
+            style="margin-top:0;">
+        </p>
+
+        <form id="savingsProgressForm">
+
+            <div class="form-group">
+
+                <label for="savingsProgressAmount">
+                    Amount Saved
+                </label>
+
+                <input
+                    type="number"
+                    id="savingsProgressAmount"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="e.g. 100"
+                    required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="savingsProgressNote">
+                    Note (optional)
+                </label>
+
+                <input
+                    type="text"
+                    id="savingsProgressNote"
+                    placeholder="e.g. Tax refund">
+
+            </div>
+
+            <div class="modal-buttons">
+
+                <button
+                    type="button"
+                    id="cancelSavingsProgressBtn"
+                    class="secondary-btn">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-btn">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Add Progress
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
 <script src="app.js"></script>
 
 </body>
