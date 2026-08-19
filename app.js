@@ -3551,21 +3551,31 @@ function renderPayments() {
 
                 <td>
 
-                    <button
-                        class="action-btn edit-btn"
-                        onclick="editItem('payment', '${item.id}')">
+                    <div class="row-actions">
 
-                        <i class="fa-solid fa-pen"></i>
+                        <button
+                            type="button"
+                            class="action-btn edit-btn"
+                            onclick="editItem('payment', '${item.id}')"
+                            title="Edit"
+                            aria-label="Edit">
 
-                    </button>
+                            <i class="fa-solid fa-pen"></i>
 
-                    <button
-                        class="action-btn delete-btn"
-                        onclick="deleteItem('payment', '${item.id}')">
+                        </button>
 
-                        <i class="fa-solid fa-trash"></i>
+                        <button
+                            type="button"
+                            class="action-btn delete-btn"
+                            onclick="deleteItem('payment', '${item.id}')"
+                            title="Delete"
+                            aria-label="Delete">
 
-                    </button>
+                            <i class="fa-solid fa-trash"></i>
+
+                        </button>
+
+                    </div>
 
                 </td>
 
@@ -3642,23 +3652,31 @@ function renderOneOffPayments() {
 
                 <td>
 
-                    <button
-                        class="action-btn edit-btn"
-                        onclick="editItem('oneoff', '${item.id}')"
-                        title="Edit">
+                    <div class="row-actions">
 
-                        <i class="fa-solid fa-pen"></i>
+                        <button
+                            type="button"
+                            class="action-btn edit-btn"
+                            onclick="editItem('oneoff', '${item.id}')"
+                            title="Edit"
+                            aria-label="Edit">
 
-                    </button>
+                            <i class="fa-solid fa-pen"></i>
 
-                    <button
-                        class="action-btn delete-btn"
-                        onclick="deleteItem('oneoff', '${item.id}')"
-                        title="Delete">
+                        </button>
 
-                        <i class="fa-solid fa-trash"></i>
+                        <button
+                            type="button"
+                            class="action-btn delete-btn"
+                            onclick="deleteItem('oneoff', '${item.id}')"
+                            title="Delete"
+                            aria-label="Delete">
 
-                    </button>
+                            <i class="fa-solid fa-trash"></i>
+
+                        </button>
+
+                    </div>
 
                 </td>
 
