@@ -63,6 +63,9 @@ const incomeTable =
 const paymentTable =
     document.getElementById("paymentTable");
 
+const paymentsSort =
+    document.getElementById("paymentsSort");
+
 const addIncomeBtn =
     document.getElementById("addIncomeBtn");
 
@@ -330,6 +333,24 @@ function setupEvents() {
             openModal("payment");
 
         });
+
+    }
+
+    // Payments sort
+    if (paymentsSort) {
+
+        paymentsSort.addEventListener(
+            "change",
+            () => {
+
+                setPaymentsSortMode(
+                    paymentsSort.value
+                );
+
+                renderPayments();
+
+            }
+        );
 
     }
 
@@ -1013,6 +1034,14 @@ function loadData() {
 
                 budget.settings.anchorDate =
                     "";
+
+            }
+
+
+            if (!budget.settings.paymentsSort) {
+
+                budget.settings.paymentsSort =
+                    "custom";
 
             }
 
@@ -2813,16 +2842,525 @@ function renderIncome() {
 // PAYMENTS TABLE
 // ============================================================
 
+function getPaymentsSortMode() {
+
+    if (!budget.settings) {
+
+        budget.settings = {};
+
+    }
+
+
+    return budget.settings.paymentsSort || "custom";
+
+}
+
+
+function setPaymentsSortMode(mode) {
+
+    if (!budget.settings) {
+
+        budget.settings = {};
+
+    }
+
+
+    budget.settings.paymentsSort =
+        mode || "custom";
+
+
+    saveData();
+
+
+    if (paymentsSort) {
+
+        paymentsSort.value =
+            budget.settings.paymentsSort;
+
+    }
+
+}
+
+
+function getFrequencySortValue(frequency) {
+
+    switch (frequency) {
+
+        case "Weekly":
+            return 1;
+
+        case "Fortnightly":
+            return 2;
+
+        case "Monthly":
+            return 3;
+
+        case "Quarterly":
+            return 4;
+
+        case "Yearly":
+            return 5;
+
+        default:
+            return 99;
+
+    }
+
+}
+
+
+function getSortedPayments() {
+
+    if (!Array.isArray(budget.payments)) {
+
+        budget.payments = [];
+
+    }
+
+
+    const items =
+        [...budget.payments];
+
+
+    const mode =
+        getPaymentsSortMode();
+
+
+    switch (mode) {
+
+        case "amount-desc":
+
+            return items.sort(
+                (a, b) =>
+                    (Number(b.amount) || 0) -
+                    (Number(a.amount) || 0)
+            );
+
+
+        case "amount-asc":
+
+            return items.sort(
+                (a, b) =>
+                    (Number(a.amount) || 0) -
+                    (Number(b.amount) || 0)
+            );
+
+
+        case "name-asc":
+
+            return items.sort(
+                (a, b) =>
+                    String(a.name || "")
+                        .localeCompare(
+                            String(b.name || ""),
+                            undefined,
+                            { sensitivity: "base" }
+                        )
+            );
+
+
+        case "name-desc":
+
+            return items.sort(
+                (a, b) =>
+                    String(b.name || "")
+                        .localeCompare(
+                            String(a.name || ""),
+                            undefined,
+                            { sensitivity: "base" }
+                        )
+            );
+
+
+        case "date-desc":
+
+            return items.sort(
+                (a, b) =>
+                    new Date(b.nextDate) -
+                    new Date(a.nextDate)
+            );
+
+
+        case "frequency-asc":
+
+            return items.sort(
+                (a, b) => {
+
+                    const frequencyDiff =
+                        getFrequencySortValue(
+                            a.frequency
+                        ) -
+                        getFrequencySortValue(
+                            b.frequency
+                        );
+
+
+                    if (frequencyDiff !== 0) {
+
+                        return frequencyDiff;
+
+                    }
+
+
+                    return String(a.name || "")
+                        .localeCompare(
+                            String(b.name || ""),
+                            undefined,
+                            { sensitivity: "base" }
+                        );
+
+                }
+            );
+
+
+        case "date-asc":
+
+            return items.sort(
+                (a, b) =>
+                    new Date(a.nextDate) -
+                    new Date(b.nextDate)
+            );
+
+
+        case "custom":
+        default:
+
+            return items;
+
+    }
+
+}
+
+
+function reorderPaymentsByIds(orderedIds) {
+
+    if (!Array.isArray(budget.payments)) {
+
+        budget.payments = [];
+
+        return;
+
+    }
+
+
+    const paymentMap =
+        new Map(
+            budget.payments.map(item => [
+                item.id,
+                item
+            ])
+        );
+
+
+    const reordered = [];
+
+
+    orderedIds.forEach(id => {
+
+        const item =
+            paymentMap.get(id);
+
+
+        if (item) {
+
+            reordered.push(item);
+
+            paymentMap.delete(id);
+
+        }
+
+    });
+
+
+    // Keep any leftover items just in case
+    paymentMap.forEach(item => {
+
+        reordered.push(item);
+
+    });
+
+
+    budget.payments = reordered;
+
+}
+
+
+function setupPaymentsDragAndDrop() {
+
+    if (!paymentTable) {
+
+        return;
+
+    }
+
+
+    const rows =
+        [
+            ...paymentTable.querySelectorAll(
+                "tr[data-payment-id]"
+            )
+        ];
+
+
+    let draggedId = null;
+
+
+    rows.forEach(row => {
+
+        const handle =
+            row.querySelector(".drag-handle");
+
+
+        // Only allow dragging from the grip handle
+        row.draggable = false;
+
+
+        if (handle) {
+
+            handle.addEventListener(
+                "mousedown",
+                () => {
+
+                    row.draggable = true;
+
+                }
+            );
+
+
+            handle.addEventListener(
+                "mouseup",
+                () => {
+
+                    row.draggable = false;
+
+                }
+            );
+
+        }
+
+
+        row.addEventListener(
+            "dragstart",
+            event => {
+
+                if (!row.draggable) {
+
+                    event.preventDefault();
+
+                    return;
+
+                }
+
+
+                draggedId =
+                    row.dataset.paymentId;
+
+
+                row.classList.add("dragging");
+
+
+                if (event.dataTransfer) {
+
+                    event.dataTransfer.effectAllowed =
+                        "move";
+
+                    event.dataTransfer.setData(
+                        "text/plain",
+                        draggedId
+                    );
+
+                }
+
+            }
+        );
+
+
+        row.addEventListener(
+            "dragend",
+            () => {
+
+                row.classList.remove("dragging");
+
+                row.draggable = false;
+
+
+                paymentTable
+                    .querySelectorAll(".drag-over")
+                    .forEach(entry => {
+
+                        entry.classList.remove(
+                            "drag-over"
+                        );
+
+                    });
+
+
+                draggedId = null;
+
+            }
+        );
+
+
+        row.addEventListener(
+            "dragover",
+            event => {
+
+                event.preventDefault();
+
+
+                if (
+                    !draggedId ||
+                    row.dataset.paymentId ===
+                        draggedId
+                ) {
+
+                    return;
+
+                }
+
+
+                rows.forEach(entry => {
+
+                    entry.classList.toggle(
+                        "drag-over",
+                        entry === row
+                    );
+
+                });
+
+
+                if (event.dataTransfer) {
+
+                    event.dataTransfer.dropEffect =
+                        "move";
+
+                }
+
+            }
+        );
+
+
+        row.addEventListener(
+            "dragleave",
+            () => {
+
+                row.classList.remove("drag-over");
+
+            }
+        );
+
+
+        row.addEventListener(
+            "drop",
+            event => {
+
+                event.preventDefault();
+
+
+                row.classList.remove("drag-over");
+
+
+                const sourceId =
+                    draggedId ||
+                    (
+                        event.dataTransfer &&
+                        event.dataTransfer.getData(
+                            "text/plain"
+                        )
+                    );
+
+
+                const targetId =
+                    row.dataset.paymentId;
+
+
+                if (
+                    !sourceId ||
+                    !targetId ||
+                    sourceId === targetId
+                ) {
+
+                    return;
+
+                }
+
+
+                const currentIds =
+                    getSortedPayments().map(
+                        item => item.id
+                    );
+
+
+                const fromIndex =
+                    currentIds.indexOf(sourceId);
+
+                const toIndex =
+                    currentIds.indexOf(targetId);
+
+
+                if (
+                    fromIndex === -1 ||
+                    toIndex === -1
+                ) {
+
+                    return;
+
+                }
+
+
+                currentIds.splice(fromIndex, 1);
+
+                currentIds.splice(
+                    toIndex,
+                    0,
+                    sourceId
+                );
+
+
+                reorderPaymentsByIds(currentIds);
+
+                setPaymentsSortMode("custom");
+
+                saveData();
+
+                renderPayments();
+
+            }
+        );
+
+    });
+
+}
+
+
 function renderPayments() {
+
+    if (!paymentTable) {
+
+        return;
+
+    }
+
 
     paymentTable.innerHTML = "";
 
 
-    if (budget.payments.length === 0) {
+    if (paymentsSort) {
+
+        paymentsSort.value =
+            getPaymentsSortMode();
+
+    }
+
+
+    if (
+        !Array.isArray(budget.payments) ||
+        budget.payments.length === 0
+    ) {
 
         paymentTable.innerHTML = `
             <tr>
-                <td colspan="6">
+                <td colspan="7">
                     No recurring payments added yet.
                 </td>
             </tr>
@@ -2834,11 +3372,7 @@ function renderPayments() {
 
 
     const sorted =
-        [...budget.payments].sort(
-            (a, b) =>
-                new Date(a.nextDate) -
-                new Date(b.nextDate)
-        );
+        getSortedPayments();
 
 
     sorted.forEach(item => {
@@ -2867,7 +3401,21 @@ function renderPayments() {
 
         paymentTable.innerHTML += `
 
-            <tr>
+            <tr
+                data-payment-id="${item.id}">
+
+                <td class="drag-col">
+
+                    <span
+                        class="drag-handle"
+                        title="Drag to reorder"
+                        aria-label="Drag to reorder">
+
+                        <i class="fa-solid fa-grip-vertical"></i>
+
+                    </span>
+
+                </td>
 
                 <td>
                     ${escapeHtml(item.name)}
@@ -2922,6 +3470,9 @@ function renderPayments() {
         `;
 
     });
+
+
+    setupPaymentsDragAndDrop();
 
 }
 

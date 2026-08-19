@@ -394,15 +394,63 @@
 
                 <h3>Recurring Payments</h3>
 
-                <button
-                    id="addPaymentBtn"
-                    class="primary-btn">
+                <div class="page-header-actions">
 
-                    <i class="fa-solid fa-plus"></i>
+                    <div class="sort-selector">
 
-                    Add Payment
+                        <label for="paymentsSort">
+                            Sort
+                        </label>
 
-                </button>
+                        <select id="paymentsSort">
+
+                            <option value="custom">
+                                Custom order
+                            </option>
+
+                            <option value="amount-desc">
+                                Amount: High to Low
+                            </option>
+
+                            <option value="amount-asc">
+                                Amount: Low to High
+                            </option>
+
+                            <option value="name-asc">
+                                Name: A to Z
+                            </option>
+
+                            <option value="name-desc">
+                                Name: Z to A
+                            </option>
+
+                            <option value="date-asc">
+                                Next Due: Soonest
+                            </option>
+
+                            <option value="date-desc">
+                                Next Due: Latest
+                            </option>
+
+                            <option value="frequency-asc">
+                                Frequency
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <button
+                        id="addPaymentBtn"
+                        class="primary-btn">
+
+                        <i class="fa-solid fa-plus"></i>
+
+                        Add Payment
+
+                    </button>
+
+                </div>
 
             </div>
 
@@ -411,6 +459,8 @@
                 <thead>
 
                 <tr>
+
+                    <th class="drag-col" aria-label="Reorder"></th>
 
                     <th>Name</th>
 
