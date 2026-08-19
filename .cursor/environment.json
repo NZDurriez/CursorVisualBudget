@@ -1,0 +1,17 @@
+{
+  "name": "CursorVisualBudget",
+  "install": "if [ -f functions/package.json ]; then cd functions && npm install; fi",
+  "terminals": [
+    {
+      "name": "web",
+      "command": "python3 -m http.server 5500 --bind 0.0.0.0",
+      "description": "Serves the static budget app at http://localhost:5500 (guest mode works with no Firebase config)."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 5500
+    }
+  ]
+}
