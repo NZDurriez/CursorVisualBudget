@@ -3994,24 +3994,40 @@ body.light-mode .paid-status-label.is-unpaid {
 
         flex-direction: row;
 
+        flex-wrap: nowrap;
+
         width: 100%;
 
-        justify-content: center;
+        justify-content: flex-start;
 
-        gap: 5px;
+        gap: 4px;
+
+        overflow-x: auto;
+
+        -webkit-overflow-scrolling: touch;
+
+        scrollbar-width: thin;
+
+        order: 1;
 
     }
 
-    /* Keep Google sign-in visible under mobile nav */
+    /* Compact auth strip under the nav on phones */
     .auth-panel {
 
-        margin-top: 0;
+        order: 2;
 
-        padding-top: 8px;
+        margin: 0;
+
+        padding: 8px 2px 2px;
+
+        border-bottom: none;
+
+        border-top: 1px solid var(--border);
 
         flex-direction: row;
 
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
 
         align-items: center;
 
@@ -4021,7 +4037,7 @@ body.light-mode .paid-status-label.is-unpaid {
 
     .auth-user {
 
-        flex: 1 1 140px;
+        flex: 1 1 auto;
 
         min-width: 0;
 
@@ -4033,29 +4049,65 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
+    .auth-copy strong {
+
+        font-size: 12px;
+
+    }
+
+    .auth-avatar {
+
+        width: 28px;
+
+        height: 28px;
+
+    }
+
     .auth-btn {
+
+        flex: 0 0 auto;
 
         width: auto;
 
-        flex: 1 1 160px;
+        min-width: 0;
 
-        min-width: 150px;
+        max-width: 58vw;
 
         height: 34px;
+
+        padding: 0 12px;
+
+        white-space: nowrap;
 
     }
 
     .nav-btn {
 
+        flex: 0 0 auto;
+
         flex-direction: column;
 
         justify-content: center;
 
-        gap: 5px;
+        gap: 4px;
 
-        padding: 9px 12px;
+        min-width: 68px;
 
-        font-size: 10px;
+        max-width: 86px;
+
+        padding: 8px 6px;
+
+        font-size: 9px;
+
+        line-height: 1.15;
+
+        text-align: center;
+
+    }
+
+    .nav-btn i {
+
+        font-size: 15px;
 
     }
 
@@ -4295,17 +4347,23 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
-    .sidebar nav {
+    .nav-btn {
 
-        overflow-x: auto;
+        min-width: 62px;
 
-        justify-content: flex-start;
+        max-width: 76px;
+
+        padding: 8px 4px;
+
+        font-size: 8px;
 
     }
 
-    .nav-btn {
+    .auth-btn {
 
-        min-width: 70px;
+        font-size: 11px;
+
+        padding: 0 10px;
 
     }
 
@@ -4317,11 +4375,11 @@ body.light-mode .paid-status-label.is-unpaid {
 
 .auth-panel {
 
-    margin-top: auto;
+    margin: 0 0 18px;
 
-    padding-top: 18px;
+    padding: 0 0 16px;
 
-    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 
     display: flex;
 
@@ -4443,6 +4501,16 @@ body.light-mode .paid-status-label.is-unpaid {
         background var(--transition),
         border-color var(--transition),
         transform var(--transition);
+
+}
+
+
+
+/* Important: .auth-btn { display } must not override HTML hidden */
+.auth-btn[hidden],
+.auth-panel [hidden] {
+
+    display: none !important;
 
 }
 

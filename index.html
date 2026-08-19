@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=2" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2">
 
-    <link rel="stylesheet" href="style.css?v=no-discord-1">
+    <link rel="stylesheet" href="style.css?v=mobile-auth-2">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,6 +41,56 @@
             <h1>Budget</h1>
 
         </div>
+
+        <div id="authPanel" class="auth-panel">
+
+            <div class="auth-user">
+
+                <img
+                    data-auth-avatar
+                    class="auth-avatar"
+                    alt=""
+                    hidden>
+
+                <div class="auth-copy">
+
+                    <strong data-auth-name>
+                        Guest (this device)
+                    </strong>
+
+                    <small data-auth-status>
+                        Sign in to sync budgets across devices
+                    </small>
+
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                id="googleSignInBtn"
+                class="auth-btn auth-btn-google">
+
+                <i class="fa-brands fa-google"></i>
+
+                Sign in with Google
+
+            </button>
+
+            <button
+                type="button"
+                id="googleSignOutBtn"
+                class="auth-btn auth-btn-signout"
+                hidden>
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                Sign out
+
+            </button>
+
+        </div>
+
 
         <nav>
 
@@ -108,55 +158,6 @@
             </button>
 
         </nav>
-
-        <div id="authPanel" class="auth-panel">
-
-            <div class="auth-user">
-
-                <img
-                    data-auth-avatar
-                    class="auth-avatar"
-                    alt=""
-                    hidden>
-
-                <div class="auth-copy">
-
-                    <strong data-auth-name>
-                        Guest (this device)
-                    </strong>
-
-                    <small data-auth-status>
-                        Sign in to sync budgets across devices
-                    </small>
-
-                </div>
-
-            </div>
-
-            <button
-                type="button"
-                id="googleSignInBtn"
-                class="auth-btn auth-btn-google">
-
-                <i class="fa-brands fa-google"></i>
-
-                Sign in with Google
-
-            </button>
-
-            <button
-                type="button"
-                id="googleSignOutBtn"
-                class="auth-btn auth-btn-signout"
-                hidden>
-
-                <i class="fa-solid fa-right-from-bracket"></i>
-
-                Sign out
-
-            </button>
-
-        </div>
 
     </aside>
 
