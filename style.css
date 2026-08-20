@@ -308,18 +308,14 @@ body.light-mode {
 
     gap: 6px;
 
-    flex: 1 1 auto;
-
-    min-height: 0;
-
 }
 
 
 .sidebar-footer {
 
-    margin-top: auto;
+    margin-top: 14px;
 
-    padding-top: 16px;
+    padding-top: 14px;
 
     border-top: 1px solid var(--border);
 
