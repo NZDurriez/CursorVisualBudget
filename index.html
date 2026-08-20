@@ -864,15 +864,50 @@
 
             <div class="page-header">
 
-                <h3>NZ Pay Calculator</h3>
+                <h3>Pay Calculator</h3>
 
             </div>
 
-            <p class="paycalc-intro">
-                Enter your hourly rate to estimate take-home pay using
-                2026/27 New Zealand PAYE, ACC, Student Loan, and KiwiSaver rates.
-                This is an estimate only — use IRD tools for official figures.
+            <p
+                id="payCalcIntro"
+                class="paycalc-intro">
+                Enter your hourly rate to estimate take-home pay.
+                Pick your country below. Estimates only — not official tax advice.
             </p>
+
+            <div
+                class="paycalc-country-tabs"
+                role="tablist"
+                aria-label="Pay calculator country">
+
+                <button
+                    type="button"
+                    class="paycalc-country-btn active"
+                    data-pay-country="nz"
+                    role="tab"
+                    aria-selected="true">
+                    🇳🇿 New Zealand
+                </button>
+
+                <button
+                    type="button"
+                    class="paycalc-country-btn"
+                    data-pay-country="uk"
+                    role="tab"
+                    aria-selected="false">
+                    🇬🇧 United Kingdom
+                </button>
+
+                <button
+                    type="button"
+                    class="paycalc-country-btn"
+                    data-pay-country="us"
+                    role="tab"
+                    aria-selected="false">
+                    🇺🇸 United States
+                </button>
+
+            </div>
 
             <div class="paycalc-layout">
 
@@ -884,7 +919,9 @@
 
                         <div class="form-group">
 
-                            <label for="payHourlyRate">
+                            <label
+                                for="payHourlyRate"
+                                id="payHourlyRateLabel">
                                 Hourly Rate ($)
                             </label>
 
@@ -914,7 +951,11 @@
 
                     </div>
 
-                    <div class="paycalc-options">
+                    <!-- NZ options -->
+                    <div
+                        id="payOptionsNz"
+                        class="paycalc-options"
+                        data-pay-country-panel="nz">
 
                         <label class="checkbox-row">
 
@@ -967,7 +1008,7 @@
 
                         <div
                             id="payKiwiSaverOptions"
-                            class="paycalc-kiwisaver-options hidden">
+                            class="paycalc-nested-options hidden">
 
                             <div class="form-group">
 
@@ -1018,7 +1059,237 @@
 
                     </div>
 
-                    <div class="paycalc-note">
+                    <!-- UK options -->
+                    <div
+                        id="payOptionsUk"
+                        class="paycalc-options hidden"
+                        data-pay-country-panel="uk">
+
+                        <label class="checkbox-row">
+
+                            <input
+                                type="checkbox"
+                                id="payUkStudentLoan">
+
+                            <span>
+                                Student Loan (Plan 2)
+                            </span>
+
+                            <span class="tooltip">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                <span class="tooltip-text">
+                                    Estimates 9% of income above the
+                                    Plan 2 threshold (£28,470 for 2025/26).
+                                    Other plans differ.
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        <label class="checkbox-row">
+
+                            <input
+                                type="checkbox"
+                                id="payUkPension">
+
+                            <span>
+                                Workplace pension
+                            </span>
+
+                            <span class="tooltip">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                <span class="tooltip-text">
+                                    Employee contribution deducted from
+                                    pay (relief at source estimate).
+                                    Employer contribution is shown
+                                    separately if enabled.
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        <div
+                            id="payUkPensionOptions"
+                            class="paycalc-nested-options hidden">
+
+                            <div class="form-group">
+
+                                <label for="payUkPensionRate">
+                                    Employee pension %
+                                </label>
+
+                                <select id="payUkPensionRate">
+
+                                    <option value="5" selected>
+                                        5% (auto-enrol default)
+                                    </option>
+
+                                    <option value="3">
+                                        3%
+                                    </option>
+
+                                    <option value="4">
+                                        4%
+                                    </option>
+
+                                    <option value="6">
+                                        6%
+                                    </option>
+
+                                    <option value="8">
+                                        8%
+                                    </option>
+
+                                    <option value="10">
+                                        10%
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <label class="checkbox-row">
+
+                                <input
+                                    type="checkbox"
+                                    id="payShowUkEmployerPension"
+                                    checked>
+
+                                <span>
+                                    Show employer contribution (3%)
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <!-- US options -->
+                    <div
+                        id="payOptionsUs"
+                        class="paycalc-options hidden"
+                        data-pay-country-panel="us">
+
+                        <div class="form-group">
+
+                            <label for="payUsFilingStatus">
+                                Filing status
+                            </label>
+
+                            <select id="payUsFilingStatus">
+
+                                <option value="single" selected>
+                                    Single
+                                </option>
+
+                                <option value="married">
+                                    Married filing jointly
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <label class="checkbox-row">
+
+                            <input
+                                type="checkbox"
+                                id="payUs401k">
+
+                            <span>
+                                Traditional 401(k) contributions
+                            </span>
+
+                            <span class="tooltip">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                <span class="tooltip-text">
+                                    Pre-tax employee deferral. Reduces
+                                    estimated federal (and state) taxable
+                                    income. Still subject to FICA.
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        <div
+                            id="payUs401kOptions"
+                            class="paycalc-nested-options hidden">
+
+                            <div class="form-group">
+
+                                <label for="payUs401kRate">
+                                    Employee 401(k) %
+                                </label>
+
+                                <select id="payUs401kRate">
+
+                                    <option value="3">
+                                        3%
+                                    </option>
+
+                                    <option value="5" selected>
+                                        5%
+                                    </option>
+
+                                    <option value="6">
+                                        6%
+                                    </option>
+
+                                    <option value="8">
+                                        8%
+                                    </option>
+
+                                    <option value="10">
+                                        10%
+                                    </option>
+
+                                    <option value="15">
+                                        15%
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="payUsStateTax">
+                                Estimated state income tax %
+                            </label>
+
+                            <input
+                                type="number"
+                                id="payUsStateTax"
+                                min="0"
+                                max="15"
+                                step="0.1"
+                                value="0"
+                                placeholder="e.g. 5">
+
+                            <span class="paycalc-field-hint">
+                                0 for no state tax (e.g. TX, FL, WA).
+                                Rough average only — states vary a lot.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="payCalcNote"
+                        class="paycalc-note">
                         Based on 52 paid weeks per year. Assumes primary
                         employment tax code (M / M SL).
                     </div>
@@ -1085,17 +1356,41 @@
 
                         <div class="paycalc-row is-deduction">
 
-                            <span>Income tax (PAYE)</span>
+                            <span id="payIncomeTaxLabel">Income tax (PAYE)</span>
 
                             <strong id="payIncomeTaxAmount">$0.00</strong>
 
                         </div>
 
-                        <div class="paycalc-row is-deduction">
+                        <div
+                            class="paycalc-row is-deduction"
+                            id="payLevyRow">
 
-                            <span>ACC earner levy</span>
+                            <span id="payLevyLabel">ACC earner levy</span>
 
-                            <strong id="payAccAmount">$0.00</strong>
+                            <strong id="payLevyAmount">$0.00</strong>
+
+                        </div>
+
+                        <div
+                            class="paycalc-row is-deduction"
+                            id="payMedicareRow"
+                            hidden>
+
+                            <span>Medicare</span>
+
+                            <strong id="payMedicareAmount">$0.00</strong>
+
+                        </div>
+
+                        <div
+                            class="paycalc-row is-deduction"
+                            id="payStateTaxRow"
+                            hidden>
+
+                            <span id="payStateTaxLabel">State tax</span>
+
+                            <strong id="payStateTaxAmount">$0.00</strong>
 
                         </div>
 
@@ -1103,7 +1398,7 @@
                             class="paycalc-row is-deduction"
                             id="payStudentLoanRow">
 
-                            <span>Student loan</span>
+                            <span id="payStudentLoanLabel">Student loan</span>
 
                             <strong id="payStudentLoanAmount">$0.00</strong>
 
@@ -1111,11 +1406,11 @@
 
                         <div
                             class="paycalc-row is-deduction"
-                            id="payKiwiSaverRow">
+                            id="payRetirementRow">
 
-                            <span id="payKiwiSaverLabel">KiwiSaver</span>
+                            <span id="payRetirementLabel">KiwiSaver</span>
 
-                            <strong id="payKiwiSaverAmount">$0.00</strong>
+                            <strong id="payRetirementAmount">$0.00</strong>
 
                         </div>
 
@@ -1130,12 +1425,12 @@
                     </div>
 
                     <div
-                        id="payEmployerKiwisaverBox"
+                        id="payEmployerBox"
                         class="paycalc-employer-box hidden">
 
-                        <span>Employer KiwiSaver (3%)</span>
+                        <span id="payEmployerLabel">Employer KiwiSaver (3%)</span>
 
-                        <strong id="payEmployerKiwisaverAmount">$0.00</strong>
+                        <strong id="payEmployerAmount">$0.00</strong>
 
                     </div>
 

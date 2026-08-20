@@ -2332,7 +2332,71 @@ body.light-mode .action-btn.paid-btn {
 
     max-width: 760px;
 
-    margin: -8px 0 22px;
+    margin: -8px 0 16px;
+
+}
+
+
+.paycalc-country-tabs {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin: 0 0 20px;
+
+}
+
+
+.paycalc-country-btn {
+
+    border: 1px solid var(--border);
+
+    background: transparent;
+
+    color: var(--text-muted);
+
+    border-radius: 999px;
+
+    padding: 8px 14px;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+
+}
+
+
+.paycalc-country-btn:hover {
+
+    color: var(--text);
+
+    border-color: var(--border-hover);
+
+}
+
+
+.paycalc-country-btn.active {
+
+    background: rgba(59,130,246,0.14);
+
+    border-color: rgba(59,130,246,0.35);
+
+    color: var(--primary);
+
+    box-shadow: 0 0 0 1px rgba(59,130,246,0.12);
 
 }
 
@@ -2395,7 +2459,7 @@ body.light-mode .action-btn.paid-btn {
 }
 
 
-.paycalc-kiwisaver-options {
+.paycalc-nested-options {
 
     margin: 4px 0 8px 26px;
 
@@ -2406,6 +2470,21 @@ body.light-mode .action-btn.paid-btn {
     border-radius: 12px;
 
     background: var(--panel-hover);
+
+}
+
+
+.paycalc-field-hint {
+
+    display: block;
+
+    margin-top: 6px;
+
+    font-size: 11px;
+
+    line-height: 1.4;
+
+    color: var(--text-muted);
 
 }
 

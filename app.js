@@ -25,6 +25,10 @@ let editingSavingsGoalId = null;
 let editingProfileId = null;
 let payCalcPeriod = "weekly";
 
+let payCalcCountry =
+    localStorage.getItem("budgioPayCalcCountry") ||
+    "nz";
+
 let calendarDate = new Date();
 
 
@@ -124,8 +128,26 @@ const savingsGoalsList =
 const payHourlyRate =
     document.getElementById("payHourlyRate");
 
+const payHourlyRateLabel =
+    document.getElementById("payHourlyRateLabel");
+
 const payHoursPerWeek =
     document.getElementById("payHoursPerWeek");
+
+const payCalcIntro =
+    document.getElementById("payCalcIntro");
+
+const payCalcNote =
+    document.getElementById("payCalcNote");
+
+const payOptionsNz =
+    document.getElementById("payOptionsNz");
+
+const payOptionsUk =
+    document.getElementById("payOptionsUk");
+
+const payOptionsUs =
+    document.getElementById("payOptionsUs");
 
 const payStudentLoan =
     document.getElementById("payStudentLoan");
@@ -142,6 +164,36 @@ const payKiwiSaverRate =
 const payShowEmployerKiwisaver =
     document.getElementById("payShowEmployerKiwisaver");
 
+const payUkStudentLoan =
+    document.getElementById("payUkStudentLoan");
+
+const payUkPension =
+    document.getElementById("payUkPension");
+
+const payUkPensionOptions =
+    document.getElementById("payUkPensionOptions");
+
+const payUkPensionRate =
+    document.getElementById("payUkPensionRate");
+
+const payShowUkEmployerPension =
+    document.getElementById("payShowUkEmployerPension");
+
+const payUsFilingStatus =
+    document.getElementById("payUsFilingStatus");
+
+const payUs401k =
+    document.getElementById("payUs401k");
+
+const payUs401kOptions =
+    document.getElementById("payUs401kOptions");
+
+const payUs401kRate =
+    document.getElementById("payUs401kRate");
+
+const payUsStateTax =
+    document.getElementById("payUsStateTax");
+
 const payNetLabel =
     document.getElementById("payNetLabel");
 
@@ -151,35 +203,65 @@ const payNetAmount =
 const payGrossAmount =
     document.getElementById("payGrossAmount");
 
+const payIncomeTaxLabel =
+    document.getElementById("payIncomeTaxLabel");
+
 const payIncomeTaxAmount =
     document.getElementById("payIncomeTaxAmount");
 
-const payAccAmount =
-    document.getElementById("payAccAmount");
+const payLevyRow =
+    document.getElementById("payLevyRow");
+
+const payLevyLabel =
+    document.getElementById("payLevyLabel");
+
+const payLevyAmount =
+    document.getElementById("payLevyAmount");
+
+const payMedicareRow =
+    document.getElementById("payMedicareRow");
+
+const payMedicareAmount =
+    document.getElementById("payMedicareAmount");
+
+const payStateTaxRow =
+    document.getElementById("payStateTaxRow");
+
+const payStateTaxLabel =
+    document.getElementById("payStateTaxLabel");
+
+const payStateTaxAmount =
+    document.getElementById("payStateTaxAmount");
 
 const payStudentLoanRow =
     document.getElementById("payStudentLoanRow");
 
+const payStudentLoanLabel =
+    document.getElementById("payStudentLoanLabel");
+
 const payStudentLoanAmount =
     document.getElementById("payStudentLoanAmount");
 
-const payKiwiSaverRow =
-    document.getElementById("payKiwiSaverRow");
+const payRetirementRow =
+    document.getElementById("payRetirementRow");
 
-const payKiwiSaverLabel =
-    document.getElementById("payKiwiSaverLabel");
+const payRetirementLabel =
+    document.getElementById("payRetirementLabel");
 
-const payKiwiSaverAmount =
-    document.getElementById("payKiwiSaverAmount");
+const payRetirementAmount =
+    document.getElementById("payRetirementAmount");
 
 const payDeductionsAmount =
     document.getElementById("payDeductionsAmount");
 
-const payEmployerKiwisaverBox =
-    document.getElementById("payEmployerKiwisaverBox");
+const payEmployerBox =
+    document.getElementById("payEmployerBox");
 
-const payEmployerKiwisaverAmount =
-    document.getElementById("payEmployerKiwisaverAmount");
+const payEmployerLabel =
+    document.getElementById("payEmployerLabel");
+
+const payEmployerAmount =
+    document.getElementById("payEmployerAmount");
 
 const payEffectiveRate =
     document.getElementById("payEffectiveRate");
@@ -5689,12 +5771,18 @@ function getSavingsGoalsPeriodTotal() {
 
 
 // ============================================================
-// NZ PAY CALCULATOR (2026/27)
+// PAY CALCULATOR (NZ / UK / US)
 // ============================================================
+
+const PAY_CALC_WEEKS = 52;
 
 const NZ_PAY_TAX = {
 
     yearLabel: "2026/27",
+
+    currency: "NZD",
+
+    symbolHint: "$",
 
     brackets: [
         { upTo: 15600, rate: 0.105 },
@@ -5712,9 +5800,93 @@ const NZ_PAY_TAX = {
 
     studentLoanThreshold: 24128,
 
-    employerKiwiSaverRate: 0.03,
+    employerKiwiSaverRate: 0.03
 
-    weeksPerYear: 52
+};
+
+
+const UK_PAY_TAX = {
+
+    yearLabel: "2025/26",
+
+    currency: "GBP",
+
+    symbolHint: "£",
+
+    personalAllowance: 12570,
+
+    paTaperStart: 100000,
+
+    basicBand: 37700,
+
+    higherLimit: 125140,
+
+    basicRate: 0.20,
+
+    higherRate: 0.40,
+
+    additionalRate: 0.45,
+
+    niPrimaryThreshold: 12570,
+
+    niUpperLimit: 50270,
+
+    niMainRate: 0.08,
+
+    niUpperRate: 0.02,
+
+    studentLoanThreshold: 28470,
+
+    studentLoanRate: 0.09,
+
+    employerPensionRate: 0.03
+
+};
+
+
+const US_PAY_TAX = {
+
+    yearLabel: "2025",
+
+    currency: "USD",
+
+    symbolHint: "$",
+
+    single: {
+        standardDeduction: 15000,
+        brackets: [
+            { upTo: 11925, rate: 0.10 },
+            { upTo: 48475, rate: 0.12 },
+            { upTo: 103350, rate: 0.22 },
+            { upTo: 197300, rate: 0.24 },
+            { upTo: 250525, rate: 0.32 },
+            { upTo: 626350, rate: 0.35 },
+            { upTo: Infinity, rate: 0.37 }
+        ],
+        additionalMedicareThreshold: 200000
+    },
+
+    married: {
+        standardDeduction: 30000,
+        brackets: [
+            { upTo: 23850, rate: 0.10 },
+            { upTo: 96950, rate: 0.12 },
+            { upTo: 206700, rate: 0.22 },
+            { upTo: 394600, rate: 0.24 },
+            { upTo: 501050, rate: 0.32 },
+            { upTo: 751600, rate: 0.35 },
+            { upTo: Infinity, rate: 0.37 }
+        ],
+        additionalMedicareThreshold: 250000
+    },
+
+    socialSecurityRate: 0.062,
+
+    socialSecurityWageBase: 176100,
+
+    medicareRate: 0.0145,
+
+    additionalMedicareRate: 0.009
 
 };
 
@@ -5727,7 +5899,15 @@ function setupPayCalculatorEvents() {
         payStudentLoan,
         payKiwiSaver,
         payKiwiSaverRate,
-        payShowEmployerKiwisaver
+        payShowEmployerKiwisaver,
+        payUkStudentLoan,
+        payUkPension,
+        payUkPensionRate,
+        payShowUkEmployerPension,
+        payUsFilingStatus,
+        payUs401k,
+        payUs401kRate,
+        payUsStateTax
     ];
 
 
@@ -5750,9 +5930,13 @@ function setupPayCalculatorEvents() {
             eventName,
             () => {
 
-                if (input === payKiwiSaver) {
+                if (
+                    input === payKiwiSaver ||
+                    input === payUkPension ||
+                    input === payUs401k
+                ) {
 
-                    updatePayKiwiSaverOptions();
+                    updatePayNestedOptions();
 
                 }
 
@@ -5797,31 +5981,223 @@ function setupPayCalculatorEvents() {
         });
 
 
-    updatePayKiwiSaverOptions();
+    document
+        .querySelectorAll("[data-pay-country]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    setPayCalcCountry(
+                        button.dataset.payCountry ||
+                        "nz"
+                    );
+
+                }
+            );
+
+        });
+
+
+    setPayCalcCountry(payCalcCountry, false);
 
     updatePayCalculator();
 
 }
 
 
-function updatePayKiwiSaverOptions() {
+function setPayCalcCountry(country, recalculate = true) {
 
-    if (!payKiwiSaverOptions || !payKiwiSaver) {
+    const next =
+        country === "uk" || country === "us"
+            ? country
+            : "nz";
 
-        return;
+
+    payCalcCountry = next;
+
+    try {
+
+        localStorage.setItem(
+            "budgioPayCalcCountry",
+            next
+        );
+
+    } catch (error) {
+
+        // Ignore storage failures (private mode, etc).
 
     }
 
 
-    payKiwiSaverOptions.classList.toggle(
-        "hidden",
-        !payKiwiSaver.checked
-    );
+    document
+        .querySelectorAll("[data-pay-country]")
+        .forEach(button => {
+
+            const active =
+                button.dataset.payCountry === next;
+
+            button.classList.toggle("active", active);
+
+            button.setAttribute(
+                "aria-selected",
+                active ? "true" : "false"
+            );
+
+        });
+
+
+    document
+        .querySelectorAll("[data-pay-country-panel]")
+        .forEach(panel => {
+
+            panel.classList.toggle(
+                "hidden",
+                panel.dataset.payCountryPanel !== next
+            );
+
+        });
+
+
+    updatePayCountryCopy();
+
+    updatePayNestedOptions();
+
+
+    if (recalculate) {
+
+        updatePayCalculator();
+
+    }
 
 }
 
 
-function calculateNzIncomeTax(annualIncome) {
+function updatePayCountryCopy() {
+
+    const meta = getPayCountryMeta(payCalcCountry);
+
+
+    if (payCalcIntro) {
+
+        payCalcIntro.textContent = meta.intro;
+
+    }
+
+
+    if (payCalcNote) {
+
+        payCalcNote.textContent = meta.note;
+
+    }
+
+
+    if (payHourlyRateLabel) {
+
+        payHourlyRateLabel.textContent =
+            `Hourly Rate (${meta.symbolHint})`;
+
+    }
+
+
+    if (payHourlyRate) {
+
+        payHourlyRate.placeholder = meta.placeholder;
+
+    }
+
+}
+
+
+function getPayCountryMeta(country) {
+
+    if (country === "uk") {
+
+        return {
+            intro:
+                "Enter your hourly rate to estimate UK take-home pay " +
+                `(England/NI/Wales ${UK_PAY_TAX.yearLabel} income tax & Class 1 NI). ` +
+                "Scotland uses different bands. Estimate only — not HMRC advice.",
+            note:
+                "Based on 52 paid weeks. Assumes standard Personal Allowance, " +
+                "England/Wales/NI tax bands, and employee Class 1 NI. " +
+                "Pension uses relief-at-source style estimate.",
+            symbolHint: "£",
+            placeholder: "e.g. 18.50"
+        };
+
+    }
+
+
+    if (country === "us") {
+
+        return {
+            intro:
+                `Enter your hourly rate to estimate US take-home pay using ${US_PAY_TAX.yearLabel} ` +
+                "federal income tax brackets, Social Security, and Medicare. " +
+                "State tax is a simple % estimate. Not IRS advice.",
+            note:
+                "Based on 52 paid weeks. Assumes W-2 wages, standard deduction only " +
+                "(no itemizing/credits), and traditional 401(k) if enabled. " +
+                "FICA still applies to 401(k) deferrals.",
+            symbolHint: "$",
+            placeholder: "e.g. 25.00"
+        };
+
+    }
+
+
+    return {
+        intro:
+            "Enter your hourly rate to estimate take-home pay using " +
+            `${NZ_PAY_TAX.yearLabel} New Zealand PAYE, ACC, Student Loan, and KiwiSaver rates. ` +
+            "This is an estimate only — use IRD tools for official figures.",
+        note:
+            "Based on 52 paid weeks per year. Assumes primary " +
+            "employment tax code (M / M SL).",
+        symbolHint: "$",
+        placeholder: "e.g. 32.50"
+    };
+
+}
+
+
+function updatePayNestedOptions() {
+
+    if (payKiwiSaverOptions && payKiwiSaver) {
+
+        payKiwiSaverOptions.classList.toggle(
+            "hidden",
+            !payKiwiSaver.checked
+        );
+
+    }
+
+
+    if (payUkPensionOptions && payUkPension) {
+
+        payUkPensionOptions.classList.toggle(
+            "hidden",
+            !payUkPension.checked
+        );
+
+    }
+
+
+    if (payUs401kOptions && payUs401k) {
+
+        payUs401kOptions.classList.toggle(
+            "hidden",
+            !payUs401k.checked
+        );
+
+    }
+
+}
+
+
+function calculateProgressiveTax(annualIncome, brackets) {
 
     let remaining =
         Math.max(0, Number(annualIncome) || 0);
@@ -5831,7 +6207,7 @@ function calculateNzIncomeTax(annualIncome) {
     let tax = 0;
 
 
-    NZ_PAY_TAX.brackets.forEach(bracket => {
+    brackets.forEach(bracket => {
 
         if (remaining <= 0) {
 
@@ -5866,6 +6242,16 @@ function calculateNzIncomeTax(annualIncome) {
 }
 
 
+function calculateNzIncomeTax(annualIncome) {
+
+    return calculateProgressiveTax(
+        annualIncome,
+        NZ_PAY_TAX.brackets
+    );
+
+}
+
+
 function calculateNzPayBreakdown({
     hourlyRate,
     hoursPerWeek,
@@ -5885,7 +6271,7 @@ function calculateNzPayBreakdown({
         hourly * hours;
 
     const annualGross =
-        weeklyGross * NZ_PAY_TAX.weeksPerYear;
+        weeklyGross * PAY_CALC_WEEKS;
 
 
     const annualIncomeTax =
@@ -5898,7 +6284,7 @@ function calculateNzPayBreakdown({
             NZ_PAY_TAX.accMaxEarnings
         );
 
-    const annualAcc =
+    const annualLevy =
         accLiable * NZ_PAY_TAX.accRate;
 
 
@@ -5917,11 +6303,11 @@ function calculateNzPayBreakdown({
             ? (Number(kiwiSaverPercent) || 0) / 100
             : 0;
 
-    const annualKiwiSaver =
+    const annualRetirement =
         annualGross * kiwiSaverRate;
 
 
-    const annualEmployerKiwiSaver =
+    const annualEmployer =
         hasKiwiSaver && showEmployerKiwiSaver
             ? annualGross *
               NZ_PAY_TAX.employerKiwiSaverRate
@@ -5930,9 +6316,9 @@ function calculateNzPayBreakdown({
 
     const annualDeductions =
         annualIncomeTax +
-        annualAcc +
+        annualLevy +
         annualStudentLoan +
-        annualKiwiSaver;
+        annualRetirement;
 
 
     const annualNet =
@@ -5941,25 +6327,429 @@ function calculateNzPayBreakdown({
 
     return {
 
+        country: "nz",
+        currency: NZ_PAY_TAX.currency,
         hourly,
         hours,
         weeklyGross,
         annualGross,
         annualIncomeTax,
-        annualAcc,
+        annualLevy,
+        annualMedicare: 0,
+        annualStateTax: 0,
         annualStudentLoan,
-        annualKiwiSaver,
-        annualEmployerKiwiSaver,
+        annualRetirement,
+        annualEmployer,
         annualDeductions,
         annualNet,
+        annualTaxForEffective:
+            annualIncomeTax + annualLevy,
         hasStudentLoan,
-        hasKiwiSaver,
-        kiwiSaverPercent:
+        hasRetirement: hasKiwiSaver,
+        retirementPercent:
             hasKiwiSaver
                 ? Number(kiwiSaverPercent) || 0
                 : 0,
-        showEmployerKiwiSaver:
-            !!(hasKiwiSaver && showEmployerKiwiSaver)
+        showEmployer:
+            !!(hasKiwiSaver && showEmployerKiwiSaver),
+        stateTaxPercent: 0,
+        incomeTaxLabel: "Income tax (PAYE)",
+        levyLabel: "ACC earner levy",
+        studentLoanLabel: "Student loan",
+        retirementLabel:
+            hasKiwiSaver
+                ? `KiwiSaver (${Number(kiwiSaverPercent) || 0}%)`
+                : "KiwiSaver",
+        employerLabel: "Employer KiwiSaver (3%)",
+        showLevy: true,
+        showMedicare: false,
+        showStateTax: false
+
+    };
+
+}
+
+
+function calculateUkIncomeTax(annualGross) {
+
+    let personalAllowance =
+        UK_PAY_TAX.personalAllowance;
+
+
+    if (annualGross > UK_PAY_TAX.paTaperStart) {
+
+        const reduction =
+            (annualGross - UK_PAY_TAX.paTaperStart) / 2;
+
+        personalAllowance =
+            Math.max(
+                0,
+                UK_PAY_TAX.personalAllowance - reduction
+            );
+
+    }
+
+
+    let remaining =
+        Math.max(0, annualGross - personalAllowance);
+
+    let tax = 0;
+
+
+    const basicSlice =
+        Math.min(remaining, UK_PAY_TAX.basicBand);
+
+    tax += basicSlice * UK_PAY_TAX.basicRate;
+
+    remaining -= basicSlice;
+
+
+    const higherBandWidth =
+        Math.max(
+            0,
+            UK_PAY_TAX.higherLimit -
+                UK_PAY_TAX.basicBand
+        );
+
+    const higherSlice =
+        Math.min(remaining, higherBandWidth);
+
+    tax += higherSlice * UK_PAY_TAX.higherRate;
+
+    remaining -= higherSlice;
+
+
+    if (remaining > 0) {
+
+        tax += remaining * UK_PAY_TAX.additionalRate;
+
+    }
+
+
+    return tax;
+
+}
+
+
+function calculateUkNationalInsurance(annualGross) {
+
+    const gross =
+        Math.max(0, Number(annualGross) || 0);
+
+
+    if (gross <= UK_PAY_TAX.niPrimaryThreshold) {
+
+        return 0;
+
+    }
+
+
+    const mainBand =
+        Math.min(
+            gross,
+            UK_PAY_TAX.niUpperLimit
+        ) - UK_PAY_TAX.niPrimaryThreshold;
+
+
+    const upperBand =
+        Math.max(
+            0,
+            gross - UK_PAY_TAX.niUpperLimit
+        );
+
+
+    return (
+        Math.max(0, mainBand) *
+            UK_PAY_TAX.niMainRate +
+        upperBand * UK_PAY_TAX.niUpperRate
+    );
+
+}
+
+
+function calculateUkPayBreakdown({
+    hourlyRate,
+    hoursPerWeek,
+    hasStudentLoan,
+    hasPension,
+    pensionPercent,
+    showEmployerPension
+}) {
+
+    const hourly =
+        Math.max(0, Number(hourlyRate) || 0);
+
+    const hours =
+        Math.max(0, Number(hoursPerWeek) || 0);
+
+    const weeklyGross =
+        hourly * hours;
+
+    const annualGross =
+        weeklyGross * PAY_CALC_WEEKS;
+
+
+    const annualIncomeTax =
+        calculateUkIncomeTax(annualGross);
+
+    const annualLevy =
+        calculateUkNationalInsurance(annualGross);
+
+
+    const annualStudentLoan =
+        hasStudentLoan
+            ? Math.max(
+                0,
+                annualGross -
+                    UK_PAY_TAX.studentLoanThreshold
+              ) * UK_PAY_TAX.studentLoanRate
+            : 0;
+
+
+    const pensionRate =
+        hasPension
+            ? (Number(pensionPercent) || 0) / 100
+            : 0;
+
+    const annualRetirement =
+        annualGross * pensionRate;
+
+
+    const annualEmployer =
+        hasPension && showEmployerPension
+            ? annualGross *
+              UK_PAY_TAX.employerPensionRate
+            : 0;
+
+
+    const annualDeductions =
+        annualIncomeTax +
+        annualLevy +
+        annualStudentLoan +
+        annualRetirement;
+
+
+    const annualNet =
+        annualGross - annualDeductions;
+
+
+    return {
+
+        country: "uk",
+        currency: UK_PAY_TAX.currency,
+        hourly,
+        hours,
+        weeklyGross,
+        annualGross,
+        annualIncomeTax,
+        annualLevy,
+        annualMedicare: 0,
+        annualStateTax: 0,
+        annualStudentLoan,
+        annualRetirement,
+        annualEmployer,
+        annualDeductions,
+        annualNet,
+        annualTaxForEffective:
+            annualIncomeTax + annualLevy,
+        hasStudentLoan,
+        hasRetirement: hasPension,
+        retirementPercent:
+            hasPension
+                ? Number(pensionPercent) || 0
+                : 0,
+        showEmployer:
+            !!(hasPension && showEmployerPension),
+        stateTaxPercent: 0,
+        incomeTaxLabel: "Income tax (PAYE)",
+        levyLabel: "National Insurance",
+        studentLoanLabel: "Student loan (Plan 2)",
+        retirementLabel:
+            hasPension
+                ? `Pension (${Number(pensionPercent) || 0}%)`
+                : "Pension",
+        employerLabel: "Employer pension (3%)",
+        showLevy: true,
+        showMedicare: false,
+        showStateTax: false
+
+    };
+
+}
+
+
+function calculateUsFederalTax(taxableIncome, brackets) {
+
+    return calculateProgressiveTax(
+        taxableIncome,
+        brackets
+    );
+
+}
+
+
+function calculateUsPayBreakdown({
+    hourlyRate,
+    hoursPerWeek,
+    filingStatus,
+    has401k,
+    deferralPercent,
+    stateTaxPercent
+}) {
+
+    const hourly =
+        Math.max(0, Number(hourlyRate) || 0);
+
+    const hours =
+        Math.max(0, Number(hoursPerWeek) || 0);
+
+    const weeklyGross =
+        hourly * hours;
+
+    const annualGross =
+        weeklyGross * PAY_CALC_WEEKS;
+
+
+    const statusKey =
+        filingStatus === "married"
+            ? "married"
+            : "single";
+
+    const statusRules =
+        US_PAY_TAX[statusKey];
+
+
+    const deferralRate =
+        has401k
+            ? (Number(deferralPercent) || 0) / 100
+            : 0;
+
+    const annualRetirement =
+        annualGross * deferralRate;
+
+
+    const federalTaxable =
+        Math.max(
+            0,
+            annualGross -
+                annualRetirement -
+                statusRules.standardDeduction
+        );
+
+
+    const annualIncomeTax =
+        calculateUsFederalTax(
+            federalTaxable,
+            statusRules.brackets
+        );
+
+
+    const ssLiable =
+        Math.min(
+            annualGross,
+            US_PAY_TAX.socialSecurityWageBase
+        );
+
+    const annualLevy =
+        ssLiable * US_PAY_TAX.socialSecurityRate;
+
+
+    let annualMedicare =
+        annualGross * US_PAY_TAX.medicareRate;
+
+
+    if (
+        annualGross >
+        statusRules.additionalMedicareThreshold
+    ) {
+
+        annualMedicare +=
+            (annualGross -
+                statusRules.additionalMedicareThreshold) *
+            US_PAY_TAX.additionalMedicareRate;
+
+    }
+
+
+    const stateRate =
+        Math.max(
+            0,
+            Math.min(
+                15,
+                Number(stateTaxPercent) || 0
+            )
+        ) / 100;
+
+    const annualStateTax =
+        Math.max(
+            0,
+            annualGross - annualRetirement
+        ) * stateRate;
+
+
+    const annualDeductions =
+        annualIncomeTax +
+        annualLevy +
+        annualMedicare +
+        annualStateTax +
+        annualRetirement;
+
+
+    const annualNet =
+        annualGross - annualDeductions;
+
+
+    const statePctDisplay =
+        Math.max(
+            0,
+            Math.min(
+                15,
+                Number(stateTaxPercent) || 0
+            )
+        );
+
+
+    return {
+
+        country: "us",
+        currency: US_PAY_TAX.currency,
+        hourly,
+        hours,
+        weeklyGross,
+        annualGross,
+        annualIncomeTax,
+        annualLevy,
+        annualMedicare,
+        annualStateTax,
+        annualStudentLoan: 0,
+        annualRetirement,
+        annualEmployer: 0,
+        annualDeductions,
+        annualNet,
+        annualTaxForEffective:
+            annualIncomeTax +
+            annualLevy +
+            annualMedicare +
+            annualStateTax,
+        hasStudentLoan: false,
+        hasRetirement: has401k,
+        retirementPercent:
+            has401k
+                ? Number(deferralPercent) || 0
+                : 0,
+        showEmployer: false,
+        stateTaxPercent: statePctDisplay,
+        incomeTaxLabel: "Federal income tax",
+        levyLabel: "Social Security",
+        studentLoanLabel: "Student loan",
+        retirementLabel:
+            has401k
+                ? `401(k) (${Number(deferralPercent) || 0}%)`
+                : "401(k)",
+        employerLabel: "Employer contribution",
+        showLevy: true,
+        showMedicare: true,
+        showStateTax: statePctDisplay > 0
 
     };
 
@@ -5971,10 +6761,10 @@ function scalePayAmount(annualAmount, period) {
     switch (period) {
 
         case "weekly":
-            return annualAmount / NZ_PAY_TAX.weeksPerYear;
+            return annualAmount / PAY_CALC_WEEKS;
 
         case "fortnightly":
-            return annualAmount / (NZ_PAY_TAX.weeksPerYear / 2);
+            return annualAmount / (PAY_CALC_WEEKS / 2);
 
         case "monthly":
             return annualAmount / 12;
@@ -6010,6 +6800,112 @@ function getPayPeriodLabel(period) {
 }
 
 
+function formatPayCurrency(value, currency) {
+
+    const code =
+        currency === "GBP" || currency === "USD"
+            ? currency
+            : "NZD";
+
+
+    return new Intl.NumberFormat(
+        undefined,
+        {
+            style: "currency",
+            currency: code,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }
+    ).format(Number(value) || 0);
+
+}
+
+
+function buildCurrentPayBreakdown() {
+
+    const hourlyRate =
+        payHourlyRate
+            ? payHourlyRate.value
+            : 0;
+
+    const hoursPerWeek =
+        payHoursPerWeek
+            ? payHoursPerWeek.value
+            : 40;
+
+
+    if (payCalcCountry === "uk") {
+
+        return calculateUkPayBreakdown({
+            hourlyRate,
+            hoursPerWeek,
+            hasStudentLoan:
+                !!(payUkStudentLoan &&
+                    payUkStudentLoan.checked),
+            hasPension:
+                !!(payUkPension &&
+                    payUkPension.checked),
+            pensionPercent:
+                payUkPensionRate
+                    ? payUkPensionRate.value
+                    : 5,
+            showEmployerPension:
+                !!(
+                    payShowUkEmployerPension &&
+                    payShowUkEmployerPension.checked
+                )
+        });
+
+    }
+
+
+    if (payCalcCountry === "us") {
+
+        return calculateUsPayBreakdown({
+            hourlyRate,
+            hoursPerWeek,
+            filingStatus:
+                payUsFilingStatus
+                    ? payUsFilingStatus.value
+                    : "single",
+            has401k:
+                !!(payUs401k && payUs401k.checked),
+            deferralPercent:
+                payUs401kRate
+                    ? payUs401kRate.value
+                    : 5,
+            stateTaxPercent:
+                payUsStateTax
+                    ? payUsStateTax.value
+                    : 0
+        });
+
+    }
+
+
+    return calculateNzPayBreakdown({
+        hourlyRate,
+        hoursPerWeek,
+        hasStudentLoan:
+            !!(payStudentLoan &&
+                payStudentLoan.checked),
+        hasKiwiSaver:
+            !!(payKiwiSaver &&
+                payKiwiSaver.checked),
+        kiwiSaverPercent:
+            payKiwiSaverRate
+                ? payKiwiSaverRate.value
+                : 3.5,
+        showEmployerKiwiSaver:
+            !!(
+                payShowEmployerKiwisaver &&
+                payShowEmployerKiwisaver.checked
+            )
+    });
+
+}
+
+
 function updatePayCalculator() {
 
     if (!payNetAmount) {
@@ -6019,35 +6915,11 @@ function updatePayCalculator() {
     }
 
 
-    updatePayKiwiSaverOptions();
+    updatePayNestedOptions();
 
 
     const breakdown =
-        calculateNzPayBreakdown({
-            hourlyRate:
-                payHourlyRate
-                    ? payHourlyRate.value
-                    : 0,
-            hoursPerWeek:
-                payHoursPerWeek
-                    ? payHoursPerWeek.value
-                    : 40,
-            hasStudentLoan:
-                !!(payStudentLoan &&
-                    payStudentLoan.checked),
-            hasKiwiSaver:
-                !!(payKiwiSaver &&
-                    payKiwiSaver.checked),
-            kiwiSaverPercent:
-                payKiwiSaverRate
-                    ? payKiwiSaverRate.value
-                    : 3.5,
-            showEmployerKiwiSaver:
-                !!(
-                    payShowEmployerKiwisaver &&
-                    payShowEmployerKiwisaver.checked
-                )
-        });
+        buildCurrentPayBreakdown();
 
 
     const period =
@@ -6063,11 +6935,12 @@ function updatePayCalculator() {
         }
 
         element.textContent =
-            formatCurrency(
+            formatPayCurrency(
                 scalePayAmount(
                     annualValue,
                     period
-                )
+                ),
+                breakdown.currency
             );
 
     };
@@ -6081,6 +6954,56 @@ function updatePayCalculator() {
     }
 
 
+    if (payIncomeTaxLabel) {
+
+        payIncomeTaxLabel.textContent =
+            breakdown.incomeTaxLabel;
+
+    }
+
+
+    if (payLevyLabel) {
+
+        payLevyLabel.textContent =
+            breakdown.levyLabel;
+
+    }
+
+
+    if (payStudentLoanLabel) {
+
+        payStudentLoanLabel.textContent =
+            breakdown.studentLoanLabel;
+
+    }
+
+
+    if (payRetirementLabel) {
+
+        payRetirementLabel.textContent =
+            breakdown.retirementLabel;
+
+    }
+
+
+    if (payEmployerLabel) {
+
+        payEmployerLabel.textContent =
+            breakdown.employerLabel;
+
+    }
+
+
+    if (payStateTaxLabel) {
+
+        payStateTaxLabel.textContent =
+            breakdown.stateTaxPercent > 0
+                ? `State tax (${breakdown.stateTaxPercent}%)`
+                : "State tax";
+
+    }
+
+
     setMoney(payNetAmount, breakdown.annualNet);
 
     setMoney(payGrossAmount, breakdown.annualGross);
@@ -6090,7 +7013,17 @@ function updatePayCalculator() {
         breakdown.annualIncomeTax
     );
 
-    setMoney(payAccAmount, breakdown.annualAcc);
+    setMoney(payLevyAmount, breakdown.annualLevy);
+
+    setMoney(
+        payMedicareAmount,
+        breakdown.annualMedicare
+    );
+
+    setMoney(
+        payStateTaxAmount,
+        breakdown.annualStateTax
+    );
 
     setMoney(
         payStudentLoanAmount,
@@ -6098,8 +7031,8 @@ function updatePayCalculator() {
     );
 
     setMoney(
-        payKiwiSaverAmount,
-        breakdown.annualKiwiSaver
+        payRetirementAmount,
+        breakdown.annualRetirement
     );
 
     setMoney(
@@ -6108,9 +7041,41 @@ function updatePayCalculator() {
     );
 
     setMoney(
-        payEmployerKiwisaverAmount,
-        breakdown.annualEmployerKiwiSaver
+        payEmployerAmount,
+        breakdown.annualEmployer
     );
+
+
+    if (payLevyRow) {
+
+        payLevyRow.hidden = !breakdown.showLevy;
+
+        payLevyRow.style.display =
+            breakdown.showLevy ? "" : "none";
+
+    }
+
+
+    if (payMedicareRow) {
+
+        payMedicareRow.hidden =
+            !breakdown.showMedicare;
+
+        payMedicareRow.style.display =
+            breakdown.showMedicare ? "" : "none";
+
+    }
+
+
+    if (payStateTaxRow) {
+
+        payStateTaxRow.hidden =
+            !breakdown.showStateTax;
+
+        payStateTaxRow.style.display =
+            breakdown.showStateTax ? "" : "none";
+
+    }
 
 
     if (payStudentLoanRow) {
@@ -6123,31 +7088,21 @@ function updatePayCalculator() {
     }
 
 
-    if (payKiwiSaverRow) {
+    if (payRetirementRow) {
 
-        payKiwiSaverRow.style.display =
-            breakdown.hasKiwiSaver
+        payRetirementRow.style.display =
+            breakdown.hasRetirement
                 ? ""
                 : "none";
 
     }
 
 
-    if (payKiwiSaverLabel) {
+    if (payEmployerBox) {
 
-        payKiwiSaverLabel.textContent =
-            breakdown.hasKiwiSaver
-                ? `KiwiSaver (${breakdown.kiwiSaverPercent}%)`
-                : "KiwiSaver";
-
-    }
-
-
-    if (payEmployerKiwisaverBox) {
-
-        payEmployerKiwisaverBox.classList.toggle(
+        payEmployerBox.classList.toggle(
             "hidden",
-            !breakdown.showEmployerKiwiSaver
+            !breakdown.showEmployer
         );
 
     }
@@ -6158,10 +7113,7 @@ function updatePayCalculator() {
         const rate =
             breakdown.annualGross > 0
                 ? (
-                    (
-                        breakdown.annualIncomeTax +
-                        breakdown.annualAcc
-                    ) /
+                    breakdown.annualTaxForEffective /
                     breakdown.annualGross
                   ) * 100
                 : 0;
@@ -6177,12 +7129,16 @@ function updatePayCalculator() {
 
         payNetHourly.textContent =
             breakdown.hours > 0
-                ? formatCurrency(
+                ? formatPayCurrency(
                     breakdown.annualNet /
                     (breakdown.hours *
-                        NZ_PAY_TAX.weeksPerYear)
+                        PAY_CALC_WEEKS),
+                    breakdown.currency
                   )
-                : formatCurrency(0);
+                : formatPayCurrency(
+                    0,
+                    breakdown.currency
+                  );
 
     }
 
