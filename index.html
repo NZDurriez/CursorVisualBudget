@@ -38,7 +38,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=paycalc-au-1">
+    <link rel="stylesheet" href="style.css?v=sidebar-discord-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,54 +72,6 @@
             <h1>Budgio</h1>
 
         </div>
-
-        <div id="authPanel" class="auth-panel">
-
-            <div class="auth-user">
-
-                <img
-                    data-auth-avatar
-                    class="auth-avatar"
-                    alt=""
-                    hidden>
-
-                <div class="auth-copy">
-
-                    <strong data-auth-name>
-                        Guest (this device)
-                    </strong>
-
-                    <small data-auth-status>
-                        Sign in to sync budgets across devices
-                    </small>
-
-                </div>
-
-            </div>
-
-            <button
-                type="button"
-                id="googleSignInBtn"
-                class="auth-btn auth-btn-google">
-
-                <i class="fa-brands fa-google"></i>
-
-                <span class="nav-label">Sign in with Google</span>
-            </button>
-
-            <button
-                type="button"
-                id="googleSignOutBtn"
-                class="auth-btn auth-btn-signout"
-                hidden>
-
-                <i class="fa-solid fa-right-from-bracket"></i>
-
-                <span class="nav-label">Sign out</span>
-            </button>
-
-        </div>
-
 
         <nav>
 
@@ -180,6 +132,70 @@
             </button>
 
         </nav>
+
+        <div class="sidebar-footer">
+
+            <a
+                class="auth-btn auth-btn-discord"
+                href="https://discord.gg/g5GsEPJXcJ"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Join us on Discord"
+                aria-label="Join us on Discord">
+
+                <i class="fa-brands fa-discord"></i>
+
+                <span class="nav-label">Join us on Discord</span>
+            </a>
+
+            <div id="authPanel" class="auth-panel">
+
+                <div class="auth-user">
+
+                    <img
+                        data-auth-avatar
+                        class="auth-avatar"
+                        alt=""
+                        hidden>
+
+                    <div class="auth-copy">
+
+                        <strong data-auth-name>
+                            Guest (this device)
+                        </strong>
+
+                        <small data-auth-status>
+                            Sign in to sync budgets across devices
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="googleSignInBtn"
+                    class="auth-btn auth-btn-google">
+
+                    <i class="fa-brands fa-google"></i>
+
+                    <span class="nav-label">Sign in with Google</span>
+                </button>
+
+                <button
+                    type="button"
+                    id="googleSignOutBtn"
+                    class="auth-btn auth-btn-signout"
+                    hidden>
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    <span class="nav-label">Sign out</span>
+                </button>
+
+            </div>
+
+        </div>
 
     </aside>
 
