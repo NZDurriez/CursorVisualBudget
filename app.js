@@ -6081,10 +6081,10 @@ function setupPayCalculatorEvents() {
 
 function setPayCalcCountry(country, recalculate = true) {
 
+    const allowed = ["nz", "au", "uk", "us"];
+
     const next =
-        country === "uk" ||
-        country === "us" ||
-        country === "au"
+        allowed.includes(country)
             ? country
             : "nz";
 
