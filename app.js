@@ -146,6 +146,9 @@ const payOptionsNz =
 const payOptionsUk =
     document.getElementById("payOptionsUk");
 
+const payOptionsAu =
+    document.getElementById("payOptionsAu");
+
 const payOptionsUs =
     document.getElementById("payOptionsUs");
 
@@ -178,6 +181,21 @@ const payUkPensionRate =
 
 const payShowUkEmployerPension =
     document.getElementById("payShowUkEmployerPension");
+
+const payAuHelp =
+    document.getElementById("payAuHelp");
+
+const payAuSuper =
+    document.getElementById("payAuSuper");
+
+const payAuSuperOptions =
+    document.getElementById("payAuSuperOptions");
+
+const payAuSuperRate =
+    document.getElementById("payAuSuperRate");
+
+const payShowAuEmployerSuper =
+    document.getElementById("payShowAuEmployerSuper");
 
 const payUsFilingStatus =
     document.getElementById("payUsFilingStatus");
@@ -5891,6 +5909,55 @@ const US_PAY_TAX = {
 };
 
 
+const AU_PAY_TAX = {
+
+    yearLabel: "2025–26",
+
+    currency: "AUD",
+
+    symbolHint: "$",
+
+    brackets: [
+        { upTo: 18200, rate: 0 },
+        { upTo: 45000, rate: 0.16 },
+        { upTo: 135000, rate: 0.30 },
+        { upTo: 190000, rate: 0.37 },
+        { upTo: Infinity, rate: 0.45 }
+    ],
+
+    medicareRate: 0.02,
+
+    medicareLowThreshold: 28011,
+
+    medicareFullThreshold: 35014,
+
+    litoMax: 700,
+
+    litoLower: 37500,
+
+    litoMid: 45000,
+
+    litoUpper: 66667,
+
+    helpThreshold: 67000,
+
+    helpMid: 125000,
+
+    helpTop: 179285,
+
+    helpMidRate: 0.15,
+
+    helpUpperRate: 0.17,
+
+    helpTopFlatRate: 0.10,
+
+    helpMidCapAmount: 8700,
+
+    employerSuperRate: 0.12
+
+};
+
+
 function setupPayCalculatorEvents() {
 
     const inputs = [
@@ -5900,6 +5967,10 @@ function setupPayCalculatorEvents() {
         payKiwiSaver,
         payKiwiSaverRate,
         payShowEmployerKiwisaver,
+        payAuHelp,
+        payAuSuper,
+        payAuSuperRate,
+        payShowAuEmployerSuper,
         payUkStudentLoan,
         payUkPension,
         payUkPensionRate,
@@ -5932,6 +6003,7 @@ function setupPayCalculatorEvents() {
 
                 if (
                     input === payKiwiSaver ||
+                    input === payAuSuper ||
                     input === payUkPension ||
                     input === payUs401k
                 ) {
@@ -6010,7 +6082,9 @@ function setupPayCalculatorEvents() {
 function setPayCalcCountry(country, recalculate = true) {
 
     const next =
-        country === "uk" || country === "us"
+        country === "uk" ||
+        country === "us" ||
+        country === "au"
             ? country
             : "nz";
 
@@ -6112,6 +6186,24 @@ function updatePayCountryCopy() {
 
 function getPayCountryMeta(country) {
 
+    if (country === "au") {
+
+        return {
+            intro:
+                "Enter your hourly rate to estimate Australian take-home pay " +
+                `using ${AU_PAY_TAX.yearLabel} resident tax rates, Medicare levy, ` +
+                "HELP/HECS, and Super Guarantee. Estimate only — not ATO advice.",
+            note:
+                "Based on 52 paid weeks. Assumes Australian resident, tax-free " +
+                "threshold claimed, simple LITO estimate, and no Medicare surcharge. " +
+                "Employer SG (12%) is shown separately and is not taken from wages.",
+            symbolHint: "$",
+            placeholder: "e.g. 35.00"
+        };
+
+    }
+
+
     if (country === "uk") {
 
         return {
@@ -6190,6 +6282,16 @@ function updatePayNestedOptions() {
         payUs401kOptions.classList.toggle(
             "hidden",
             !payUs401k.checked
+        );
+
+    }
+
+
+    if (payAuSuperOptions && payAuSuper) {
+
+        payAuSuperOptions.classList.toggle(
+            "hidden",
+            !payAuSuper.checked
         );
 
     }
@@ -6756,6 +6858,247 @@ function calculateUsPayBreakdown({
 }
 
 
+function calculateAuLito(taxableIncome) {
+
+    const income =
+        Math.max(0, Number(taxableIncome) || 0);
+
+
+    if (income <= AU_PAY_TAX.litoLower) {
+
+        return AU_PAY_TAX.litoMax;
+
+    }
+
+
+    if (income <= AU_PAY_TAX.litoMid) {
+
+        return Math.max(
+            0,
+            AU_PAY_TAX.litoMax -
+                0.05 * (income - AU_PAY_TAX.litoLower)
+        );
+
+    }
+
+
+    if (income < AU_PAY_TAX.litoUpper) {
+
+        const atMid =
+            AU_PAY_TAX.litoMax -
+            0.05 *
+                (AU_PAY_TAX.litoMid -
+                    AU_PAY_TAX.litoLower);
+
+        return Math.max(
+            0,
+            atMid -
+                0.015 *
+                    (income - AU_PAY_TAX.litoMid)
+        );
+
+    }
+
+
+    return 0;
+
+}
+
+
+function calculateAuMedicareLevy(taxableIncome) {
+
+    const income =
+        Math.max(0, Number(taxableIncome) || 0);
+
+
+    if (income <= AU_PAY_TAX.medicareLowThreshold) {
+
+        return 0;
+
+    }
+
+
+    if (income >= AU_PAY_TAX.medicareFullThreshold) {
+
+        return income * AU_PAY_TAX.medicareRate;
+
+    }
+
+
+    // Shade-in between low and full thresholds.
+    const reductionFactor =
+        AU_PAY_TAX.medicareFullThreshold /
+        (AU_PAY_TAX.medicareFullThreshold -
+            AU_PAY_TAX.medicareLowThreshold);
+
+    return (
+        (income - AU_PAY_TAX.medicareLowThreshold) *
+        AU_PAY_TAX.medicareRate *
+        reductionFactor
+    );
+
+}
+
+
+function calculateAuHelpRepayment(repaymentIncome) {
+
+    const income =
+        Math.max(0, Number(repaymentIncome) || 0);
+
+
+    if (income <= AU_PAY_TAX.helpThreshold) {
+
+        return 0;
+
+    }
+
+
+    if (income <= AU_PAY_TAX.helpMid) {
+
+        return (
+            (income - AU_PAY_TAX.helpThreshold) *
+            AU_PAY_TAX.helpMidRate
+        );
+
+    }
+
+
+    if (income <= AU_PAY_TAX.helpTop) {
+
+        return (
+            AU_PAY_TAX.helpMidCapAmount +
+            (income - AU_PAY_TAX.helpMid) *
+                AU_PAY_TAX.helpUpperRate
+        );
+
+    }
+
+
+    return income * AU_PAY_TAX.helpTopFlatRate;
+
+}
+
+
+function calculateAuPayBreakdown({
+    hourlyRate,
+    hoursPerWeek,
+    hasHelp,
+    hasSalarySacrifice,
+    sacrificePercent,
+    showEmployerSuper
+}) {
+
+    const hourly =
+        Math.max(0, Number(hourlyRate) || 0);
+
+    const hours =
+        Math.max(0, Number(hoursPerWeek) || 0);
+
+    const weeklyGross =
+        hourly * hours;
+
+    const annualGross =
+        weeklyGross * PAY_CALC_WEEKS;
+
+
+    const sacrificeRate =
+        hasSalarySacrifice
+            ? (Number(sacrificePercent) || 0) / 100
+            : 0;
+
+    const annualRetirement =
+        annualGross * sacrificeRate;
+
+
+    const taxableIncome =
+        Math.max(0, annualGross - annualRetirement);
+
+
+    const rawIncomeTax =
+        calculateProgressiveTax(
+            taxableIncome,
+            AU_PAY_TAX.brackets
+        );
+
+    const lito =
+        calculateAuLito(taxableIncome);
+
+    const annualIncomeTax =
+        Math.max(0, rawIncomeTax - lito);
+
+
+    const annualLevy =
+        calculateAuMedicareLevy(taxableIncome);
+
+
+    const annualStudentLoan =
+        hasHelp
+            ? calculateAuHelpRepayment(annualGross)
+            : 0;
+
+
+    const annualEmployer =
+        showEmployerSuper
+            ? annualGross *
+              AU_PAY_TAX.employerSuperRate
+            : 0;
+
+
+    const annualDeductions =
+        annualIncomeTax +
+        annualLevy +
+        annualStudentLoan +
+        annualRetirement;
+
+
+    const annualNet =
+        annualGross - annualDeductions;
+
+
+    return {
+
+        country: "au",
+        currency: AU_PAY_TAX.currency,
+        hourly,
+        hours,
+        weeklyGross,
+        annualGross,
+        annualIncomeTax,
+        annualLevy,
+        annualMedicare: 0,
+        annualStateTax: 0,
+        annualStudentLoan,
+        annualRetirement,
+        annualEmployer,
+        annualDeductions,
+        annualNet,
+        annualTaxForEffective:
+            annualIncomeTax + annualLevy,
+        hasStudentLoan: hasHelp,
+        hasRetirement: hasSalarySacrifice,
+        retirementPercent:
+            hasSalarySacrifice
+                ? Number(sacrificePercent) || 0
+                : 0,
+        showEmployer: !!showEmployerSuper,
+        stateTaxPercent: 0,
+        incomeTaxLabel: "Income tax (PAYG)",
+        levyLabel: "Medicare levy",
+        studentLoanLabel: "HELP / HECS",
+        retirementLabel:
+            hasSalarySacrifice
+                ? `Salary sacrifice (${Number(sacrificePercent) || 0}%)`
+                : "Salary sacrifice",
+        employerLabel: "Employer Super Guarantee (12%)",
+        showLevy: true,
+        showMedicare: false,
+        showStateTax: false
+
+    };
+
+}
+
+
 function scalePayAmount(annualAmount, period) {
 
     switch (period) {
@@ -6803,7 +7146,9 @@ function getPayPeriodLabel(period) {
 function formatPayCurrency(value, currency) {
 
     const code =
-        currency === "GBP" || currency === "USD"
+        currency === "GBP" ||
+        currency === "USD" ||
+        currency === "AUD"
             ? currency
             : "NZD";
 
@@ -6832,6 +7177,29 @@ function buildCurrentPayBreakdown() {
         payHoursPerWeek
             ? payHoursPerWeek.value
             : 40;
+
+
+    if (payCalcCountry === "au") {
+
+        return calculateAuPayBreakdown({
+            hourlyRate,
+            hoursPerWeek,
+            hasHelp:
+                !!(payAuHelp && payAuHelp.checked),
+            hasSalarySacrifice:
+                !!(payAuSuper && payAuSuper.checked),
+            sacrificePercent:
+                payAuSuperRate
+                    ? payAuSuperRate.value
+                    : 3,
+            showEmployerSuper:
+                !!(
+                    payShowAuEmployerSuper &&
+                    payShowAuEmployerSuper.checked
+                )
+        });
+
+    }
 
 
     if (payCalcCountry === "uk") {

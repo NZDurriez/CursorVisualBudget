@@ -892,6 +892,15 @@
                 <button
                     type="button"
                     class="paycalc-country-btn"
+                    data-pay-country="au"
+                    role="tab"
+                    aria-selected="false">
+                    🇦🇺 Australia
+                </button>
+
+                <button
+                    type="button"
+                    class="paycalc-country-btn"
                     data-pay-country="uk"
                     role="tab"
                     aria-selected="false">
@@ -1168,6 +1177,126 @@
                             </label>
 
                         </div>
+
+                    </div>
+
+                    <!-- AU options -->
+                    <div
+                        id="payOptionsAu"
+                        class="paycalc-options hidden"
+                        data-pay-country-panel="au">
+
+                        <label class="checkbox-row">
+
+                            <input
+                                type="checkbox"
+                                id="payAuHelp">
+
+                            <span>
+                                HELP / HECS repayments
+                            </span>
+
+                            <span class="tooltip">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                <span class="tooltip-text">
+                                    Uses the 2025–26 marginal HELP
+                                    repayment system (starts above
+                                    $67,000). Estimate only.
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        <label class="checkbox-row">
+
+                            <input
+                                type="checkbox"
+                                id="payAuSuper">
+
+                            <span>
+                                Extra employee super (salary sacrifice)
+                            </span>
+
+                            <span class="tooltip">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                <span class="tooltip-text">
+                                    Optional concessional contribution
+                                    on top of the employer Super
+                                    Guarantee. Reduces estimated taxable
+                                    income.
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        <div
+                            id="payAuSuperOptions"
+                            class="paycalc-nested-options hidden">
+
+                            <div class="form-group">
+
+                                <label for="payAuSuperRate">
+                                    Salary sacrifice %
+                                </label>
+
+                                <select id="payAuSuperRate">
+
+                                    <option value="1">
+                                        1%
+                                    </option>
+
+                                    <option value="2">
+                                        2%
+                                    </option>
+
+                                    <option value="3" selected>
+                                        3%
+                                    </option>
+
+                                    <option value="5">
+                                        5%
+                                    </option>
+
+                                    <option value="10">
+                                        10%
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <label class="checkbox-row">
+
+                            <input
+                                type="checkbox"
+                                id="payShowAuEmployerSuper"
+                                checked>
+
+                            <span>
+                                Show employer Super Guarantee (12%)
+                            </span>
+
+                            <span class="tooltip">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                <span class="tooltip-text">
+                                    Employer SG is paid on top of wages
+                                    and is not deducted from take-home
+                                    pay. Shown separately for reference.
+                                </span>
+
+                            </span>
+
+                        </label>
 
                     </div>
 
