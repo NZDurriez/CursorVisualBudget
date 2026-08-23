@@ -11,7 +11,7 @@ import {
     GoogleAuthProvider,
     onAuthStateChanged,
     signInWithCustomToken,
-    signInWithRedirect,
+    signInWithPopup,
     signOut
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
@@ -343,7 +343,7 @@ function updateAuthUi() {
         if (status) {
 
             status.textContent = googlePending
-                ? "Returning from Google…"
+                ? "Waiting for Google…"
                 : "Sign in to sync budgets across devices";
 
         }
@@ -372,7 +372,7 @@ function updateAuthUi() {
             if (googleLabel) {
 
                 googleLabel.textContent = googlePending
-                    ? "Continuing with Google…"
+                    ? "Waiting for Google…"
                     : "Sign in with Google";
 
             }
@@ -488,21 +488,24 @@ async function signInWithGoogle() {
 
     try {
 
-        // Same-window redirect (Cursor-style): leave budgio.nz for Google,
-        // then Firebase returns this tab to the same page, signed in.
+        // Popup is required on GitHub Pages. Firebase's same-window
+        // redirect stores the session on firebaseapp.com, and browsers
+        // block budgio.nz from reading it — so you come back still a guest.
         setGoogleRedirectPending(true);
 
         updateAuthUi();
 
-        await signInWithRedirect(auth, googleProvider);
+        await signInWithPopup(auth, googleProvider);
 
     } catch (error) {
+
+        showGoogleSignInError(error);
+
+    } finally {
 
         setGoogleRedirectPending(false);
 
         updateAuthUi();
-
-        showGoogleSignInError(error);
 
     }
 
