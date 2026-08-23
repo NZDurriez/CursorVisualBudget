@@ -59,18 +59,19 @@ const upcomingPayments =
 const upcomingPaymentsTally =
     document.getElementById("upcomingPaymentsTally");
 
-const upcomingPaymentsTallyText =
-    document.getElementById("upcomingPaymentsTallyText");
-
 const upcomingPaymentsTallySum =
     document.getElementById("upcomingPaymentsTallySum");
+
+const upcomingPaymentsBankInput =
+    document.getElementById("upcomingPaymentsBankInput");
+
+const upcomingPaymentsBankLeft =
+    document.getElementById("upcomingPaymentsBankLeft");
 
 const clearUpcomingPaymentsSelectionBtn =
     document.getElementById("clearUpcomingPaymentsSelection");
 
 const selectedUpcomingPaymentIds = new Set();
-
-let upcomingPaymentSelectionTouched = false;
 
 const currentBudgetPeriod =
     document.getElementById("currentBudgetPeriod");
@@ -356,12 +357,6 @@ const itemDate =
 
 const itemDateLabel =
     document.getElementById("itemDateLabel");
-
-const deductedBeforePayGroup =
-    document.getElementById("deductedBeforePayGroup");
-
-const deductedBeforePayInput =
-    document.getElementById("deductedBeforePay");
 	
 const cancelBtn =
     document.getElementById("cancelBtn");
@@ -877,15 +872,6 @@ if (budgetPeriodBox) {
 
     }
 
-
-    if (itemDate) {
-
-        itemDate.addEventListener(
-            "change",
-            syncNewPaymentDeductedBeforePayDefault
-        );
-
-    }
 
     // Cancel
     if (cancelBtn) {
@@ -2673,17 +2659,9 @@ function showPage(page) {
                         : page.charAt(0).toUpperCase() + page.slice(1);
 
 
-    if (page === "dashboard") {
+    if (page !== "dashboard") {
 
-        seedUpcomingPaymentSelection(
-            getVisibleUpcomingPayments()
-        );
-
-        updateUpcomingPaymentSelectionUI();
-
-    } else {
-
-        resetUpcomingPaymentSelectionSession();
+        clearUpcomingPaymentSelection();
 
     }
 
@@ -2760,11 +2738,6 @@ if (deleteItemBtn) {
 }
 
 
-    setDeductedBeforePayGroupVisible(
-        type === "payment"
-    );
-
-
     // Editing existing item
     if (id) {
 
@@ -2822,31 +2795,11 @@ if (deleteItemBtn) {
 
         }
 
-
-        if (type === "payment") {
-
-            setDeductedBeforePayChecked(
-                isDeductedBeforePay(item)
-            );
-
-        }
-
     } else {
 
         // New item
         itemDate.value =
             getTodayString();
-
-
-        if (type === "payment") {
-
-            setDeductedBeforePayChecked(
-                isDateOnOrBeforeNextPay(
-                    itemDate.value
-                )
-            );
-
-        }
 
     }
 
@@ -3109,8 +3062,7 @@ function saveItem(event) {
 
     if (editingType === "payment") {
 
-        item.deductedBeforePay =
-            isDeductedBeforePayChecked();
+        delete item.deductedBeforePay;
 
     }
 
@@ -8267,189 +8219,6 @@ function getVisibleUpcomingPayments() {
 }
 
 
-function getNextPayReceivedDateString() {
-
-    const incomeDates =
-        (budget.income || [])
-            .map(item => item.nextDate)
-            .filter(Boolean)
-            .sort();
-
-
-    if (incomeDates.length > 0) {
-
-        return incomeDates[0];
-
-    }
-
-
-    if (
-        budget.settings &&
-        budget.settings.anchorDate
-    ) {
-
-        return getRolledNextPayDayString(
-            budget.settings.anchorDate,
-            budget.settings.schedule
-        );
-
-    }
-
-
-    return "";
-
-}
-
-
-function isDateOnOrBeforeNextPay(dateString) {
-
-    const payDate =
-        getNextPayReceivedDateString();
-
-
-    if (!dateString || !payDate) {
-
-        return false;
-
-    }
-
-
-    return dateString <= payDate;
-
-}
-
-
-function isDeductedBeforePay(payment) {
-
-    if (!payment) {
-
-        return false;
-
-    }
-
-
-    if (payment.deductedBeforePay === true) {
-
-        return true;
-
-    }
-
-
-    if (payment.deductedBeforePay === false) {
-
-        return false;
-
-    }
-
-
-    return isDateOnOrBeforeNextPay(
-        payment.nextDate
-    );
-
-}
-
-
-function setDeductedBeforePayGroupVisible(visible) {
-
-    if (!deductedBeforePayGroup) {
-
-        return;
-
-    }
-
-
-    deductedBeforePayGroup.hidden = !visible;
-
-}
-
-
-function setDeductedBeforePayChecked(checked) {
-
-    if (!deductedBeforePayInput) {
-
-        return;
-
-    }
-
-
-    deductedBeforePayInput.checked = !!checked;
-
-}
-
-
-function isDeductedBeforePayChecked() {
-
-    return !!(
-        deductedBeforePayInput &&
-        deductedBeforePayInput.checked
-    );
-
-}
-
-
-function syncNewPaymentDeductedBeforePayDefault() {
-
-    if (
-        editingType !== "payment" ||
-        editingId
-    ) {
-
-        return;
-
-    }
-
-
-    setDeductedBeforePayChecked(
-        isDateOnOrBeforeNextPay(
-            itemDate ? itemDate.value : ""
-        )
-    );
-
-}
-
-
-function seedUpcomingPaymentSelection(visiblePayments) {
-
-    if (upcomingPaymentSelectionTouched) {
-
-        pruneUpcomingPaymentSelection(
-            visiblePayments
-        );
-
-        return;
-
-    }
-
-
-    selectedUpcomingPaymentIds.clear();
-
-
-    visiblePayments.forEach(payment => {
-
-        if (isDeductedBeforePay(payment)) {
-
-            selectedUpcomingPaymentIds.add(
-                payment.id
-            );
-
-        }
-
-    });
-
-}
-
-
-function resetUpcomingPaymentSelectionSession() {
-
-    upcomingPaymentSelectionTouched = false;
-
-    selectedUpcomingPaymentIds.clear();
-
-    updateUpcomingPaymentSelectionUI();
-
-}
-
-
 function setupUpcomingPaymentsSelection() {
 
     if (upcomingPayments) {
@@ -8553,6 +8322,16 @@ function setupUpcomingPaymentsSelection() {
 
     }
 
+
+    if (upcomingPaymentsBankInput) {
+
+        upcomingPaymentsBankInput.addEventListener(
+            "input",
+            updateUpcomingPaymentsTally
+        );
+
+    }
+
 }
 
 
@@ -8563,9 +8342,6 @@ function toggleUpcomingPaymentSelection(id) {
         return;
 
     }
-
-
-    upcomingPaymentSelectionTouched = true;
 
 
     if (selectedUpcomingPaymentIds.has(id)) {
@@ -8585,8 +8361,6 @@ function toggleUpcomingPaymentSelection(id) {
 
 
 function clearUpcomingPaymentSelection() {
-
-    upcomingPaymentSelectionTouched = true;
 
     selectedUpcomingPaymentIds.clear();
 
@@ -8639,11 +8413,46 @@ function getUpcomingPaymentsSelectionTotal() {
 }
 
 
+function getUpcomingPaymentsBankBalance() {
+
+    if (!upcomingPaymentsBankInput) {
+
+        return null;
+
+    }
+
+
+    const raw =
+        upcomingPaymentsBankInput.value.trim();
+
+
+    if (raw === "") {
+
+        return null;
+
+    }
+
+
+    const value =
+        Number(raw);
+
+
+    if (!Number.isFinite(value)) {
+
+        return null;
+
+    }
+
+
+    return value;
+
+}
+
+
 function updateUpcomingPaymentsTally() {
 
     if (
         !upcomingPaymentsTally ||
-        !upcomingPaymentsTallyText ||
         !upcomingPaymentsTallySum
     ) {
 
@@ -8660,27 +8469,69 @@ function updateUpcomingPaymentsTally() {
 
         upcomingPaymentsTally.hidden = true;
 
-        upcomingPaymentsTallyText.textContent =
-            "Deducted before you receive your pay";
-
         upcomingPaymentsTallySum.textContent = "";
+
+
+        if (upcomingPaymentsBankLeft) {
+
+            upcomingPaymentsBankLeft.textContent = "—";
+
+            upcomingPaymentsBankLeft.classList.remove(
+                "is-negative"
+            );
+
+        }
 
         return;
 
     }
 
 
-    const total =
+    const selectedTotal =
         getUpcomingPaymentsSelectionTotal();
 
 
     upcomingPaymentsTally.hidden = false;
 
-    upcomingPaymentsTallyText.textContent =
-        "Deducted before you receive your pay";
-
     upcomingPaymentsTallySum.textContent =
-        formatCurrency(total);
+        formatCurrency(selectedTotal);
+
+
+    if (!upcomingPaymentsBankLeft) {
+
+        return;
+
+    }
+
+
+    const bank =
+        getUpcomingPaymentsBankBalance();
+
+
+    if (bank === null) {
+
+        upcomingPaymentsBankLeft.textContent = "—";
+
+        upcomingPaymentsBankLeft.classList.remove(
+            "is-negative"
+        );
+
+        return;
+
+    }
+
+
+    const left =
+        bank - selectedTotal;
+
+
+    upcomingPaymentsBankLeft.textContent =
+        formatCurrency(left);
+
+    upcomingPaymentsBankLeft.classList.toggle(
+        "is-negative",
+        left < 0
+    );
 
 }
 
@@ -8711,8 +8562,8 @@ function updateUpcomingPaymentSelectionUI() {
 
                 row.title =
                     selected
-                        ? "Click to leave this out of the before-pay total"
-                        : "Click to include this in the before-pay total";
+                        ? "Click to remove from this total"
+                        : "Click to add to this total";
 
             });
 
@@ -8754,7 +8605,7 @@ function renderUpcomingPayments() {
         getVisibleUpcomingPayments();
 
 
-    seedUpcomingPaymentSelection(displayed);
+    pruneUpcomingPaymentSelection(displayed);
 
 
     if (displayed.length === 0) {
@@ -8843,7 +8694,7 @@ function renderUpcomingPayments() {
                 data-payment-id="${escapeHtml(payment.id)}"
                 aria-selected="${isSelected ? "true" : "false"}"
                 tabindex="0"
-                title="${isSelected ? "Click to leave this out of the before-pay total" : "Click to include this in the before-pay total"}">
+                title="${isSelected ? "Click to remove from this total" : "Click to add to this total"}">
 
                 <td data-label="Name">
                     ${escapeHtml(payment.name)}
