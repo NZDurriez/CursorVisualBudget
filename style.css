@@ -3659,30 +3659,6 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
-.upcoming-payments-hint {
-
-    margin: 0 0 12px;
-
-    color: var(--text-muted);
-
-    font-size: 12px;
-
-    font-weight: 550;
-
-    line-height: 1.45;
-
-}
-
-
-
-.upcoming-payments-hint[hidden] {
-
-    display: none;
-
-}
-
-
-
 .upcoming-payments-tally:not([hidden]) {
 
     display: flex;
