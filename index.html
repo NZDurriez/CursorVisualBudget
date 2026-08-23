@@ -38,7 +38,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=sidebar-discord-2">
+    <link rel="stylesheet" href="style.css?v=upcoming-tally-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -455,7 +455,7 @@
 
                 </div>
 
-                <table class="data-table upcoming-payments-table">
+                <table class="data-table upcoming-payments-table" aria-multiselectable="true">
 
                     <thead>
 
@@ -478,6 +478,38 @@
                     </tbody>
 
                 </table>
+
+                <div
+                    id="upcomingPaymentsTally"
+                    class="upcoming-payments-tally"
+                    hidden
+                    aria-live="polite">
+
+                    <div class="upcoming-payments-tally-copy">
+
+                        <span
+                            id="upcomingPaymentsTallyCount"
+                            class="upcoming-payments-tally-count">
+                        </span>
+
+                        <strong
+                            id="upcomingPaymentsTallyAmount"
+                            class="upcoming-payments-tally-amount">
+                        </strong>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="clearUpcomingPaymentsSelection"
+                        class="upcoming-payments-tally-clear"
+                        aria-label="Clear selected payments">
+
+                        Clear
+
+                    </button>
+
+                </div>
 
             </div>
 
@@ -2114,7 +2146,7 @@
 </div>
 
 <script type="module" src="cloud.js?v=no-discord-1"></script>
-<script src="app.js?v=sidebar-discord-1"></script>
+<script src="app.js?v=upcoming-tally-1"></script>
 
 </body>
 </html>
