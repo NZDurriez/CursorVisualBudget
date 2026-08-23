@@ -3659,6 +3659,114 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
+.upcoming-payments-header {
+
+    flex-wrap: wrap;
+
+}
+
+
+
+.upcoming-payments-meta {
+
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    justify-content: flex-end;
+
+    gap: 8px 12px;
+
+}
+
+
+
+.upcoming-payments-tally {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 5px 10px 5px 12px;
+
+    border-radius: 999px;
+
+    background: rgba(59, 130, 246, 0.14);
+
+    color: var(--text);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.1px;
+
+}
+
+
+
+.upcoming-payments-tally[hidden] {
+
+    display: none;
+
+}
+
+
+
+body.light-mode .upcoming-payments-tally {
+
+    background: rgba(37, 99, 235, 0.1);
+
+}
+
+
+
+.upcoming-payments-tally-clear {
+
+    border: none;
+
+    background: transparent;
+
+    color: var(--text-muted);
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    padding: 0 2px;
+
+}
+
+
+
+.upcoming-payments-tally-clear:hover {
+
+    color: var(--text);
+
+}
+
+
+
+.upcoming-payments-tally strong {
+
+    color: var(--primary);
+
+    font-weight: 800;
+
+    font-variant-numeric: tabular-nums;
+
+}
+
+
+
 .upcoming-payments-table {
 
     margin-top: 4px;
@@ -3721,6 +3829,54 @@ body.light-mode .paid-status-btn.is-paid:hover {
 .upcoming-payments-table tr.is-paid td {
 
     opacity: 0.78;
+
+}
+
+
+
+.upcoming-payments-table tbody tr[data-payment-id] {
+
+    cursor: pointer;
+
+}
+
+
+
+.upcoming-payments-table tbody tr.is-selected td {
+
+    background: rgba(59, 130, 246, 0.12);
+
+}
+
+
+
+.upcoming-payments-table tbody tr.is-selected td:first-child {
+
+    box-shadow: inset 3px 0 0 var(--primary);
+
+}
+
+
+
+.upcoming-payments-table tbody tr.is-selected:hover td {
+
+    background: rgba(59, 130, 246, 0.16);
+
+}
+
+
+
+body.light-mode .upcoming-payments-table tbody tr.is-selected td {
+
+    background: rgba(37, 99, 235, 0.08);
+
+}
+
+
+
+body.light-mode .upcoming-payments-table tbody tr.is-selected:hover td {
+
+    background: rgba(37, 99, 235, 0.12);
 
 }
 
@@ -4903,6 +5059,26 @@ body.light-mode .paid-status-label.is-unpaid {
     .upcoming-payments-table td[colspan]::before {
 
         display: none;
+
+    }
+
+    .upcoming-payments-table tr.is-selected {
+
+        border-color: var(--primary);
+
+        box-shadow:
+            0 0 0 1px var(--primary),
+            0 1px 2px rgba(15, 23, 42, 0.05),
+            0 6px 18px rgba(15, 23, 42, 0.06);
+
+    }
+
+    .upcoming-payments-table tr.is-selected td,
+    .upcoming-payments-table tbody tr.is-selected:hover td {
+
+        background: transparent;
+
+        box-shadow: none;
 
     }
 
