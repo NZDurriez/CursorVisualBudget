@@ -7,10 +7,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebas
 
 import {
     getAuth,
+    getRedirectResult,
     GoogleAuthProvider,
     onAuthStateChanged,
     signInWithCustomToken,
-    signInWithPopup,
+    signInWithRedirect,
     signOut
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
@@ -33,6 +34,7 @@ import {
 
 const SAVE_DEBOUNCE_MS = 450;
 const DISCORD_OAUTH_STATE = "budget_discord_oauth";
+const GOOGLE_OAUTH_PENDING = "budget_google_oauth";
 
 
 let app = null;
@@ -160,7 +162,9 @@ async function initFirebase() {
         console.info("[BudgetCloud] Firebase ready.");
 
 
-        // Finish Discord OAuth redirect if present
+        // Finish Google / Discord OAuth redirects if the tab just came back
+        await finishGoogleRedirect();
+
         await handleDiscordRedirectCallback();
 
     } catch (error) {
@@ -306,6 +310,17 @@ function updateAuthUi() {
 
             googleBtn.hidden = true;
 
+            googleBtn.disabled = false;
+
+            const googleLabel =
+                googleBtn.querySelector(".nav-label");
+
+            if (googleLabel) {
+
+                googleLabel.textContent = "Sign in with Google";
+
+            }
+
         }
 
         if (discordBtn) {
@@ -322,10 +337,14 @@ function updateAuthUi() {
 
     } else {
 
+        const googlePending =
+            isGoogleRedirectPending();
+
         if (status) {
 
-            status.textContent =
-                "Sign in to sync budgets across devices";
+            status.textContent = googlePending
+                ? "Returning from Google…"
+                : "Sign in to sync budgets across devices";
 
         }
 
@@ -344,6 +363,19 @@ function updateAuthUi() {
         if (googleBtn) {
 
             googleBtn.hidden = false;
+
+            googleBtn.disabled = googlePending;
+
+            const googleLabel =
+                googleBtn.querySelector(".nav-label");
+
+            if (googleLabel) {
+
+                googleLabel.textContent = googlePending
+                    ? "Continuing with Google…"
+                    : "Sign in with Google";
+
+            }
 
         }
 
@@ -372,6 +404,75 @@ function updateAuthUi() {
 }
 
 
+function isGoogleRedirectPending() {
+
+    try {
+
+        return sessionStorage.getItem(GOOGLE_OAUTH_PENDING) === "1";
+
+    } catch (error) {
+
+        return false;
+
+    }
+
+}
+
+
+function setGoogleRedirectPending(pending) {
+
+    try {
+
+        if (pending) {
+
+            sessionStorage.setItem(GOOGLE_OAUTH_PENDING, "1");
+
+        } else {
+
+            sessionStorage.removeItem(GOOGLE_OAUTH_PENDING);
+
+        }
+
+    } catch (error) {
+
+        // Private mode can block sessionStorage; sign-in can still proceed.
+
+    }
+
+}
+
+
+function isAuthCancelled(error) {
+
+    const code = String(error?.code || "");
+
+    return (
+        code.includes("cancel") ||
+        code === "auth/popup-closed-by-user" ||
+        code === "auth/popup-blocked"
+    );
+
+}
+
+
+function showGoogleSignInError(error) {
+
+    console.error("[BudgetCloud] Google sign-in failed:", error);
+
+    if (isAuthCancelled(error)) {
+
+        return;
+
+    }
+
+    alert(
+        error?.message ||
+        "Google sign-in failed. Check the console for details."
+    );
+
+}
+
+
 async function signInWithGoogle() {
 
     if (!auth || !googleProvider) {
@@ -387,16 +488,49 @@ async function signInWithGoogle() {
 
     try {
 
-        await signInWithPopup(auth, googleProvider);
+        // Same-window redirect (Cursor-style): leave budgio.nz for Google,
+        // then Firebase returns this tab to the same page, signed in.
+        setGoogleRedirectPending(true);
+
+        updateAuthUi();
+
+        await signInWithRedirect(auth, googleProvider);
 
     } catch (error) {
 
-        console.error("[BudgetCloud] Google sign-in failed:", error);
+        setGoogleRedirectPending(false);
 
-        alert(
-            error?.message ||
-            "Google sign-in failed. Check the console for details."
-        );
+        updateAuthUi();
+
+        showGoogleSignInError(error);
+
+    }
+
+}
+
+
+async function finishGoogleRedirect() {
+
+    if (!auth) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await getRedirectResult(auth);
+
+    } catch (error) {
+
+        showGoogleSignInError(error);
+
+    } finally {
+
+        setGoogleRedirectPending(false);
+
+        updateAuthUi();
 
     }
 

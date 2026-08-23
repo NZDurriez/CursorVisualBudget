@@ -15,7 +15,7 @@ NZ personal budget dashboard (local-first, with optional Firebase sync).
 2. **Authentication → Sign-in method → Google → Enable**
 3. Create a **Firestore** database and publish `firestore.rules`
 4. Register a **Web** app and put the config in `firebase-config.js` (`firebaseEnabled = true`)
-5. Add authorized domains (`localhost`, `nzdurriez.github.io`, etc.)
+5. Add authorized domains (`localhost`, `budgio.nz`, etc.)
 
 ### What happens on first sign-in
 
@@ -29,7 +29,7 @@ Not enabled. Discord needs a Cloud Function (Firebase Blaze plan). Google sign-i
 ## Local development
 
 Open `index.html` via any static server (or your host).  
-Firebase Auth popups need a real origin — add `localhost` (and your domain) under **Authentication → Settings → Authorized domains**.
+Google sign-in uses a **same-window redirect** (this tab goes to Google, then returns to the app). Add `localhost` and your live domain (`budgio.nz`) under **Authentication → Settings → Authorized domains**.
 
 ## Security
 
