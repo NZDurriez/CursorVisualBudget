@@ -9417,6 +9417,14 @@ function renderCalendar() {
         ).getDate();
 
 
+    const period =
+        getCurrentBudgetPeriod();
+
+
+    const today =
+        getTodayString();
+
+
     // ========================================================
     // EMPTY CELLS BEFORE MONTH STARTS
     // ========================================================
@@ -9462,8 +9470,12 @@ function renderCalendar() {
             );
 
 
-        const today =
-            getTodayString();
+        const inPeriodClass =
+            period &&
+            dateString >= period.start &&
+            dateString <= period.end
+                ? "in-period"
+                : "";
 
 
         const todayClass =
@@ -9477,28 +9489,31 @@ function renderCalendar() {
 
         events.forEach(event => {
 
-    eventHtml += `
+            const amountLabel =
+                formatCurrency(event.amount);
 
-        <div
-            class="calendar-event ${event.type}"
-            data-edit-type="${event.editType}"
-            data-edit-id="${event.id}"
-            title="Click to edit"
-        >
+            eventHtml += `
 
-            ${escapeHtml(event.name)}
+                <div
+                    class="calendar-event ${event.type}"
+                    data-edit-type="${event.editType}"
+                    data-edit-id="${event.id}"
+                    title="${escapeHtml(event.name)} · ${amountLabel}"
+                >
 
-            <br>
+                    <span class="calendar-event-name">
+                        ${escapeHtml(event.name)}
+                    </span>
 
-            <small>
-                ${formatCurrency(event.amount)}
-            </small>
+                    <span class="calendar-event-amount">
+                        ${amountLabel}
+                    </span>
 
-        </div>
+                </div>
 
-    `;
+            `;
 
-});
+        });
 
 
 
@@ -9512,7 +9527,7 @@ function renderCalendar() {
 
 
         calendarDay.className =
-            `calendar-day ${todayClass}`;
+            `calendar-day ${todayClass} ${inPeriodClass}`.trim();
 
 
         calendarDay.innerHTML = `
@@ -9809,20 +9824,16 @@ function isSavingsContributionOnDate(
     const target =
         new Date(goal.targetDate + "T00:00:00");
 
-    const today =
-        new Date(getTodayString() + "T00:00:00");
-
 
     date.setHours(0, 0, 0, 0);
 
     target.setHours(0, 0, 0, 0);
 
-    today.setHours(0, 0, 0, 0);
 
-
-    // Only show from today through the day before
-    // the deadline (deadline has its own event)
-    if (date < today || date >= target) {
+    // Show every weekly contribution from the goal
+    // start through the day before the deadline so
+    // the current month still lists earlier saves.
+    if (date >= target) {
 
         return false;
 
@@ -9865,29 +9876,83 @@ function isSavingsContributionOnDate(
 // CHECK RECURRING EVENT DATE
 // ============================================================
 
+function calendarDateModulo(value, period) {
+
+    return (
+        (
+            (value % period) +
+            period
+        ) % period
+    );
+
+}
+
+
+function occursOnRecurringMonthDay(
+    anchorDate,
+    targetDate
+) {
+
+    const anchorDay =
+        anchorDate.getDate();
+
+    const lastDayOfMonth =
+        new Date(
+            targetDate.getFullYear(),
+            targetDate.getMonth() + 1,
+            0
+        ).getDate();
+
+
+    return (
+        targetDate.getDate() ===
+        Math.min(anchorDay, lastDayOfMonth)
+    );
+
+}
+
+
 function isRecurringOnDate(item, targetDate) {
 
-    const startDate =
-        new Date(item.nextDate + "T00:00:00");
-
-
-    targetDate.setHours(0, 0, 0, 0);
-
-    startDate.setHours(0, 0, 0, 0);
-
-
-    // Don't show events before their starting date
-
-    if (targetDate < startDate) {
+    if (
+        !item ||
+        !item.nextDate
+    ) {
 
         return false;
 
     }
 
 
+    const anchorDate =
+        new Date(item.nextDate + "T00:00:00");
+
+    const date =
+        new Date(targetDate);
+
+
+    if (
+        Number.isNaN(anchorDate.getTime()) ||
+        Number.isNaN(date.getTime())
+    ) {
+
+        return false;
+
+    }
+
+
+    date.setHours(0, 0, 0, 0);
+
+    anchorDate.setHours(0, 0, 0, 0);
+
+
+    // nextDate rolls forward after each due date, but
+    // it stays on the same series. Project backward so
+    // this month still shows pay and bills that already
+    // occurred.
     const diffDays =
         Math.round(
-            (targetDate - startDate) /
+            (date - anchorDate) /
             (1000 * 60 * 60 * 24)
         );
 
@@ -9897,19 +9962,19 @@ function isRecurringOnDate(item, targetDate) {
 
         case "Weekly":
 
-            return diffDays % 7 === 0;
+            return calendarDateModulo(diffDays, 7) === 0;
 
 
         case "Fortnightly":
 
-            return diffDays % 14 === 0;
+            return calendarDateModulo(diffDays, 14) === 0;
 
 
         case "Monthly":
 
-            return (
-                targetDate.getDate() ===
-                startDate.getDate()
+            return occursOnRecurringMonthDay(
+                anchorDate,
+                date
             );
 
 
@@ -9917,30 +9982,33 @@ function isRecurringOnDate(item, targetDate) {
 
             const monthDifference =
                 (
-                    targetDate.getFullYear() -
-                    startDate.getFullYear()
+                    date.getFullYear() -
+                    anchorDate.getFullYear()
                 ) * 12 +
                 (
-                    targetDate.getMonth() -
-                    startDate.getMonth()
+                    date.getMonth() -
+                    anchorDate.getMonth()
                 );
 
 
             return (
-                monthDifference >= 0 &&
-                monthDifference % 3 === 0 &&
-                targetDate.getDate() ===
-                startDate.getDate()
+                calendarDateModulo(monthDifference, 3) === 0 &&
+                occursOnRecurringMonthDay(
+                    anchorDate,
+                    date
+                )
             );
 
 
         case "Yearly":
 
             return (
-                targetDate.getMonth() ===
-                startDate.getMonth() &&
-                targetDate.getDate() ===
-                startDate.getDate()
+                date.getMonth() ===
+                anchorDate.getMonth() &&
+                occursOnRecurringMonthDay(
+                    anchorDate,
+                    date
+                )
             );
 
 
