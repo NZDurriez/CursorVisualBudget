@@ -2030,6 +2030,24 @@ body.light-mode .action-btn.paid-btn {
 
     cursor: pointer;
 
+    flex-shrink: 0;
+
+}
+
+
+
+#deductedBeforePayGroup {
+
+    align-items: flex-start;
+
+}
+
+
+
+#deductedBeforePayGroup > span:first-of-type {
+
+    line-height: 1.4;
+
 }
 
 
@@ -3703,11 +3721,15 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
     justify-self: center;
 
-    align-items: baseline;
+    align-items: center;
 
     flex-wrap: wrap;
 
-    gap: 6px 8px;
+    justify-content: center;
+
+    gap: 4px 8px;
+
+    max-width: 100%;
 
     padding: 5px 8px 5px 10px;
 
