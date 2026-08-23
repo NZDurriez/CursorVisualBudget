@@ -3659,25 +3659,53 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
-.upcoming-payments-tally:not([hidden]) {
+.upcoming-payments-header {
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+}
+
+
+
+.upcoming-payments-meta {
 
     display: flex;
 
     align-items: center;
 
-    justify-content: space-between;
+    flex-wrap: wrap;
 
-    gap: 12px;
+    justify-content: flex-end;
 
-    margin-top: 12px;
+    gap: 8px 12px;
 
-    padding: 12px 14px;
+}
 
-    border: 1px solid var(--border);
 
-    border-radius: 12px;
 
-    background: rgba(59, 130, 246, 0.10);
+.upcoming-payments-tally:not([hidden]) {
+
+    display: inline-flex;
+
+    align-items: baseline;
+
+    flex-wrap: wrap;
+
+    gap: 6px 8px;
+
+    padding: 5px 8px 5px 10px;
+
+    border-radius: 999px;
+
+    background: rgba(59, 130, 246, 0.12);
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    font-weight: 650;
 
 }
 
@@ -3693,31 +3721,7 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 body.light-mode .upcoming-payments-tally:not([hidden]) {
 
-    background: rgba(37, 99, 235, 0.07);
-
-    border-color: rgba(37, 99, 235, 0.18);
-
-}
-
-
-
-.upcoming-payments-tally-copy {
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    gap: 2px;
-
-    min-width: 0;
-
-    font-size: 12px;
-
-    font-weight: 650;
-
-    color: var(--text-muted);
+    background: rgba(37, 99, 235, 0.08);
 
 }
 
@@ -3727,25 +3731,11 @@ body.light-mode .upcoming-payments-tally:not([hidden]) {
 
     color: var(--text);
 
-    font-size: 20px;
+    font-size: 14px;
 
-    font-weight: 700;
+    font-weight: 750;
 
     font-variant-numeric: tabular-nums;
-
-    letter-spacing: -0.3px;
-
-}
-
-
-
-.upcoming-payments-tally-note {
-
-    color: var(--text-muted);
-
-    font-size: 12px;
-
-    font-weight: 550;
 
 }
 
@@ -3763,23 +3753,19 @@ body.light-mode .upcoming-payments-tally:not([hidden]) {
 
     font-family: inherit;
 
-    font-size: 12px;
+    font-size: 11px;
 
     font-weight: 650;
 
     cursor: pointer;
 
-    padding: 6px 8px;
-
-    border-radius: 8px;
+    padding: 0 2px 0 4px;
 
 }
 
 
 
 .upcoming-payments-tally-clear:hover {
-
-    background: rgba(148, 163, 184, 0.16);
 
     color: var(--text);
 

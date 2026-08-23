@@ -38,7 +38,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=upcoming-tally-3">
+    <link rel="stylesheet" href="style.css?v=upcoming-tally-4">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -440,7 +440,7 @@
 
             <div class="panel">
 
-                <div class="panel-header">
+                <div class="panel-header upcoming-payments-header">
 
                     <h3>
 
@@ -448,10 +448,38 @@
 
                     </h3>
 
-                    <small
-                        id="paymentsPaidSummary"
-                        class="payments-paid-summary">
-                    </small>
+                    <div class="upcoming-payments-meta">
+
+                        <div
+                            id="upcomingPaymentsTally"
+                            class="upcoming-payments-tally"
+                            hidden
+                            role="status"
+                            aria-live="polite"
+                            title="Deduct this from your bank balance">
+
+                            <span id="upcomingPaymentsTallyText">
+                                Those bills are worth
+                            </span>
+
+                            <strong id="upcomingPaymentsTallySum"></strong>
+
+                            <button
+                                type="button"
+                                id="clearUpcomingPaymentsSelection"
+                                class="upcoming-payments-tally-clear"
+                                aria-label="Clear this total">
+                                Clear
+                            </button>
+
+                        </div>
+
+                        <small
+                            id="paymentsPaidSummary"
+                            class="payments-paid-summary">
+                        </small>
+
+                    </div>
 
                 </div>
 
@@ -480,39 +508,6 @@
                     </tbody>
 
                 </table>
-
-                <div
-                    id="upcomingPaymentsTally"
-                    class="upcoming-payments-tally"
-                    hidden
-                    role="status"
-                    aria-live="polite">
-
-                    <div class="upcoming-payments-tally-copy">
-
-                        <span id="upcomingPaymentsTallyText">
-                            Those bills are worth
-                        </span>
-
-                        <strong id="upcomingPaymentsTallySum"></strong>
-
-                        <small
-                            id="upcomingPaymentsTallyNote"
-                            class="upcoming-payments-tally-note">
-                            Deduct this from your bank balance
-                        </small>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        id="clearUpcomingPaymentsSelection"
-                        class="upcoming-payments-tally-clear"
-                        aria-label="Clear this total">
-                        Clear
-                    </button>
-
-                </div>
 
             </div>
 
@@ -2149,7 +2144,7 @@
 </div>
 
 <script type="module" src="cloud.js?v=no-discord-1"></script>
-<script src="app.js?v=upcoming-tally-3"></script>
+<script src="app.js?v=upcoming-tally-4"></script>
 
 </body>
 </html>
