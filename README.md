@@ -29,7 +29,7 @@ Not enabled. Discord needs a Cloud Function (Firebase Blaze plan). Google sign-i
 ## Local development
 
 Open `index.html` via any static server (or your host).  
-Google sign-in uses a **same-window redirect** (this tab goes to Google, then returns to the app). Add `localhost` and your live domain (`budgio.nz`) under **Authentication → Settings → Authorized domains**.
+Google sign-in uses a **popup** (required on GitHub Pages). A same-window redirect reaches Google, but browsers block the session from coming back to `budgio.nz`, so you land as a guest. Add `localhost` and your live domain (`budgio.nz`) under **Authentication → Settings → Authorized domains**.
 
 ## Security
 
