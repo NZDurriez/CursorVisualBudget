@@ -440,7 +440,7 @@
 
             <div class="panel">
 
-                <div class="panel-header upcoming-payments-header">
+                <div class="panel-header">
 
                     <h3>
 
@@ -448,37 +448,16 @@
 
                     </h3>
 
-                    <div class="upcoming-payments-meta">
-
-                        <div
-                            id="upcomingPaymentsTally"
-                            class="upcoming-payments-tally"
-                            role="status"
-                            hidden>
-
-                            <span id="upcomingPaymentsTallyText"></span>
-
-                            <strong id="upcomingPaymentsTallySum"></strong>
-
-                            <button
-                                type="button"
-                                id="clearUpcomingPaymentsSelection"
-                                class="upcoming-payments-tally-clear">
-                                Clear
-                            </button>
-
-                        </div>
-
-                        <small
-                            id="paymentsPaidSummary"
-                            class="payments-paid-summary">
-                        </small>
-
-                    </div>
+                    <small
+                        id="paymentsPaidSummary"
+                        class="payments-paid-summary">
+                    </small>
 
                 </div>
 
-                <table class="data-table upcoming-payments-table">
+                <table
+                    class="data-table upcoming-payments-table"
+                    aria-multiselectable="true">
 
                     <thead>
 
@@ -496,13 +475,36 @@
 
                     </thead>
 
-                    <tbody
-                        id="upcomingPayments"
-                        aria-multiselectable="true">
+                    <tbody id="upcomingPayments">
 
                     </tbody>
 
                 </table>
+
+                <div
+                    id="upcomingPaymentsTally"
+                    class="upcoming-payments-tally"
+                    hidden
+                    role="status"
+                    aria-live="polite">
+
+                    <div class="upcoming-payments-tally-copy">
+
+                        <span id="upcomingPaymentsTallyText"></span>
+
+                        <strong id="upcomingPaymentsTallySum"></strong>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="clearUpcomingPaymentsSelection"
+                        class="upcoming-payments-tally-clear"
+                        aria-label="Clear selected payments">
+                        Clear
+                    </button>
+
+                </div>
 
             </div>
 

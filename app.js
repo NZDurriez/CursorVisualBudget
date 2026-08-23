@@ -8165,6 +8165,29 @@ function getFortnightlyTotal(items) {
 // UPCOMING PAYMENTS
 // ============================================================
 
+function getVisibleUpcomingPayments() {
+
+    if (
+        !Array.isArray(budget.payments) ||
+        budget.payments.length === 0
+    ) {
+
+        return [];
+
+    }
+
+
+    return [...budget.payments]
+        .sort(
+            (a, b) =>
+                new Date(a.nextDate) -
+                new Date(b.nextDate)
+        )
+        .slice(0, 8);
+
+}
+
+
 function setupUpcomingPaymentsSelection() {
 
     if (upcomingPayments) {
@@ -8305,7 +8328,15 @@ function clearUpcomingPaymentSelection() {
 }
 
 
-function pruneUpcomingPaymentSelection(validIds) {
+function pruneUpcomingPaymentSelection(visiblePayments) {
+
+    const validIds =
+        new Set(
+            visiblePayments.map(
+                payment => payment.id
+            )
+        );
+
 
     selectedUpcomingPaymentIds.forEach(id => {
 
@@ -8379,8 +8410,8 @@ function updateUpcomingPaymentsTally() {
 
     upcomingPaymentsTallyText.textContent =
         count === 1
-            ? "1 selected ·"
-            : `${count} selected ·`;
+            ? "1 selected"
+            : `${count} selected`;
 
     upcomingPaymentsTallySum.textContent =
         formatCurrency(total);
@@ -8411,6 +8442,11 @@ function updateUpcomingPaymentSelectionUI() {
                     "aria-selected",
                     selected ? "true" : "false"
                 );
+
+                row.title =
+                    selected
+                        ? "Click to remove from total"
+                        : "Click to add to total";
 
             });
 
@@ -8448,11 +8484,14 @@ function renderUpcomingPayments() {
     }
 
 
-    if (budget.payments.length === 0) {
+    const displayed =
+        getVisibleUpcomingPayments();
 
-        selectedUpcomingPaymentIds.clear();
 
-        updateUpcomingPaymentsTally();
+    pruneUpcomingPaymentSelection(displayed);
+
+
+    if (displayed.length === 0) {
 
         upcomingPayments.innerHTML = `
             <tr>
@@ -8462,28 +8501,11 @@ function renderUpcomingPayments() {
             </tr>
         `;
 
+        updateUpcomingPaymentsTally();
+
         return;
 
     }
-
-
-    const sorted =
-        [...budget.payments].sort(
-            (a, b) =>
-                new Date(a.nextDate) -
-                new Date(b.nextDate)
-        );
-
-
-    const displayed =
-        sorted.slice(0, 8);
-
-
-    pruneUpcomingPaymentSelection(
-        new Set(
-            displayed.map(payment => payment.id)
-        )
-    );
 
 
     displayed.forEach(payment => {
@@ -8542,14 +8564,20 @@ function renderUpcomingPayments() {
             );
 
 
+        const rowClasses = [
+            paidThisPeriod ? "is-paid" : "",
+            isSelected ? "is-selected" : ""
+        ].filter(Boolean).join(" ");
+
+
         upcomingPayments.innerHTML += `
 
             <tr
-                class="${paidThisPeriod ? "is-paid" : ""} ${isSelected ? "is-selected" : ""}"
+                class="${rowClasses}"
                 data-payment-id="${escapeHtml(payment.id)}"
                 aria-selected="${isSelected ? "true" : "false"}"
                 tabindex="0"
-                title="Click to add to total">
+                title="${isSelected ? "Click to remove from total" : "Click to add to total"}">
 
                 <td data-label="Name">
                     ${escapeHtml(payment.name)}
@@ -8564,7 +8592,7 @@ function renderUpcomingPayments() {
                     <button
                         type="button"
                         class="paid-status-btn ${paidThisPeriod ? "is-paid" : "is-unpaid"}"
-                        onclick="markPaid('${payment.id}')"
+                        onclick="event.stopPropagation(); markPaid('${payment.id}')"
                         title="${paidThisPeriod ? "Undo paid for this period" : "Mark paid for this period"}">
 
                         ${paidThisPeriod ? "Paid" : "Mark paid"}

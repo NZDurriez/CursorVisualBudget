@@ -3659,51 +3659,25 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
-.upcoming-payments-header {
-
-    flex-wrap: wrap;
-
-}
-
-
-
-.upcoming-payments-meta {
+.upcoming-payments-tally:not([hidden]) {
 
     display: flex;
 
     align-items: center;
 
-    flex-wrap: wrap;
+    justify-content: space-between;
 
-    justify-content: flex-end;
+    gap: 12px;
 
-    gap: 8px 12px;
+    margin-top: 12px;
 
-}
+    padding: 12px 14px;
 
+    border: 1px solid var(--border);
 
+    border-radius: 12px;
 
-.upcoming-payments-tally {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 5px 10px 5px 12px;
-
-    border-radius: 999px;
-
-    background: rgba(59, 130, 246, 0.14);
-
-    color: var(--text);
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    letter-spacing: 0.1px;
+    background: rgba(59, 130, 246, 0.10);
 
 }
 
@@ -3717,15 +3691,55 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
-body.light-mode .upcoming-payments-tally {
+body.light-mode .upcoming-payments-tally:not([hidden]) {
 
-    background: rgba(37, 99, 235, 0.1);
+    background: rgba(37, 99, 235, 0.07);
+
+    border-color: rgba(37, 99, 235, 0.18);
+
+}
+
+
+
+.upcoming-payments-tally-copy {
+
+    display: flex;
+
+    align-items: baseline;
+
+    flex-wrap: wrap;
+
+    gap: 6px 10px;
+
+    min-width: 0;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    color: var(--text-muted);
+
+}
+
+
+
+.upcoming-payments-tally strong {
+
+    color: var(--text);
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    font-variant-numeric: tabular-nums;
 
 }
 
 
 
 .upcoming-payments-tally-clear {
+
+    flex-shrink: 0;
 
     border: none;
 
@@ -3735,13 +3749,15 @@ body.light-mode .upcoming-payments-tally {
 
     font-family: inherit;
 
-    font-size: 11px;
+    font-size: 12px;
 
-    font-weight: 700;
+    font-weight: 650;
 
     cursor: pointer;
 
-    padding: 0 2px;
+    padding: 6px 8px;
+
+    border-radius: 8px;
 
 }
 
@@ -3749,19 +3765,9 @@ body.light-mode .upcoming-payments-tally {
 
 .upcoming-payments-tally-clear:hover {
 
+    background: rgba(148, 163, 184, 0.16);
+
     color: var(--text);
-
-}
-
-
-
-.upcoming-payments-tally strong {
-
-    color: var(--primary);
-
-    font-weight: 800;
-
-    font-variant-numeric: tabular-nums;
 
 }
 
@@ -3842,15 +3848,9 @@ body.light-mode .upcoming-payments-tally {
 
 
 
-.upcoming-payments-table tbody tr.is-selected td {
+.upcoming-payments-table tbody tr.is-selected {
 
-    background: rgba(59, 130, 246, 0.12);
-
-}
-
-
-
-.upcoming-payments-table tbody tr.is-selected td:first-child {
+    background: rgba(59, 130, 246, 0.16);
 
     box-shadow: inset 3px 0 0 var(--primary);
 
@@ -3858,25 +3858,33 @@ body.light-mode .upcoming-payments-tally {
 
 
 
-.upcoming-payments-table tbody tr.is-selected:hover td {
+.upcoming-payments-table tbody tr.is-selected:hover {
 
-    background: rgba(59, 130, 246, 0.16);
-
-}
-
-
-
-body.light-mode .upcoming-payments-table tbody tr.is-selected td {
-
-    background: rgba(37, 99, 235, 0.08);
+    background: rgba(59, 130, 246, 0.20);
 
 }
 
 
 
-body.light-mode .upcoming-payments-table tbody tr.is-selected:hover td {
+.upcoming-payments-table tr.is-paid.is-selected td {
 
-    background: rgba(37, 99, 235, 0.12);
+    opacity: 1;
+
+}
+
+
+
+body.light-mode .upcoming-payments-table tbody tr.is-selected {
+
+    background: rgba(37, 99, 235, 0.10);
+
+}
+
+
+
+body.light-mode .upcoming-payments-table tbody tr.is-selected:hover {
+
+    background: rgba(37, 99, 235, 0.14);
 
 }
 
@@ -5064,21 +5072,18 @@ body.light-mode .paid-status-label.is-unpaid {
 
     .upcoming-payments-table tr.is-selected {
 
-        border-color: var(--primary);
+        border-color: rgba(59, 130, 246, 0.45);
 
         box-shadow:
-            0 0 0 1px var(--primary),
+            inset 3px 0 0 var(--primary),
             0 1px 2px rgba(15, 23, 42, 0.05),
             0 6px 18px rgba(15, 23, 42, 0.06);
 
     }
 
-    .upcoming-payments-table tr.is-selected td,
-    .upcoming-payments-table tbody tr.is-selected:hover td {
+    body.light-mode .upcoming-payments-table tr.is-selected {
 
-        background: transparent;
-
-        box-shadow: none;
+        border-color: rgba(37, 99, 235, 0.35);
 
     }
 
