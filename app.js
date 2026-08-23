@@ -65,9 +65,6 @@ const upcomingPaymentsTallyText =
 const upcomingPaymentsTallySum =
     document.getElementById("upcomingPaymentsTallySum");
 
-const upcomingPaymentsHint =
-    document.getElementById("upcomingPaymentsHint");
-
 const clearUpcomingPaymentsSelectionBtn =
     document.getElementById("clearUpcomingPaymentsSelection");
 
@@ -8399,15 +8396,6 @@ function updateUpcomingPaymentsTally() {
 
     const count =
         selectedUpcomingPaymentIds.size;
-
-
-    if (upcomingPaymentsHint) {
-
-        upcomingPaymentsHint.hidden =
-            count > 0 ||
-            getVisibleUpcomingPayments().length === 0;
-
-    }
 
 
     if (count === 0) {
