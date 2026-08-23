@@ -3665,11 +3665,13 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
     display: grid;
 
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
 
     align-items: center;
 
     column-gap: 12px;
+
+    row-gap: 10px;
 
 }
 
@@ -3681,13 +3683,15 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
     justify-self: start;
 
+    min-width: 0;
+
 }
 
 
 
 .upcoming-payments-header .payments-paid-summary {
 
-    grid-column: 3;
+    grid-column: 2;
 
     justify-self: end;
 
@@ -3701,7 +3705,7 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
     display: inline-flex;
 
-    grid-column: 2;
+    grid-column: 1 / -1;
 
     justify-self: center;
 
@@ -3713,15 +3717,19 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
     gap: 6px 10px;
 
+    width: 100%;
+
     max-width: 100%;
+
+    box-sizing: border-box;
 
     margin: 0;
 
-    padding: 6px 8px 6px 10px;
+    padding: 8px 10px;
 
     border: 1px solid var(--border);
 
-    border-radius: 999px;
+    border-radius: 12px;
 
     background: rgba(59, 130, 246, 0.10);
 
@@ -5045,31 +5053,15 @@ body.light-mode .paid-status-label.is-unpaid {
 
     .upcoming-payments-header {
 
-        grid-template-columns: minmax(0, 1fr) auto;
-
         row-gap: 8px;
-
-    }
-
-    .upcoming-payments-header h3 {
-
-        grid-column: 1;
-
-    }
-
-    .upcoming-payments-header .payments-paid-summary {
-
-        grid-column: 2;
 
     }
 
     .upcoming-payments-bank-check:not([hidden]) {
 
-        grid-column: 1 / -1;
+        justify-content: center;
 
-        justify-self: center;
-
-        border-radius: 12px;
+        padding: 8px;
 
     }
 
