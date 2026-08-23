@@ -3661,25 +3661,35 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 .upcoming-payments-header {
 
-    flex-wrap: wrap;
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 
     align-items: center;
+
+    column-gap: 12px;
 
 }
 
 
 
-.upcoming-payments-meta {
+.upcoming-payments-header h3 {
 
-    display: flex;
+    grid-column: 1;
 
-    align-items: center;
+    justify-self: start;
 
-    flex-wrap: wrap;
+}
 
-    justify-content: flex-end;
 
-    gap: 8px 12px;
+
+.upcoming-payments-header .payments-paid-summary {
+
+    grid-column: 3;
+
+    justify-self: end;
+
+    text-align: right;
 
 }
 
@@ -3688,6 +3698,10 @@ body.light-mode .paid-status-btn.is-paid:hover {
 .upcoming-payments-tally:not([hidden]) {
 
     display: inline-flex;
+
+    grid-column: 2;
+
+    justify-self: center;
 
     align-items: baseline;
 
@@ -4904,6 +4918,34 @@ body.light-mode .paid-status-label.is-unpaid {
         gap: 12px;
 
         flex-direction: column;
+
+    }
+
+    .upcoming-payments-header {
+
+        grid-template-columns: minmax(0, 1fr) auto;
+
+        row-gap: 8px;
+
+    }
+
+    .upcoming-payments-header h3 {
+
+        grid-column: 1;
+
+    }
+
+    .upcoming-payments-header .payments-paid-summary {
+
+        grid-column: 2;
+
+    }
+
+    .upcoming-payments-tally:not([hidden]) {
+
+        grid-column: 1 / -1;
+
+        justify-self: center;
 
     }
 
