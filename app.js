@@ -9521,7 +9521,9 @@ function renderCalendar() {
                 ${day}
             </div>
 
-            ${eventHtml}
+            <div class="calendar-day-events">
+                ${eventHtml}
+            </div>
 
         `;
 
