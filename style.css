@@ -3659,23 +3659,67 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
+.upcoming-payments-header {
+
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+
+    align-items: center;
+
+    column-gap: 12px;
+
+}
+
+
+
+.upcoming-payments-header h3 {
+
+    grid-column: 1;
+
+    justify-self: start;
+
+}
+
+
+
+.upcoming-payments-header .payments-paid-summary {
+
+    grid-column: 3;
+
+    justify-self: end;
+
+    text-align: right;
+
+}
+
+
+
 .upcoming-payments-bank-check:not([hidden]) {
 
-    display: flex;
+    display: inline-flex;
+
+    grid-column: 2;
+
+    justify-self: center;
 
     align-items: center;
 
     flex-wrap: wrap;
 
-    gap: 10px 14px;
+    justify-content: center;
 
-    margin: 0 0 14px;
+    gap: 6px 10px;
 
-    padding: 10px 12px;
+    max-width: 100%;
+
+    margin: 0;
+
+    padding: 6px 8px 6px 10px;
 
     border: 1px solid var(--border);
 
-    border-radius: 12px;
+    border-radius: 999px;
 
     background: rgba(59, 130, 246, 0.10);
 
@@ -3721,9 +3765,9 @@ body.light-mode .upcoming-payments-bank-check:not([hidden]) {
 
 .upcoming-payments-bank-field input {
 
-    width: 110px;
+    width: 88px;
 
-    padding: 6px 8px;
+    padding: 4px 6px;
 
     border: 1px solid var(--border);
 
@@ -3777,7 +3821,7 @@ body.light-mode .upcoming-payments-bank-check:not([hidden]) {
 
     color: var(--text);
 
-    font-size: 16px;
+    font-size: 14px;
 
     font-weight: 750;
 
@@ -3809,8 +3853,6 @@ body.light-mode .upcoming-payments-bank-check:not([hidden]) {
 
 
 .upcoming-payments-tally-clear {
-
-    margin-left: auto;
 
     flex-shrink: 0;
 
@@ -4977,6 +5019,36 @@ body.light-mode .paid-status-label.is-unpaid {
         gap: 12px;
 
         flex-direction: column;
+
+    }
+
+    .upcoming-payments-header {
+
+        grid-template-columns: minmax(0, 1fr) auto;
+
+        row-gap: 8px;
+
+    }
+
+    .upcoming-payments-header h3 {
+
+        grid-column: 1;
+
+    }
+
+    .upcoming-payments-header .payments-paid-summary {
+
+        grid-column: 2;
+
+    }
+
+    .upcoming-payments-bank-check:not([hidden]) {
+
+        grid-column: 1 / -1;
+
+        justify-self: center;
+
+        border-radius: 12px;
 
     }
 
