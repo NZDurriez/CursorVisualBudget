@@ -9417,14 +9417,6 @@ function renderCalendar() {
         ).getDate();
 
 
-    const period =
-        getCurrentBudgetPeriod();
-
-
-    const today =
-        getTodayString();
-
-
     // ========================================================
     // EMPTY CELLS BEFORE MONTH STARTS
     // ========================================================
@@ -9470,12 +9462,8 @@ function renderCalendar() {
             );
 
 
-        const inPeriodClass =
-            period &&
-            dateString >= period.start &&
-            dateString <= period.end
-                ? "in-period"
-                : "";
+        const today =
+            getTodayString();
 
 
         const todayClass =
@@ -9527,7 +9515,7 @@ function renderCalendar() {
 
 
         calendarDay.className =
-            `calendar-day ${todayClass} ${inPeriodClass}`.trim();
+            `calendar-day ${todayClass}`;
 
 
         calendarDay.innerHTML = `
