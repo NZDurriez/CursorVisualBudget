@@ -65,6 +65,9 @@ const upcomingPaymentsTallyText =
 const upcomingPaymentsTallySum =
     document.getElementById("upcomingPaymentsTallySum");
 
+const upcomingPaymentsHint =
+    document.getElementById("upcomingPaymentsHint");
+
 const clearUpcomingPaymentsSelectionBtn =
     document.getElementById("clearUpcomingPaymentsSelection");
 
@@ -1129,6 +1132,8 @@ function switchProfile(profileId) {
 
     budget =
         selectedProfile.budget;
+
+    clearUpcomingPaymentSelection();
 
     updateScheduleSelector();
 
@@ -2651,6 +2656,13 @@ function showPage(page) {
                     : page === "paycalc"
                         ? "Pay Calculator"
                         : page.charAt(0).toUpperCase() + page.slice(1);
+
+
+    if (page !== "dashboard") {
+
+        clearUpcomingPaymentSelection();
+
+    }
 
 
     if (page === "calendar") {
@@ -8389,11 +8401,21 @@ function updateUpcomingPaymentsTally() {
         selectedUpcomingPaymentIds.size;
 
 
+    if (upcomingPaymentsHint) {
+
+        upcomingPaymentsHint.hidden =
+            count > 0 ||
+            getVisibleUpcomingPayments().length === 0;
+
+    }
+
+
     if (count === 0) {
 
         upcomingPaymentsTally.hidden = true;
 
-        upcomingPaymentsTallyText.textContent = "";
+        upcomingPaymentsTallyText.textContent =
+            "Those bills are worth";
 
         upcomingPaymentsTallySum.textContent = "";
 
@@ -8410,8 +8432,8 @@ function updateUpcomingPaymentsTally() {
 
     upcomingPaymentsTallyText.textContent =
         count === 1
-            ? "1 selected"
-            : `${count} selected`;
+            ? "That bill is worth"
+            : "Those bills are worth";
 
     upcomingPaymentsTallySum.textContent =
         formatCurrency(total);
@@ -8445,8 +8467,8 @@ function updateUpcomingPaymentSelectionUI() {
 
                 row.title =
                     selected
-                        ? "Click to remove from total"
-                        : "Click to add to total";
+                        ? "Click to remove from this total"
+                        : "Click to add to this total";
 
             });
 
@@ -8577,7 +8599,7 @@ function renderUpcomingPayments() {
                 data-payment-id="${escapeHtml(payment.id)}"
                 aria-selected="${isSelected ? "true" : "false"}"
                 tabindex="0"
-                title="${isSelected ? "Click to remove from total" : "Click to add to total"}">
+                title="${isSelected ? "Click to remove from this total" : "Click to add to this total"}">
 
                 <td data-label="Name">
                     ${escapeHtml(payment.name)}

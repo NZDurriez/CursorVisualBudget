@@ -3659,6 +3659,30 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
+.upcoming-payments-hint {
+
+    margin: 0 0 12px;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    font-weight: 550;
+
+    line-height: 1.45;
+
+}
+
+
+
+.upcoming-payments-hint[hidden] {
+
+    display: none;
+
+}
+
+
+
 .upcoming-payments-tally:not([hidden]) {
 
     display: flex;
@@ -3705,11 +3729,11 @@ body.light-mode .upcoming-payments-tally:not([hidden]) {
 
     display: flex;
 
-    align-items: baseline;
+    flex-direction: column;
 
-    flex-wrap: wrap;
+    align-items: flex-start;
 
-    gap: 6px 10px;
+    gap: 2px;
 
     min-width: 0;
 
@@ -3727,11 +3751,25 @@ body.light-mode .upcoming-payments-tally:not([hidden]) {
 
     color: var(--text);
 
-    font-size: 16px;
+    font-size: 20px;
 
     font-weight: 700;
 
     font-variant-numeric: tabular-nums;
+
+    letter-spacing: -0.3px;
+
+}
+
+
+
+.upcoming-payments-tally-note {
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    font-weight: 550;
 
 }
 
