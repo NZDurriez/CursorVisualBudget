@@ -3659,6 +3659,158 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
+.upcoming-payments-hint {
+
+    margin: 0 0 12px;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    font-weight: 550;
+
+    line-height: 1.45;
+
+}
+
+
+
+.upcoming-payments-hint[hidden] {
+
+    display: none;
+
+}
+
+
+
+.upcoming-payments-tally:not([hidden]) {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-top: 12px;
+
+    padding: 12px 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    background: rgba(59, 130, 246, 0.10);
+
+}
+
+
+
+.upcoming-payments-tally[hidden] {
+
+    display: none;
+
+}
+
+
+
+body.light-mode .upcoming-payments-tally:not([hidden]) {
+
+    background: rgba(37, 99, 235, 0.07);
+
+    border-color: rgba(37, 99, 235, 0.18);
+
+}
+
+
+
+.upcoming-payments-tally-copy {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 2px;
+
+    min-width: 0;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    color: var(--text-muted);
+
+}
+
+
+
+.upcoming-payments-tally strong {
+
+    color: var(--text);
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    font-variant-numeric: tabular-nums;
+
+    letter-spacing: -0.3px;
+
+}
+
+
+
+.upcoming-payments-tally-note {
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    font-weight: 550;
+
+}
+
+
+
+.upcoming-payments-tally-clear {
+
+    flex-shrink: 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: var(--text-muted);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+
+    padding: 6px 8px;
+
+    border-radius: 8px;
+
+}
+
+
+
+.upcoming-payments-tally-clear:hover {
+
+    background: rgba(148, 163, 184, 0.16);
+
+    color: var(--text);
+
+}
+
+
+
 .upcoming-payments-table {
 
     margin-top: 4px;
@@ -3721,6 +3873,56 @@ body.light-mode .paid-status-btn.is-paid:hover {
 .upcoming-payments-table tr.is-paid td {
 
     opacity: 0.78;
+
+}
+
+
+
+.upcoming-payments-table tbody tr[data-payment-id] {
+
+    cursor: pointer;
+
+}
+
+
+
+.upcoming-payments-table tbody tr.is-selected {
+
+    background: rgba(59, 130, 246, 0.16);
+
+    box-shadow: inset 3px 0 0 var(--primary);
+
+}
+
+
+
+.upcoming-payments-table tbody tr.is-selected:hover {
+
+    background: rgba(59, 130, 246, 0.20);
+
+}
+
+
+
+.upcoming-payments-table tr.is-paid.is-selected td {
+
+    opacity: 1;
+
+}
+
+
+
+body.light-mode .upcoming-payments-table tbody tr.is-selected {
+
+    background: rgba(37, 99, 235, 0.10);
+
+}
+
+
+
+body.light-mode .upcoming-payments-table tbody tr.is-selected:hover {
+
+    background: rgba(37, 99, 235, 0.14);
 
 }
 
@@ -4903,6 +5105,23 @@ body.light-mode .paid-status-label.is-unpaid {
     .upcoming-payments-table td[colspan]::before {
 
         display: none;
+
+    }
+
+    .upcoming-payments-table tr.is-selected {
+
+        border-color: rgba(59, 130, 246, 0.45);
+
+        box-shadow:
+            inset 3px 0 0 var(--primary),
+            0 1px 2px rgba(15, 23, 42, 0.05),
+            0 6px 18px rgba(15, 23, 42, 0.06);
+
+    }
+
+    body.light-mode .upcoming-payments-table tr.is-selected {
+
+        border-color: rgba(37, 99, 235, 0.35);
 
     }
 

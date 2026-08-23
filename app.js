@@ -56,6 +56,23 @@ const paymentsPeriodLabel =
 const upcomingPayments =
     document.getElementById("upcomingPayments");
 
+const upcomingPaymentsTally =
+    document.getElementById("upcomingPaymentsTally");
+
+const upcomingPaymentsTallyText =
+    document.getElementById("upcomingPaymentsTallyText");
+
+const upcomingPaymentsTallySum =
+    document.getElementById("upcomingPaymentsTallySum");
+
+const upcomingPaymentsHint =
+    document.getElementById("upcomingPaymentsHint");
+
+const clearUpcomingPaymentsSelectionBtn =
+    document.getElementById("clearUpcomingPaymentsSelection");
+
+const selectedUpcomingPaymentIds = new Set();
+
 const currentBudgetPeriod =
     document.getElementById("currentBudgetPeriod");
 
@@ -581,6 +598,8 @@ function setupBudgetSettingsToggle() {
 function setupEvents() {
 
     setupBudgetSettingsToggle();
+
+    setupUpcomingPaymentsSelection();
 
     // Navigation
     navButtons.forEach(button => {
@@ -1113,6 +1132,8 @@ function switchProfile(profileId) {
 
     budget =
         selectedProfile.budget;
+
+    clearUpcomingPaymentSelection();
 
     updateScheduleSelector();
 
@@ -2635,6 +2656,13 @@ function showPage(page) {
                     : page === "paycalc"
                         ? "Pay Calculator"
                         : page.charAt(0).toUpperCase() + page.slice(1);
+
+
+    if (page !== "dashboard") {
+
+        clearUpcomingPaymentSelection();
+
+    }
 
 
     if (page === "calendar") {
@@ -8149,6 +8177,309 @@ function getFortnightlyTotal(items) {
 // UPCOMING PAYMENTS
 // ============================================================
 
+function getVisibleUpcomingPayments() {
+
+    if (
+        !Array.isArray(budget.payments) ||
+        budget.payments.length === 0
+    ) {
+
+        return [];
+
+    }
+
+
+    return [...budget.payments]
+        .sort(
+            (a, b) =>
+                new Date(a.nextDate) -
+                new Date(b.nextDate)
+        )
+        .slice(0, 8);
+
+}
+
+
+function setupUpcomingPaymentsSelection() {
+
+    if (upcomingPayments) {
+
+        upcomingPayments.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target.closest(
+                        ".paid-status-btn"
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                const row =
+                    event.target.closest(
+                        "tr[data-payment-id]"
+                    );
+
+
+                if (!row) {
+
+                    return;
+
+                }
+
+
+                toggleUpcomingPaymentSelection(
+                    row.dataset.paymentId
+                );
+
+            }
+        );
+
+
+        upcomingPayments.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key !== "Enter" &&
+                    event.key !== " "
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    event.target.closest(
+                        ".paid-status-btn"
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                const row =
+                    event.target.closest(
+                        "tr[data-payment-id]"
+                    );
+
+
+                if (!row) {
+
+                    return;
+
+                }
+
+
+                event.preventDefault();
+
+                toggleUpcomingPaymentSelection(
+                    row.dataset.paymentId
+                );
+
+            }
+        );
+
+    }
+
+
+    if (clearUpcomingPaymentsSelectionBtn) {
+
+        clearUpcomingPaymentsSelectionBtn.addEventListener(
+            "click",
+            () => {
+
+                clearUpcomingPaymentSelection();
+
+            }
+        );
+
+    }
+
+}
+
+
+function toggleUpcomingPaymentSelection(id) {
+
+    if (!id) {
+
+        return;
+
+    }
+
+
+    if (selectedUpcomingPaymentIds.has(id)) {
+
+        selectedUpcomingPaymentIds.delete(id);
+
+    } else {
+
+        selectedUpcomingPaymentIds.add(id);
+
+    }
+
+
+    updateUpcomingPaymentSelectionUI();
+
+}
+
+
+function clearUpcomingPaymentSelection() {
+
+    selectedUpcomingPaymentIds.clear();
+
+    updateUpcomingPaymentSelectionUI();
+
+}
+
+
+function pruneUpcomingPaymentSelection(visiblePayments) {
+
+    const validIds =
+        new Set(
+            visiblePayments.map(
+                payment => payment.id
+            )
+        );
+
+
+    selectedUpcomingPaymentIds.forEach(id => {
+
+        if (!validIds.has(id)) {
+
+            selectedUpcomingPaymentIds.delete(id);
+
+        }
+
+    });
+
+}
+
+
+function getUpcomingPaymentsSelectionTotal() {
+
+    let total = 0;
+
+
+    budget.payments.forEach(payment => {
+
+        if (selectedUpcomingPaymentIds.has(payment.id)) {
+
+            total += Number(payment.amount) || 0;
+
+        }
+
+    });
+
+
+    return total;
+
+}
+
+
+function updateUpcomingPaymentsTally() {
+
+    if (
+        !upcomingPaymentsTally ||
+        !upcomingPaymentsTallyText ||
+        !upcomingPaymentsTallySum
+    ) {
+
+        return;
+
+    }
+
+
+    const count =
+        selectedUpcomingPaymentIds.size;
+
+
+    if (upcomingPaymentsHint) {
+
+        upcomingPaymentsHint.hidden =
+            count > 0 ||
+            getVisibleUpcomingPayments().length === 0;
+
+    }
+
+
+    if (count === 0) {
+
+        upcomingPaymentsTally.hidden = true;
+
+        upcomingPaymentsTallyText.textContent =
+            "Those bills are worth";
+
+        upcomingPaymentsTallySum.textContent = "";
+
+        return;
+
+    }
+
+
+    const total =
+        getUpcomingPaymentsSelectionTotal();
+
+
+    upcomingPaymentsTally.hidden = false;
+
+    upcomingPaymentsTallyText.textContent =
+        count === 1
+            ? "That bill is worth"
+            : "Those bills are worth";
+
+    upcomingPaymentsTallySum.textContent =
+        formatCurrency(total);
+
+}
+
+
+function updateUpcomingPaymentSelectionUI() {
+
+    if (upcomingPayments) {
+
+        upcomingPayments
+            .querySelectorAll("tr[data-payment-id]")
+            .forEach(row => {
+
+                const selected =
+                    selectedUpcomingPaymentIds.has(
+                        row.dataset.paymentId
+                    );
+
+
+                row.classList.toggle(
+                    "is-selected",
+                    selected
+                );
+
+                row.setAttribute(
+                    "aria-selected",
+                    selected ? "true" : "false"
+                );
+
+                row.title =
+                    selected
+                        ? "Click to remove from this total"
+                        : "Click to add to this total";
+
+            });
+
+    }
+
+
+    updateUpcomingPaymentsTally();
+
+}
+
+
 function renderUpcomingPayments() {
 
     if (!upcomingPayments) {
@@ -8175,7 +8506,14 @@ function renderUpcomingPayments() {
     }
 
 
-    if (budget.payments.length === 0) {
+    const displayed =
+        getVisibleUpcomingPayments();
+
+
+    pruneUpcomingPaymentSelection(displayed);
+
+
+    if (displayed.length === 0) {
 
         upcomingPayments.innerHTML = `
             <tr>
@@ -8185,20 +8523,14 @@ function renderUpcomingPayments() {
             </tr>
         `;
 
+        updateUpcomingPaymentsTally();
+
         return;
 
     }
 
 
-    const sorted =
-        [...budget.payments].sort(
-            (a, b) =>
-                new Date(a.nextDate) -
-                new Date(b.nextDate)
-        );
-
-
-    sorted.slice(0, 8).forEach(payment => {
+    displayed.forEach(payment => {
 
         const days =
             getDaysUntil(payment.nextDate);
@@ -8248,9 +8580,26 @@ function renderUpcomingPayments() {
             isPaymentPaidThisPeriod(payment);
 
 
+        const isSelected =
+            selectedUpcomingPaymentIds.has(
+                payment.id
+            );
+
+
+        const rowClasses = [
+            paidThisPeriod ? "is-paid" : "",
+            isSelected ? "is-selected" : ""
+        ].filter(Boolean).join(" ");
+
+
         upcomingPayments.innerHTML += `
 
-            <tr class="${paidThisPeriod ? "is-paid" : ""}">
+            <tr
+                class="${rowClasses}"
+                data-payment-id="${escapeHtml(payment.id)}"
+                aria-selected="${isSelected ? "true" : "false"}"
+                tabindex="0"
+                title="${isSelected ? "Click to remove from this total" : "Click to add to this total"}">
 
                 <td data-label="Name">
                     ${escapeHtml(payment.name)}
@@ -8265,7 +8614,7 @@ function renderUpcomingPayments() {
                     <button
                         type="button"
                         class="paid-status-btn ${paidThisPeriod ? "is-paid" : "is-unpaid"}"
-                        onclick="markPaid('${payment.id}')"
+                        onclick="event.stopPropagation(); markPaid('${payment.id}')"
                         title="${paidThisPeriod ? "Undo paid for this period" : "Mark paid for this period"}">
 
                         ${paidThisPeriod ? "Paid" : "Mark paid"}
@@ -8283,6 +8632,9 @@ function renderUpcomingPayments() {
         `;
 
     });
+
+
+    updateUpcomingPaymentsTally();
 
 }
 
