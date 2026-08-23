@@ -38,7 +38,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=upcoming-tally-5">
+    <link rel="stylesheet" href="style.css?v=upcoming-tally-6">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -454,11 +454,11 @@
                         hidden
                         role="status"
                         aria-live="polite"
-                        title="Deduct this from your bank balance">
+                        title="Bills that will be deducted before you receive your pay">
 
-                        <span id="upcomingPaymentsTallyText">
-                            Those bills are worth
-                        </span>
+                            <span id="upcomingPaymentsTallyText">
+                                Deducted before you receive your pay
+                            </span>
 
                         <strong id="upcomingPaymentsTallySum"></strong>
 
@@ -1761,6 +1761,34 @@
 
             </div>
 
+            <label
+                class="checkbox-row"
+                id="deductedBeforePayGroup"
+                hidden>
+
+                <input
+                    type="checkbox"
+                    id="deductedBeforePay">
+
+                <span>
+                    Will this payment be deducted before you receive your pay?
+                </span>
+
+                <span class="tooltip">
+
+                    <i class="fa-solid fa-circle-info"></i>
+
+                    <span class="tooltip-text">
+                        If yes, it is included in the dashboard
+                        total you can deduct from your bank
+                        balance before payday. You can still
+                        click rows there to adjust the total.
+                    </span>
+
+                </span>
+
+            </label>
+
             <div class="modal-buttons">
 
                 <button
@@ -2140,7 +2168,7 @@
 </div>
 
 <script type="module" src="cloud.js?v=no-discord-1"></script>
-<script src="app.js?v=upcoming-tally-5"></script>
+<script src="app.js?v=upcoming-tally-6"></script>
 
 </body>
 </html>
