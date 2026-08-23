@@ -1182,7 +1182,7 @@ body.light-mode .savings-form-card,
 body.light-mode .savings-goal-card,
 body.light-mode .savings-empty,
 body.light-mode .modal,
-body.light-mode .calendar-day:not(.calendar-heading),
+body.light-mode .calendar-day,
 body.light-mode .calendar-header button,
 body.light-mode .savings-preview-item {
 
@@ -1769,17 +1769,6 @@ body.light-mode .action-btn.paid-btn {
    CALENDAR
 ========================================================== */
 
-#calendar.page.active {
-
-    display: flex;
-
-    flex-direction: column;
-
-    overflow: hidden;
-
-}
-
-
 .calendar-header {
 
     display: flex;
@@ -1790,9 +1779,7 @@ body.light-mode .action-btn.paid-btn {
 
     gap: 18px;
 
-    margin-bottom: 14px;
-
-    flex: 0 0 auto;
+    margin-bottom: 20px;
 
 }
 
@@ -1843,16 +1830,8 @@ body.light-mode .action-btn.paid-btn {
 
     display: grid;
 
-    flex: 1 1 auto;
-
-    min-height: 0;
-
     grid-template-columns:
         repeat(7, minmax(0, 1fr));
-
-    grid-template-rows: auto;
-
-    grid-auto-rows: minmax(0, 1fr);
 
     gap: 9px;
 
@@ -1861,13 +1840,7 @@ body.light-mode .action-btn.paid-btn {
 
 .calendar-day {
 
-    min-height: 0;
-
-    height: 100%;
-
-    display: flex;
-
-    flex-direction: column;
+    min-height: 125px;
 
     background:
         var(--calendar-bg);
@@ -1876,69 +1849,11 @@ body.light-mode .action-btn.paid-btn {
 
     border-radius: 11px;
 
-    padding: 8px;
-
-    overflow: hidden;
+    padding: 10px;
 
     transition:
         border-color var(--transition),
         background var(--transition);
-
-}
-
-
-.calendar-heading {
-
-    height: auto;
-
-    min-height: 0;
-
-    padding: 2px 4px 6px;
-
-    background: transparent;
-
-    border: none;
-
-    box-shadow: none;
-
-    pointer-events: none;
-
-}
-
-
-.calendar-heading:hover {
-
-    background: transparent;
-
-    border-color: transparent;
-
-    transform: none;
-
-}
-
-
-.calendar-heading .calendar-number {
-
-    margin-bottom: 0;
-
-    text-align: center;
-
-    width: 100%;
-
-}
-
-
-.calendar-day-events {
-
-    flex: 1 1 auto;
-
-    min-height: 0;
-
-    overflow-x: hidden;
-
-    overflow-y: auto;
-
-    scrollbar-width: thin;
 
 }
 
@@ -1968,34 +1883,13 @@ body.light-mode .action-btn.paid-btn {
 
 .calendar-event {
 
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 6px;
-
     font-size: 11px;
 
-    line-height: 1.2;
-
-    padding: 3px 6px;
+    padding: 5px 7px;
 
     border-radius: 6px;
 
-    margin-top: 3px;
-
-    overflow: hidden;
-
-    font-weight: 500;
-
-}
-
-
-.calendar-event-name {
-
-    min-width: 0;
+    margin-top: 5px;
 
     overflow: hidden;
 
@@ -2003,22 +1897,7 @@ body.light-mode .action-btn.paid-btn {
 
     text-overflow: ellipsis;
 
-    font-weight: 650;
-
-}
-
-
-.calendar-event-amount {
-
-    flex: 0 0 auto;
-
-    font-size: 10px;
-
-    font-weight: 700;
-
-    font-variant-numeric: tabular-nums;
-
-    opacity: 0.95;
+    font-weight: 500;
 
 }
 
@@ -5391,45 +5270,13 @@ body.light-mode .paid-status-label.is-unpaid {
     .calendar-grid {
 
         grid-template-columns:
-            repeat(7, minmax(0, 1fr));
-
-        gap: 5px;
+            repeat(2,minmax(0,1fr));
 
     }
 
     .calendar-day {
 
-        min-height: 0;
-
-        padding: 5px;
-
-        border-radius: 8px;
-
-    }
-
-    .calendar-number {
-
-        font-size: 11px;
-
-        margin-bottom: 4px;
-
-    }
-
-    .calendar-event {
-
-        font-size: 10px;
-
-        padding: 3px 5px;
-
-        margin-top: 3px;
-
-        gap: 4px;
-
-    }
-
-    .calendar-event-amount {
-
-        font-size: 9px;
+        min-height: 110px;
 
     }
 
@@ -5490,16 +5337,7 @@ body.light-mode .paid-status-label.is-unpaid {
 
     .calendar-grid {
 
-        grid-template-columns:
-            repeat(7, minmax(0, 1fr));
-
-        gap: 3px;
-
-    }
-
-    .calendar-heading .calendar-number {
-
-        font-size: 10px;
+        grid-template-columns: 1fr;
 
     }
 

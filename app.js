@@ -9477,31 +9477,28 @@ function renderCalendar() {
 
         events.forEach(event => {
 
-            const amountLabel =
-                formatCurrency(event.amount);
+    eventHtml += `
 
-            eventHtml += `
+        <div
+            class="calendar-event ${event.type}"
+            data-edit-type="${event.editType}"
+            data-edit-id="${event.id}"
+            title="Click to edit"
+        >
 
-                <div
-                    class="calendar-event ${event.type}"
-                    data-edit-type="${event.editType}"
-                    data-edit-id="${event.id}"
-                    title="${escapeHtml(event.name)} · ${amountLabel}"
-                >
+            ${escapeHtml(event.name)}
 
-                    <span class="calendar-event-name">
-                        ${escapeHtml(event.name)}
-                    </span>
+            <br>
 
-                    <span class="calendar-event-amount">
-                        ${amountLabel}
-                    </span>
+            <small>
+                ${formatCurrency(event.amount)}
+            </small>
 
-                </div>
+        </div>
 
-            `;
+    `;
 
-        });
+});
 
 
 
@@ -9524,9 +9521,7 @@ function renderCalendar() {
                 ${day}
             </div>
 
-            <div class="calendar-day-events">
-                ${eventHtml}
-            </div>
+            ${eventHtml}
 
         `;
 
