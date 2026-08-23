@@ -2030,24 +2030,6 @@ body.light-mode .action-btn.paid-btn {
 
     cursor: pointer;
 
-    flex-shrink: 0;
-
-}
-
-
-
-#deductedBeforePayGroup {
-
-    align-items: flex-start;
-
-}
-
-
-
-#deductedBeforePayGroup > span:first-of-type {
-
-    line-height: 1.4;
-
 }
 
 
@@ -3677,65 +3659,55 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
-.upcoming-payments-header {
+.upcoming-payments-bank-check:not([hidden]) {
 
-    display: grid;
-
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-
-    align-items: center;
-
-    column-gap: 12px;
-
-}
-
-
-
-.upcoming-payments-header h3 {
-
-    grid-column: 1;
-
-    justify-self: start;
-
-}
-
-
-
-.upcoming-payments-header .payments-paid-summary {
-
-    grid-column: 3;
-
-    justify-self: end;
-
-    text-align: right;
-
-}
-
-
-
-.upcoming-payments-tally:not([hidden]) {
-
-    display: inline-flex;
-
-    grid-column: 2;
-
-    justify-self: center;
+    display: flex;
 
     align-items: center;
 
     flex-wrap: wrap;
 
-    justify-content: center;
+    gap: 10px 14px;
 
-    gap: 4px 8px;
+    margin: 0 0 14px;
 
-    max-width: 100%;
+    padding: 10px 12px;
 
-    padding: 5px 8px 5px 10px;
+    border: 1px solid var(--border);
 
-    border-radius: 999px;
+    border-radius: 12px;
 
-    background: rgba(59, 130, 246, 0.12);
+    background: rgba(59, 130, 246, 0.10);
+
+}
+
+
+
+.upcoming-payments-bank-check[hidden] {
+
+    display: none;
+
+}
+
+
+
+body.light-mode .upcoming-payments-bank-check:not([hidden]) {
+
+    background: rgba(37, 99, 235, 0.07);
+
+    border-color: rgba(37, 99, 235, 0.18);
+
+}
+
+
+
+.upcoming-payments-bank-field {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
 
     color: var(--text-muted);
 
@@ -3747,27 +3719,65 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
-.upcoming-payments-tally[hidden] {
+.upcoming-payments-bank-field input {
 
-    display: none;
+    width: 110px;
 
-}
+    padding: 6px 8px;
 
+    border: 1px solid var(--border);
 
+    border-radius: 8px;
 
-body.light-mode .upcoming-payments-tally:not([hidden]) {
-
-    background: rgba(37, 99, 235, 0.08);
-
-}
-
-
-
-.upcoming-payments-tally strong {
+    background: var(--input-bg);
 
     color: var(--text);
 
+    font-family: inherit;
+
     font-size: 14px;
+
+    font-weight: 700;
+
+    font-variant-numeric: tabular-nums;
+
+}
+
+
+
+.upcoming-payments-bank-field input:focus {
+
+    outline: none;
+
+    border-color: var(--primary);
+
+}
+
+
+
+.upcoming-payments-bank-math {
+
+    display: inline-flex;
+
+    align-items: baseline;
+
+    gap: 8px;
+
+    color: var(--text-muted);
+
+    font-size: 14px;
+
+    font-weight: 650;
+
+}
+
+
+
+.upcoming-payments-bank-math strong {
+
+    color: var(--text);
+
+    font-size: 16px;
 
     font-weight: 750;
 
@@ -3777,7 +3787,30 @@ body.light-mode .upcoming-payments-tally:not([hidden]) {
 
 
 
+.upcoming-payments-bank-left.is-negative,
+#upcomingPaymentsBankLeft.is-negative {
+
+    color: var(--danger);
+
+}
+
+
+
+.upcoming-payments-bank-note {
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    font-weight: 550;
+
+}
+
+
+
 .upcoming-payments-tally-clear {
+
+    margin-left: auto;
 
     flex-shrink: 0;
 
@@ -3789,19 +3822,23 @@ body.light-mode .upcoming-payments-tally:not([hidden]) {
 
     font-family: inherit;
 
-    font-size: 11px;
+    font-size: 12px;
 
     font-weight: 650;
 
     cursor: pointer;
 
-    padding: 0 2px 0 4px;
+    padding: 6px 8px;
+
+    border-radius: 8px;
 
 }
 
 
 
 .upcoming-payments-tally-clear:hover {
+
+    background: rgba(148, 163, 184, 0.16);
 
     color: var(--text);
 
@@ -4940,34 +4977,6 @@ body.light-mode .paid-status-label.is-unpaid {
         gap: 12px;
 
         flex-direction: column;
-
-    }
-
-    .upcoming-payments-header {
-
-        grid-template-columns: minmax(0, 1fr) auto;
-
-        row-gap: 8px;
-
-    }
-
-    .upcoming-payments-header h3 {
-
-        grid-column: 1;
-
-    }
-
-    .upcoming-payments-header .payments-paid-summary {
-
-        grid-column: 2;
-
-    }
-
-    .upcoming-payments-tally:not([hidden]) {
-
-        grid-column: 1 / -1;
-
-        justify-self: center;
 
     }
 
