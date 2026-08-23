@@ -3785,6 +3785,23 @@ body.light-mode .upcoming-payments-bank-check:not([hidden]) {
 
     font-variant-numeric: tabular-nums;
 
+    appearance: textfield;
+
+    -moz-appearance: textfield;
+
+}
+
+
+
+.upcoming-payments-bank-field input::-webkit-outer-spin-button,
+.upcoming-payments-bank-field input::-webkit-inner-spin-button {
+
+    appearance: none;
+
+    -webkit-appearance: none;
+
+    margin: 0;
+
 }
 
 
