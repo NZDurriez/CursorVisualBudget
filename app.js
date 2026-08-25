@@ -10347,9 +10347,8 @@ function applyDocumentColorScheme() {
 
 function setupTheme() {
 
-    const themeToggle = document.getElementById("themeToggle");
-
-    if (!themeToggle) return;
+    const themeSwitch =
+        document.getElementById("themeSwitch");
 
     const savedTheme = localStorage.getItem("budgetTheme");
 
@@ -10364,16 +10363,26 @@ function setupTheme() {
     updateThemeButton();
 
 
-    themeToggle.addEventListener("click", () => {
+    if (!themeSwitch) return;
 
-        document.body.classList.toggle("light-mode");
+    themeSwitch.addEventListener("click", (event) => {
 
-        const isLight =
-            document.body.classList.contains("light-mode");
+        const option =
+            event.target.closest("[data-theme]");
+
+        if (!option) return;
+
+        const wantLight =
+            option.dataset.theme === "light";
+
+        document.body.classList.toggle(
+            "light-mode",
+            wantLight
+        );
 
         localStorage.setItem(
             "budgetTheme",
-            isLight ? "light" : "dark"
+            wantLight ? "light" : "dark"
         );
 
         applyDocumentColorScheme();
@@ -10387,45 +10396,22 @@ function setupTheme() {
 
 function updateThemeButton() {
 
-    const themeToggle =
-        document.getElementById("themeToggle");
-
-    if (!themeToggle) return;
-
-    const icon =
-        themeToggle.querySelector("i");
-
     const isLight =
         document.body.classList.contains("light-mode");
 
+    document.querySelectorAll(".theme-switch-option").forEach((option) => {
 
-    if (isLight) {
+        const isActive =
+            (option.dataset.theme === "light") === isLight;
 
-        icon.className =
-            "fa-solid fa-moon";
+        option.classList.toggle("is-active", isActive);
 
-        themeToggle.title =
-            "Switch to dark mode";
-
-        themeToggle.setAttribute(
-            "aria-label",
-            "Switch to dark mode"
+        option.setAttribute(
+            "aria-pressed",
+            isActive ? "true" : "false"
         );
 
-    } else {
-
-        icon.className =
-            "fa-solid fa-sun";
-
-        themeToggle.title =
-            "Switch to light mode";
-
-        themeToggle.setAttribute(
-            "aria-label",
-            "Switch to light mode"
-        );
-
-    }
+    });
 
 }
 

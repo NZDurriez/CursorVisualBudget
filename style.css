@@ -319,7 +319,7 @@ body.light-mode {
 
 .sidebar-footer {
 
-    margin-top: 14px;
+    margin-top: auto;
 
     padding-top: 14px;
 
@@ -571,49 +571,129 @@ body.light-mode .topbar {
 
 
 /* ==========================================================
-   THEME TOGGLE
+   THEME SWITCH (sidebar)
 ========================================================== */
 
-.theme-toggle {
+.theme-switch {
 
-    width: 38px;
-    height: 38px;
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 4px;
+
+    padding: 4px;
+
+    background: var(--input-bg);
 
     border: 1px solid var(--border);
 
-    border-radius: 9px;
-
-    background: var(--panel);
-
-    color: var(--text-muted);
-
-    cursor: pointer;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    font-size: 15px;
-
-    transition:
-        background var(--transition),
-        color var(--transition),
-        border-color var(--transition),
-        transform var(--transition);
+    border-radius: 12px;
 
 }
 
 
-.theme-toggle:hover {
+.theme-switch-option {
 
-    background: var(--panel-hover);
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    height: 32px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--text-muted);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition),
+        color var(--transition),
+        box-shadow var(--transition);
+
+}
+
+
+.theme-switch-option i {
+
+    font-size: 12px;
+
+}
+
+
+.theme-switch-option:hover {
 
     color: var(--text);
 
-    border-color: var(--border-hover);
+}
 
-    transform: translateY(-1px);
+
+.theme-switch-option:focus-visible {
+
+    outline: 2px solid var(--primary);
+
+    outline-offset: 2px;
+
+}
+
+
+.theme-switch-option.is-active {
+
+    background: var(--panel);
+
+    color: var(--text);
+
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.22);
+
+}
+
+
+.theme-switch-option[data-theme="light"].is-active i {
+
+    color: var(--warning);
+
+}
+
+
+.theme-switch-option[data-theme="dark"].is-active i {
+
+    color: var(--primary);
+
+}
+
+
+body.light-mode .theme-switch {
+
+    background: #e8eef5;
+
+    border-color: rgba(15, 23, 42, 0.12);
+
+}
+
+
+body.light-mode .theme-switch-option.is-active {
+
+    background: #ffffff;
+
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.08),
+        0 4px 10px rgba(15, 23, 42, 0.08);
 
 }
 
@@ -4533,6 +4613,12 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
+    .theme-switch {
+
+        width: 100%;
+
+    }
+
     /* Compact auth strip under the nav on phones */
     .auth-panel {
 
@@ -4808,19 +4894,7 @@ body.light-mode .paid-status-label.is-unpaid {
 
     .topbar-right {
 
-        grid-template-columns: auto 1fr;
-
-        gap: 8px;
-
-    }
-
-    .topbar-right .theme-toggle {
-
-        grid-column: auto;
-
-        width: 38px;
-
-        height: 38px;
+        width: 100%;
 
     }
 
@@ -4925,19 +4999,11 @@ body.light-mode .paid-status-label.is-unpaid {
 
         display: grid;
 
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
 
         gap: 10px;
 
         align-items: stretch;
-
-    }
-
-    .topbar-right .theme-toggle {
-
-        grid-column: 1 / -1;
-
-        width: 100%;
 
     }
 
