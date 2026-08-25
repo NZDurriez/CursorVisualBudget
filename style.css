@@ -11,6 +11,10 @@
 
 :root {
 
+    /* Native <select> / date pickers follow this so option lists
+       are not white-on-white in dark mode. */
+    color-scheme: dark;
+
     --bg: #0b1120;
     --sidebar: #0f172a;
     --panel: #172033;
@@ -56,6 +60,8 @@
 ========================================================== */
 
 body.light-mode {
+
+    color-scheme: light;
 
     /* Cool near-white page; still enough contrast for white cards */
     --bg: #f4f7fb;
@@ -987,6 +993,36 @@ body.light-mode .topbar {
     outline: none;
 
     min-width: 160px;
+
+}
+
+
+/* Native dropdown popups inherit `color` from <select> but often keep a
+   light OS background. color-scheme plus option tokens keep the Recurring
+   Payments sort menu (and other selects) readable in both themes. */
+select,
+input,
+textarea {
+
+    color-scheme: dark;
+
+}
+
+
+body.light-mode select,
+body.light-mode input,
+body.light-mode textarea {
+
+    color-scheme: light;
+
+}
+
+
+select option {
+
+    background-color: var(--panel);
+
+    color: var(--text);
 
 }
 

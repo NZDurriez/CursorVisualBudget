@@ -10334,6 +10334,17 @@ function positionTooltip(tooltip) {
    THEME
 ========================================================== */
 
+function applyDocumentColorScheme() {
+
+    const isLight =
+        document.body.classList.contains("light-mode");
+
+    document.documentElement.style.colorScheme =
+        isLight ? "light" : "dark";
+
+}
+
+
 function setupTheme() {
 
     const themeToggle = document.getElementById("themeToggle");
@@ -10347,6 +10358,8 @@ function setupTheme() {
         document.body.classList.add("light-mode");
 
     }
+
+    applyDocumentColorScheme();
 
     updateThemeButton();
 
@@ -10362,6 +10375,8 @@ function setupTheme() {
             "budgetTheme",
             isLight ? "light" : "dark"
         );
+
+        applyDocumentColorScheme();
 
         updateThemeButton();
 
