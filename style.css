@@ -458,9 +458,15 @@ body.light-mode {
 
     display: flex;
 
+    flex-wrap: wrap;
+
     justify-content: space-between;
 
     align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
 
     min-height: 92px;
 
@@ -472,6 +478,12 @@ body.light-mode {
         rgba(11, 17, 32, 0.72);
 
     backdrop-filter: blur(12px);
+
+    overflow: visible;
+
+    container-type: inline-size;
+
+    container-name: topbar;
 
     z-index: 300;
 
@@ -488,6 +500,10 @@ body.light-mode .topbar {
 
 .topbar h2 {
 
+    flex: 0 1 auto;
+
+    min-width: 0;
+
     font-size: 22px;
 
     font-weight: 650;
@@ -501,9 +517,20 @@ body.light-mode .topbar {
 
     display: flex;
 
+    flex-wrap: wrap;
+
     align-items: center;
 
+    justify-content: flex-end;
+
     gap: 10px;
+
+    /* Wrap onto the next row before the profile gear is clipped */
+    flex: 1 1 42rem;
+
+    min-width: 0;
+
+    max-width: 100%;
 
 }
 
@@ -712,6 +739,10 @@ body.light-mode .theme-switch-option.is-active {
 
     gap: 9px;
 
+    min-width: 0;
+
+    max-width: 100%;
+
     background:
         var(--panel);
 
@@ -799,21 +830,35 @@ body.light-mode .theme-switch-option.is-active {
 
     display: flex;
 
+    flex-wrap: nowrap;
+
     align-items: center;
 
     gap: 5px;
+
+    min-width: 0;
+
+    flex: 1 1 auto;
 
 }
 
 
 .profile-controls select {
 
-    min-width: 120px;
+    min-width: 0;
+
+    flex: 1 1 7rem;
+
+    width: auto;
+
+    max-width: 100%;
 
 }
 
 
 .profile-manage-btn {
+
+    flex: 0 0 auto;
 
     width: 31px;
     height: 31px;
@@ -4509,16 +4554,116 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
+    .topbar {
+
+        padding: 16px 20px;
+
+        min-height: 0;
+
+    }
+
     .topbar-right {
 
-        gap: 6px;
+        gap: 8px;
+
+        justify-content: flex-end;
 
     }
 
     .schedule-selector,
     .profile-selector {
 
-        padding: 7px;
+        flex: 1 1 168px;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 6px;
+
+        min-width: 0;
+
+        padding: 8px 10px;
+
+    }
+
+    .schedule-selector label,
+    .profile-selector label {
+
+        width: 100%;
+
+    }
+
+    .schedule-selector select,
+    .schedule-selector input[type="date"],
+    .profile-controls {
+
+        width: 100%;
+
+        min-width: 0;
+
+    }
+
+    .profile-manage-btn {
+
+        width: 36px;
+
+        height: 36px;
+
+    }
+
+}
+
+
+/* When the main column is narrow (desktop-site on a phone, small windows
+   with the sidebar still visible), keep profile + manage on-screen. */
+@container topbar (max-width: 820px) {
+
+    .topbar-right {
+
+        flex-basis: 100%;
+
+        justify-content: flex-end;
+
+    }
+
+    .schedule-selector,
+    .profile-selector {
+
+        flex: 1 1 160px;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 6px;
+
+        min-width: 0;
+
+    }
+
+    .schedule-selector label,
+    .profile-selector label {
+
+        width: 100%;
+
+    }
+
+    .schedule-selector select,
+    .schedule-selector input[type="date"],
+    .profile-controls {
+
+        width: 100%;
+
+        min-width: 0;
+
+    }
+
+    .profile-manage-btn {
+
+        width: 36px;
+
+        height: 36px;
 
     }
 
