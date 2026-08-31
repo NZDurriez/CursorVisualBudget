@@ -7716,6 +7716,15 @@ function renderDashboard() {
 const FORECAST_VISIBLE_EVENTS = 4;
 
 
+function openForecastCalendar() {
+
+    calendarDate = new Date();
+
+    showPage("calendar");
+
+}
+
+
 function setupSevenDayForecast() {
 
     if (sevenDayForecast) {
@@ -7747,7 +7756,7 @@ function setupSevenDayForecast() {
                     )
                 ) {
 
-                    showPage("calendar");
+                    openForecastCalendar();
 
                 }
 
@@ -7763,7 +7772,7 @@ function setupSevenDayForecast() {
             "click",
             () => {
 
-                showPage("calendar");
+                openForecastCalendar();
 
             }
         );
