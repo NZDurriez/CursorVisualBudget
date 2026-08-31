@@ -56,6 +56,24 @@ const forecastSummary =
 const forecastOpenCalendarBtn =
     document.getElementById("forecastOpenCalendarBtn");
 
+const upcomingPanel =
+    document.getElementById("upcomingPanel");
+
+const upcomingViewSwitch =
+    document.getElementById("upcomingViewSwitch");
+
+const upcomingViewTitle =
+    document.getElementById("upcomingViewTitle");
+
+const UPCOMING_VIEW_KEY =
+    "budgioUpcomingView";
+
+let upcomingView =
+    localStorage.getItem(UPCOMING_VIEW_KEY) ===
+    "forecast"
+        ? "forecast"
+        : "list";
+
 const incomePeriodLabel =
     document.getElementById("incomePeriodLabel");
 
@@ -622,6 +640,8 @@ function setupEvents() {
     });
 
     setupSevenDayForecast();
+
+    setupUpcomingViewSwitch();
 
     // Add Income
     if (addIncomeBtn) {
@@ -7725,6 +7745,94 @@ function openForecastCalendar() {
 }
 
 
+function applyUpcomingView(view) {
+
+    upcomingView =
+        view === "forecast"
+            ? "forecast"
+            : "list";
+
+
+    localStorage.setItem(
+        UPCOMING_VIEW_KEY,
+        upcomingView
+    );
+
+
+    if (upcomingPanel) {
+
+        upcomingPanel.dataset.view =
+            upcomingView;
+
+    }
+
+
+    document
+        .querySelectorAll("[data-upcoming-view]")
+        .forEach(button => {
+
+            const isActive =
+                button.dataset.upcomingView ===
+                upcomingView;
+
+
+            button.classList.toggle(
+                "is-active",
+                isActive
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                isActive ? "true" : "false"
+            );
+
+        });
+
+
+    if (upcomingViewTitle) {
+
+        upcomingViewTitle.textContent =
+            upcomingView === "forecast"
+                ? "7-day forecast"
+                : "Upcoming Payments";
+
+    }
+
+}
+
+
+function setupUpcomingViewSwitch() {
+
+    applyUpcomingView(upcomingView);
+
+
+    if (upcomingViewSwitch) {
+
+        upcomingViewSwitch.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest(
+                        "[data-upcoming-view]"
+                    );
+
+                if (button) {
+
+                    applyUpcomingView(
+                        button.dataset.upcomingView
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+}
+
+
 function setupSevenDayForecast() {
 
     if (sevenDayForecast) {
@@ -8047,9 +8155,9 @@ function renderSevenDayForecast() {
                 visibleEvents.length;
 
 
-            let netClass = "is-clear";
+            let netClass = "";
 
-            let netLabel = "Clear";
+            let netLabel = "";
 
 
             if (day.events.length > 0) {
@@ -8069,6 +8177,8 @@ function renderSevenDayForecast() {
                         formatSignedCurrency(day.net);
 
                 } else {
+
+                    netClass = "is-clear";
 
                     netLabel =
                         formatCurrency(0);
@@ -8132,9 +8242,13 @@ function renderSevenDayForecast() {
 
                     </header>
 
-                    <p class="forecast-net ${netClass}">
-                        ${escapeHtml(netLabel)}
-                    </p>
+                    ${
+                        netLabel
+                            ? `<p class="forecast-net ${netClass}">
+                                ${escapeHtml(netLabel)}
+                            </p>`
+                            : ""
+                    }
 
                     <div class="forecast-events">
                         ${eventsHtml}
