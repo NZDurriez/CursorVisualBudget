@@ -7713,7 +7713,7 @@ function renderDashboard() {
 // 7-DAY FORECAST
 // ============================================================
 
-const FORECAST_VISIBLE_EVENTS = 4;
+const FORECAST_VISIBLE_EVENTS = 3;
 
 
 function openForecastCalendar() {
