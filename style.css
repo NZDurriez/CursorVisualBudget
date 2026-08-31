@@ -1664,7 +1664,7 @@ body.light-mode textarea:focus {
 
     min-width: 0;
 
-    min-height: 108px;
+    min-height: 0;
 
     padding: 8px 7px;
 
