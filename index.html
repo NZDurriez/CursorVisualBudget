@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=profile-header-wrap-1">
+    <link rel="stylesheet" href="style.css?v=seven-day-forecast-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -455,6 +455,44 @@
 
                     </div>
 
+                </div>
+
+            </div>
+
+            <div class="panel forecast-panel">
+
+                <div class="panel-header forecast-header">
+
+                    <div class="forecast-title">
+
+                        <h3>
+                            7-day forecast
+                        </h3>
+
+                        <small id="forecastSummary">
+                            Today through next week
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="forecastOpenCalendarBtn"
+                        class="forecast-calendar-link">
+
+                        Full calendar
+
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+
+                    </button>
+
+                </div>
+
+                <div
+                    class="forecast-strip"
+                    id="sevenDayForecast"
+                    role="list"
+                    aria-label="Seven day money forecast">
                 </div>
 
             </div>
@@ -2185,7 +2223,7 @@
 </div>
 
 <script type="module" src="cloud.js?v=google-popup-2"></script>
-<script src="app.js?v=theme-switch-1"></script>
+<script src="app.js?v=seven-day-forecast-1"></script>
 
 </body>
 </html>
