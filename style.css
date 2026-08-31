@@ -1547,11 +1547,159 @@ body.light-mode textarea:focus {
    7-DAY FORECAST
 ========================================================== */
 
-.forecast-panel {
+.upcoming-panel {
 
-    margin-bottom: 16px;
+    padding: 16px 18px 14px;
 
-    padding: 14px 16px 12px;
+}
+
+
+.upcoming-view-controls {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    min-width: 0;
+
+}
+
+
+.upcoming-view-switch {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 3px;
+
+    padding: 3px;
+
+    background: var(--input-bg);
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+}
+
+
+.upcoming-view-option {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    height: 30px;
+
+    padding: 0 10px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: transparent;
+
+    color: var(--text-muted);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background var(--transition),
+        color var(--transition),
+        box-shadow var(--transition);
+
+}
+
+
+.upcoming-view-option i {
+
+    font-size: 11px;
+
+}
+
+
+.upcoming-view-option:hover {
+
+    color: var(--text);
+
+}
+
+
+.upcoming-view-option:focus-visible {
+
+    outline: 2px solid var(--primary);
+
+    outline-offset: 2px;
+
+}
+
+
+.upcoming-view-option.is-active {
+
+    background: var(--panel-hover);
+
+    color: var(--text);
+
+    box-shadow:
+        inset 0 0 0 1px var(--border-hover),
+        0 1px 2px rgba(0, 0, 0, 0.22);
+
+}
+
+
+body.light-mode .upcoming-view-switch {
+
+    background: #e8eef5;
+
+    border-color: rgba(15, 23, 42, 0.12);
+
+}
+
+
+body.light-mode .upcoming-view-option.is-active {
+
+    background: #ffffff;
+
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.08),
+        0 4px 10px rgba(15, 23, 42, 0.08);
+
+}
+
+
+.upcoming-panel[data-view="list"] .forecast-strip,
+.upcoming-panel[data-view="list"] .forecast-calendar-link,
+.upcoming-panel[data-view="list"] #forecastSummary {
+
+    display: none;
+
+}
+
+
+.upcoming-panel[data-view="forecast"] .upcoming-payments-table,
+.upcoming-panel[data-view="forecast"] .payments-paid-summary,
+.upcoming-panel[data-view="forecast"] .upcoming-payments-bank-check {
+
+    display: none;
 
 }
 
@@ -1582,7 +1730,7 @@ body.light-mode textarea:focus {
 
 .forecast-title h3 {
 
-    font-size: 14px;
+    font-size: 16px;
 
 }
 
@@ -1638,6 +1786,13 @@ body.light-mode textarea:focus {
     color: var(--primary-hover);
 
     transform: translateX(2px);
+
+}
+
+
+.upcoming-view-controls .forecast-calendar-link {
+
+    margin-left: 0;
 
 }
 
@@ -4238,13 +4393,23 @@ body.light-mode .paid-status-btn.is-paid:hover {
 
 
 
-.upcoming-payments-header .payments-paid-summary {
+.upcoming-payments-header .forecast-title {
+
+    grid-column: 1;
+
+    justify-self: start;
+
+    min-width: 0;
+
+}
+
+
+
+.upcoming-payments-header .upcoming-view-controls {
 
     grid-column: 2;
 
     justify-self: end;
-
-    text-align: right;
 
 }
 
@@ -5502,9 +5667,9 @@ body.light-mode .paid-status-label.is-unpaid {
 
     }
 
-    .forecast-panel {
+    .upcoming-panel {
 
-        margin-bottom: 14px;
+        padding: 12px;
 
     }
 
@@ -5675,7 +5840,7 @@ body.light-mode .paid-status-label.is-unpaid {
     .data-table,
     .upcoming-payments-table,
     .forecast-strip,
-    .forecast-panel {
+    .upcoming-panel {
 
         max-width: 100%;
 
@@ -5726,7 +5891,17 @@ body.light-mode .paid-status-label.is-unpaid {
 
     .upcoming-payments-header {
 
+        grid-template-columns: minmax(0, 1fr);
+
         row-gap: 8px;
+
+    }
+
+    .upcoming-payments-header .upcoming-view-controls {
+
+        grid-column: 1;
+
+        justify-self: start;
 
     }
 
