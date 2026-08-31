@@ -47,6 +47,15 @@ const monthlyPayments = document.getElementById("monthlyPayments");
 const remainingIncome = document.getElementById("remainingIncome");
 const nextIncome = document.getElementById("nextIncome");
 
+const sevenDayForecast =
+    document.getElementById("sevenDayForecast");
+
+const forecastSummary =
+    document.getElementById("forecastSummary");
+
+const forecastOpenCalendarBtn =
+    document.getElementById("forecastOpenCalendarBtn");
+
 const incomePeriodLabel =
     document.getElementById("incomePeriodLabel");
 
@@ -611,6 +620,8 @@ function setupEvents() {
         });
 
     });
+
+    setupSevenDayForecast();
 
     // Add Income
     if (addIncomeBtn) {
@@ -3482,6 +3493,8 @@ function renderAll() {
     renderSavingsGoals();
 
     renderDashboard();
+
+    renderSevenDayForecast();
 
     renderUpcomingPayments();
 
@@ -7692,6 +7705,438 @@ function renderDashboard() {
         </small>
 
     `;
+
+}
+
+
+// ============================================================
+// 7-DAY FORECAST
+// ============================================================
+
+const FORECAST_VISIBLE_EVENTS = 4;
+
+
+function setupSevenDayForecast() {
+
+    if (sevenDayForecast) {
+
+        sevenDayForecast.addEventListener(
+            "click",
+            event => {
+
+                const eventButton =
+                    event.target.closest(
+                        "[data-edit-type]"
+                    );
+
+                if (eventButton) {
+
+                    editItem(
+                        eventButton.dataset.editType,
+                        eventButton.dataset.editId
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    event.target.closest(
+                        "[data-open-calendar]"
+                    )
+                ) {
+
+                    showPage("calendar");
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (forecastOpenCalendarBtn) {
+
+        forecastOpenCalendarBtn.addEventListener(
+            "click",
+            () => {
+
+                showPage("calendar");
+
+            }
+        );
+
+    }
+
+}
+
+
+function getForecastEventFlow(event) {
+
+    if (!event) {
+
+        return "out";
+
+    }
+
+
+    if (event.editType === "income") {
+
+        return "in";
+
+    }
+
+
+    if (
+        event.editType === "savings" &&
+        String(event.name).startsWith("Goal:")
+    ) {
+
+        return "info";
+
+    }
+
+
+    return "out";
+
+}
+
+
+function formatSignedCurrency(value) {
+
+    const amount =
+        Number(value) || 0;
+
+
+    if (amount === 0) {
+
+        return formatCurrency(0);
+
+    }
+
+
+    const formatted =
+        formatCurrency(Math.abs(amount));
+
+
+    return amount > 0
+        ? `+${formatted}`
+        : `−${formatted}`;
+
+}
+
+
+function getForecastDayLabel(date, offset) {
+
+    if (offset === 0) {
+
+        return "Today";
+
+    }
+
+
+    if (offset === 1) {
+
+        return "Tomorrow";
+
+    }
+
+
+    return date.toLocaleDateString(
+        "en-NZ",
+        {
+            weekday: "short"
+        }
+    );
+
+}
+
+
+function renderSevenDayForecast() {
+
+    if (!sevenDayForecast) {
+
+        return;
+
+    }
+
+
+    const start =
+        new Date();
+
+    start.setHours(0, 0, 0, 0);
+
+
+    const days = [];
+
+    let incomingTotal = 0;
+
+    let outgoingTotal = 0;
+
+    let billCount = 0;
+
+    let paydayLabel = "";
+
+
+    for (
+        let offset = 0;
+        offset < 7;
+        offset++
+    ) {
+
+        const date =
+            new Date(start);
+
+        date.setDate(
+            start.getDate() + offset
+        );
+
+
+        const dateString =
+            formatDateForInput(date);
+
+
+        const events =
+            getCalendarEvents(dateString);
+
+
+        let incoming = 0;
+
+        let outgoing = 0;
+
+        let hasIncome = false;
+
+
+        events.forEach(event => {
+
+            const flow =
+                getForecastEventFlow(event);
+
+            const amount =
+                Number(event.amount) || 0;
+
+
+            if (flow === "in") {
+
+                incoming += amount;
+
+                hasIncome = true;
+
+            }
+
+
+            if (flow === "out") {
+
+                outgoing += amount;
+
+                billCount += 1;
+
+            }
+
+        });
+
+
+        incomingTotal += incoming;
+
+        outgoingTotal += outgoing;
+
+
+        if (hasIncome && !paydayLabel) {
+
+            paydayLabel =
+                getForecastDayLabel(
+                    date,
+                    offset
+                );
+
+        }
+
+
+        days.push({
+            date,
+            dateString,
+            offset,
+            events,
+            incoming,
+            outgoing,
+            net: incoming - outgoing,
+            hasIncome
+        });
+
+    }
+
+
+    if (forecastSummary) {
+
+        if (
+            incomingTotal === 0 &&
+            outgoingTotal === 0 &&
+            billCount === 0
+        ) {
+
+            forecastSummary.textContent =
+                "Quiet week ahead";
+
+        } else if (paydayLabel && billCount > 0) {
+
+            forecastSummary.textContent =
+                `Payday ${paydayLabel} · ${billCount} ${billCount === 1 ? "bill" : "bills"}`;
+
+        } else if (paydayLabel) {
+
+            forecastSummary.textContent =
+                `Payday ${paydayLabel}`;
+
+        } else {
+
+            forecastSummary.textContent =
+                `${billCount} ${billCount === 1 ? "bill" : "bills"} · ${formatCurrency(outgoingTotal)} out`;
+
+        }
+
+    }
+
+
+    sevenDayForecast.innerHTML =
+        days.map(day => {
+
+            const weekday =
+                getForecastDayLabel(
+                    day.date,
+                    day.offset
+                );
+
+
+            const dateLabel =
+                day.date.toLocaleDateString(
+                    "en-NZ",
+                    {
+                        day: "numeric",
+                        month: "short"
+                    }
+                );
+
+
+            const dayClasses = [
+                "forecast-day",
+                day.offset === 0 ? "is-today" : "",
+                day.hasIncome ? "has-income" : ""
+            ].filter(Boolean).join(" ");
+
+
+            const visibleEvents =
+                day.events.slice(
+                    0,
+                    FORECAST_VISIBLE_EVENTS
+                );
+
+
+            const hiddenCount =
+                day.events.length -
+                visibleEvents.length;
+
+
+            let netClass = "is-clear";
+
+            let netLabel = "Clear";
+
+
+            if (day.events.length > 0) {
+
+                if (day.net > 0) {
+
+                    netClass = "is-in";
+
+                    netLabel =
+                        formatSignedCurrency(day.net);
+
+                } else if (day.net < 0) {
+
+                    netClass = "is-out";
+
+                    netLabel =
+                        formatSignedCurrency(day.net);
+
+                } else {
+
+                    netLabel =
+                        formatCurrency(0);
+
+                }
+
+            }
+
+
+            const eventsHtml =
+                visibleEvents.map(event => `
+
+                    <button
+                        type="button"
+                        class="forecast-event calendar-event ${escapeHtml(event.type)}"
+                        data-edit-type="${escapeHtml(event.editType)}"
+                        data-edit-id="${escapeHtml(String(event.id))}"
+                        title="Click to edit">
+
+                        <span class="forecast-event-name">
+                            ${escapeHtml(event.name)}
+                        </span>
+
+                        <span class="forecast-event-amount">
+                            ${formatCurrency(event.amount)}
+                        </span>
+
+                    </button>
+
+                `).join("");
+
+
+            const moreHtml =
+                hiddenCount > 0
+                    ? `
+                        <button
+                            type="button"
+                            class="forecast-more"
+                            data-open-calendar="true">
+                            +${hiddenCount} more
+                        </button>
+                    `
+                    : "";
+
+
+            return `
+
+                <article
+                    class="${dayClasses}"
+                    role="listitem">
+
+                    <header>
+
+                        <span class="forecast-weekday">
+                            ${escapeHtml(weekday)}
+                        </span>
+
+                        <span class="forecast-date">
+                            ${escapeHtml(dateLabel)}
+                        </span>
+
+                    </header>
+
+                    <p class="forecast-net ${netClass}">
+                        ${escapeHtml(netLabel)}
+                    </p>
+
+                    <div class="forecast-events">
+                        ${eventsHtml}
+                        ${moreHtml}
+                    </div>
+
+                </article>
+
+            `;
+
+        }).join("");
 
 }
 
