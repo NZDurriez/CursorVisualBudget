@@ -7024,41 +7024,7 @@ body.light-mode .admin-presence.is-online {
 }
 
 
-.admin-usage {
-
-    display: flex;
-
-    flex-wrap: wrap;
-
-    gap: 6px;
-
-}
-
-
-.admin-usage-chip {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    padding: 3px 8px;
-
-    border-radius: 999px;
-
-    background: rgba(148, 163, 184, 0.14);
-
-    color: var(--text);
-
-    font-size: 11px;
-
-    font-weight: 650;
-
-    white-space: nowrap;
-
-}
-
-
-.admin-usage-empty {
+.admin-muted {
 
     color: var(--text-muted);
 
@@ -7252,7 +7218,9 @@ body.light-mode .admin-presence.is-online {
 .admin-users-table th:nth-child(2),
 .admin-users-table td:nth-child(2),
 .admin-users-table th:nth-child(3),
-.admin-users-table td:nth-child(3) {
+.admin-users-table td:nth-child(3),
+.admin-users-table th:last-child,
+.admin-users-table td:last-child {
 
     white-space: nowrap;
 
@@ -7261,8 +7229,7 @@ body.light-mode .admin-presence.is-online {
 }
 
 
-.admin-users-table td:first-child,
-.admin-users-table td:last-child {
+.admin-users-table td:first-child {
 
     min-width: 0;
 
@@ -7475,19 +7442,13 @@ body.light-mode .admin-presence.is-online {
     .admin-users-table th:nth-child(2),
     .admin-users-table td:nth-child(2),
     .admin-users-table th:nth-child(3),
-    .admin-users-table td:nth-child(3) {
+    .admin-users-table td:nth-child(3),
+    .admin-users-table th:last-child,
+    .admin-users-table td:last-child {
 
         width: auto;
 
         white-space: normal;
-
-    }
-
-    .admin-usage {
-
-        justify-content: flex-end;
-
-        max-width: 70%;
 
     }
 
