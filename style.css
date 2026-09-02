@@ -6488,6 +6488,108 @@ body.light-mode .auth-btn-discord {
 }
 
 
+.admin-mimic-banner:not([hidden]) {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    flex-shrink: 0;
+
+    padding: 10px 16px;
+
+    background: #b45309;
+
+    color: #fff7ed;
+
+    font-size: 13px;
+
+    font-weight: 650;
+
+    z-index: 400;
+
+}
+
+
+.admin-mimic-banner strong {
+
+    font-weight: 700;
+
+}
+
+
+.admin-mimic-exit {
+
+    flex-shrink: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+
+    background: transparent;
+
+    color: inherit;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    height: 30px;
+
+    padding: 0 12px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+}
+
+
+.admin-mimic-exit:hover {
+
+    background: rgba(255, 255, 255, 0.12);
+
+}
+
+
+.admin-mimic-btn {
+
+    border: 1px solid var(--border);
+
+    background: var(--panel-hover);
+
+    color: var(--text);
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    height: 30px;
+
+    padding: 0 10px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+}
+
+
+.admin-mimic-btn:hover {
+
+    border-color: var(--border-hover);
+
+}
+
+
 .admin-metrics {
 
     display: grid;

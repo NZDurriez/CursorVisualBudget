@@ -38,9 +38,11 @@ Google sign-in uses a **popup** (required on GitHub Pages). A same-window redire
 
 ## Admin panel
 
-Signed-in accounts whose email is listed in **both** `adminEmails` (`firebase-config.js`) and `isAdmin()` (`firestore.rules`) can open **Admin** in the sidebar. That page lists every existing account (online or offline): name, email, provider, status, first/last seen, and usage counts (profiles / income / bills). Dollar amounts are never shown.
+Signed-in accounts whose email is listed in **both** `adminEmails` (`firebase-config.js`) and `isAdmin()` (`firestore.rules`) can open **Admin** in the sidebar. The list comes from `userDirectory` (identity and usage counts only). Budget JSON is not downloaded for the list.
 
-Online status updates about once a minute while Budgio is open. Filters cover online, recently active (7 days), never came back, and Google/Discord. Column headers sort the table. **New this week** counts accounts whose first seen date is in the last 7 days.
+**View as** loads one person’s budget into your session so you can test their dashboard. Nothing is written to their account or yours; Exit restores your budget.
+
+Filters cover activity, Empty vs Active, and Google/Discord. **New this week** counts first seen in the last 7 days.
 
 1. Put your Google sign-in email in `adminEmails` in `firebase-config.js`
 2. Put the same email in `isAdmin()` in `firestore.rules`

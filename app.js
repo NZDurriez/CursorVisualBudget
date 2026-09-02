@@ -522,9 +522,21 @@ let adminActivityFilter = "all";
 
 let adminProviderFilter = "all";
 
+let adminUsageFilter = "all";
+
 let adminSortKey = "lastSeen";
 
 let adminSortDir = "desc";
+
+let adminMimicSession = null;
+
+let adminMimicRestore = null;
+
+const adminMimicBanner =
+    document.getElementById("adminMimicBanner");
+
+const adminMimicExitBtn =
+    document.getElementById("adminMimicExitBtn");
 
 
 // ============================================================
@@ -747,6 +759,63 @@ function setupEvents() {
         });
 
     });
+
+    document.querySelectorAll("[data-admin-usage]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            adminUsageFilter =
+                button.dataset.adminUsage || "all";
+
+            document.querySelectorAll("[data-admin-usage]").forEach(entry => {
+
+                entry.classList.toggle(
+                    "is-active",
+                    entry === button
+                );
+
+            });
+
+            renderAdminUsers();
+
+        });
+
+    });
+
+    if (adminUsersTable) {
+
+        adminUsersTable.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest("[data-admin-mimic]");
+
+                if (!button) {
+
+                    return;
+
+                }
+
+                startAdminMimic(button.dataset.adminMimic);
+
+            }
+        );
+
+    }
+
+    if (adminMimicExitBtn) {
+
+        adminMimicExitBtn.addEventListener(
+            "click",
+            () => {
+
+                stopAdminMimic();
+
+            }
+        );
+
+    }
 
     if (adminUsersTableHead) {
 
@@ -1544,6 +1613,12 @@ async function syncFromCloudOnLogin() {
 
 window.onBudgetAuthChanged = async function onBudgetAuthChanged(user) {
 
+    if (isAdminMimicking()) {
+
+        stopAdminMimic({ silent: true });
+
+    }
+
     if (user) {
 
         await syncFromCloudOnLogin();
@@ -1600,6 +1675,12 @@ function getStoragePayload() {
 
 
 function saveData() {
+
+    if (isAdminMimicking()) {
+
+        return;
+
+    }
 
     const storageData =
         getStoragePayload();
@@ -11111,6 +11192,25 @@ function userMatchesAdminProvider(user) {
 }
 
 
+function userMatchesAdminUsage(user) {
+
+    if (adminUsageFilter === "empty") {
+
+        return Boolean(user.isEmpty);
+
+    }
+
+    if (adminUsageFilter === "active") {
+
+        return !user.isEmpty;
+
+    }
+
+    return true;
+
+}
+
+
 function adminSortValue(user, key) {
 
     if (key === "name") {
@@ -11261,6 +11361,192 @@ function adminPresenceCounts(users) {
 }
 
 
+function isAdminMimicking() {
+
+    return Boolean(adminMimicSession);
+
+}
+
+
+function cloneStoragePayload(payload) {
+
+    return JSON.parse(JSON.stringify(payload));
+
+}
+
+
+function updateAdminMimicBanner() {
+
+    if (!adminMimicBanner) {
+
+        return;
+
+    }
+
+    const active = isAdminMimicking();
+
+    adminMimicBanner.hidden = !active;
+
+    document.body.classList.toggle("is-mimicking", active);
+
+    const nameEl =
+        adminMimicBanner.querySelector("[data-mimic-name]");
+
+    if (nameEl && adminMimicSession) {
+
+        nameEl.textContent =
+            adminMimicSession.displayName ||
+            adminMimicSession.email ||
+            "this user";
+
+    }
+
+}
+
+
+function refreshBudgetView() {
+
+    updateScheduleSelector();
+    updateRecurringDates();
+    renderProfiles();
+    renderAll();
+
+}
+
+
+async function startAdminMimic(uid) {
+
+    if (
+        !uid ||
+        !window.BudgetCloud ||
+        typeof window.BudgetCloud.loadUserData !== "function" ||
+        !window.BudgetCloud.isCurrentUserAdmin()
+    ) {
+
+        return;
+
+    }
+
+    const current =
+        window.BudgetCloud.getUser &&
+        window.BudgetCloud.getUser();
+
+    if (current && current.uid === uid) {
+
+        return;
+
+    }
+
+    const summary =
+        adminUsersCache.find(user => user.uid === uid) ||
+        {};
+
+    const name =
+        summary.displayName ||
+        summary.email ||
+        "this user";
+
+    const confirmed = confirm(
+        `View ${name}'s budget?\n\nYou can look around as them. Nothing will be saved to their account or yours.`
+    );
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+    try {
+
+        const cloudData =
+            await window.BudgetCloud.loadUserData(uid);
+
+        if (
+            !cloudData ||
+            !Array.isArray(cloudData.profiles) ||
+            cloudData.profiles.length === 0
+        ) {
+
+            alert("That account has no cloud budget to view yet.");
+            return;
+
+        }
+
+        if (!adminMimicRestore) {
+
+            adminMimicRestore =
+                cloneStoragePayload(getStoragePayload());
+
+        }
+
+        if (window.BudgetCloud.setMimicMode) {
+
+            window.BudgetCloud.setMimicMode(true);
+
+        }
+
+        adminMimicSession = {
+            uid,
+            displayName: summary.displayName || "",
+            email: summary.email || ""
+        };
+
+        applyStoragePayload(cloudData);
+        updateAdminMimicBanner();
+        refreshBudgetView();
+        showPage("dashboard");
+
+    } catch (error) {
+
+        console.error("[BudgetCloud] View as failed:", error);
+
+        alert(
+            error && error.message
+                ? error.message
+                : "Could not load that budget."
+        );
+
+    }
+
+}
+
+
+function stopAdminMimic(options) {
+
+    const silent = Boolean(options && options.silent);
+
+    if (!isAdminMimicking() && !adminMimicRestore) {
+
+        return;
+
+    }
+
+    if (window.BudgetCloud && window.BudgetCloud.setMimicMode) {
+
+        window.BudgetCloud.setMimicMode(false);
+
+    }
+
+    if (adminMimicRestore) {
+
+        applyStoragePayload(adminMimicRestore);
+
+    }
+
+    adminMimicSession = null;
+    adminMimicRestore = null;
+    updateAdminMimicBanner();
+    refreshBudgetView();
+
+    if (!silent) {
+
+        showPage("admin");
+
+    }
+
+}
+
+
 function renderAdminUsers() {
 
     if (!adminUsersTable) {
@@ -11275,6 +11561,7 @@ function renderAdminUsers() {
         .filter(user => userMatchesAdminSearch(user, needle))
         .filter(userMatchesAdminActivity)
         .filter(userMatchesAdminProvider)
+        .filter(userMatchesAdminUsage)
         .sort(compareAdminUsers);
 
     const counts = adminPresenceCounts(adminUsersCache);
@@ -11313,7 +11600,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     Loading users…
                 </td>
             </tr>
@@ -11327,7 +11614,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     No signed-in users found.
                 </td>
             </tr>
@@ -11341,7 +11628,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     No users match that search or filter.
                 </td>
             </tr>
@@ -11422,6 +11709,18 @@ function renderAdminUsers() {
                 <td data-label="Usage">
                     ${formatAdminUsage(user)}
                 </td>
+                <td data-label="View">
+                    ${
+                        user.isCurrentUser
+                            ? `<span class="admin-usage-empty">—</span>`
+                            : `<button
+                                type="button"
+                                class="admin-mimic-btn"
+                                data-admin-mimic="${escapeHtml(user.uid)}">
+                                View as
+                            </button>`
+                    }
+                </td>
             </tr>
         `;
 
@@ -11479,18 +11778,7 @@ async function loadAdminUsers(options) {
         adminUsersCache =
             await window.BudgetCloud.listDirectoryUsers();
 
-        const listedExisting =
-            adminUsersCache.length === 0 ||
-            adminUsersCache.some(
-                user => user.listedExistingAccounts
-            );
-
-        setAdminStatus(
-            listedExisting
-                ? ""
-                : "Showing recent sign-ins only. Publish the updated Firestore rules to include older offline accounts.",
-            !listedExisting
-        );
+        setAdminStatus("");
         renderAdminUsers();
 
     } catch (error) {

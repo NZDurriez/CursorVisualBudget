@@ -53,6 +53,7 @@ let currentUser = null;
 let saveTimer = null;
 let heartbeatTimer = null;
 let heartbeatListenersBound = false;
+let mimicMode = false;
 let readyResolve;
 let authReadyResolve;
 
@@ -837,7 +838,7 @@ async function signOutUser() {
 
 function queueSave(storageData) {
 
-    if (!currentUser || !db) {
+    if (mimicMode || !currentUser || !db) {
 
         return;
 
@@ -864,7 +865,7 @@ function queueSave(storageData) {
 
 async function saveNow(storageData) {
 
-    if (!currentUser || !db) {
+    if (mimicMode || !currentUser || !db) {
 
         return;
 
@@ -1096,7 +1097,7 @@ async function upsertUserDirectory(options) {
 }
 
 
-async function loadUserData() {
+async function loadUserData(uid) {
 
     if (!currentUser || !db) {
 
@@ -1104,9 +1105,19 @@ async function loadUserData() {
 
     }
 
+    const targetUid = uid || currentUser.uid;
+
+    if (
+        targetUid !== currentUser.uid &&
+        !isCurrentUserAdmin()
+    ) {
+
+        throw new Error("Admin access required.");
+
+    }
 
     const snap =
-        await getDoc(userDocRef(currentUser.uid));
+        await getDoc(userDocRef(targetUid));
 
 
     if (!snap.exists()) {
@@ -1137,6 +1148,28 @@ async function loadUserData() {
 function isSignedIn() {
 
     return Boolean(currentUser);
+
+}
+
+
+function isMimicking() {
+
+    return mimicMode;
+
+}
+
+
+function setMimicMode(active) {
+
+    mimicMode = Boolean(active);
+
+    if (mimicMode) {
+
+        clearTimeout(saveTimer);
+
+        saveTimer = null;
+
+    }
 
 }
 
@@ -1395,6 +1428,18 @@ function isNeverCameBackUser(user) {
 }
 
 
+function isDirectoryUserEmpty(user) {
+
+    const items =
+        (Number(user.incomeCount) || 0) +
+        (Number(user.paymentCount) || 0) +
+        (Number(user.oneOffCount) || 0);
+
+    return items === 0 && (Number(user.profileCount) || 0) <= 1;
+
+}
+
+
 async function backfillDirectoryUsers(users) {
 
     await Promise.all(
@@ -1475,68 +1520,6 @@ async function listDirectoryUsers() {
 
     });
 
-    let listedExistingAccounts = false;
-
-    try {
-
-        const usersSnap =
-            await getDocs(collection(db, "users"));
-
-        listedExistingAccounts = true;
-
-        const missing = [];
-
-        usersSnap.docs.forEach(entry => {
-
-            const identity =
-                identityFromUserDoc(entry, currentUid);
-
-            const existing = byUid.get(identity.uid);
-
-            if (existing) {
-
-                const merged =
-                    mergeUserIdentity(existing, identity);
-
-                byUid.set(identity.uid, merged);
-
-                if (!existing.hasUsage) {
-
-                    missing.push(merged);
-
-                }
-
-            } else {
-
-                byUid.set(identity.uid, identity);
-
-                missing.push(identity);
-
-            }
-
-        });
-
-        if (missing.length > 0) {
-
-            await backfillDirectoryUsers(missing);
-
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "[BudgetCloud] Could not list existing users:",
-            error
-        );
-
-        if (byUid.size === 0) {
-
-            throw error;
-
-        }
-
-    }
-
     const users = Array.from(byUid.values()).map(user => {
 
         return {
@@ -1551,7 +1534,7 @@ async function listDirectoryUsers() {
                 user.firstSeen,
                 ADMIN_NEW_MS
             ),
-            listedExistingAccounts
+            isEmpty: isDirectoryUserEmpty(user)
         };
 
     });
@@ -1661,6 +1644,8 @@ window.BudgetCloud = {
     isDiscordConfigured,
     isSignedIn,
     isCurrentUserAdmin,
+    isMimicking,
+    setMimicMode,
     getUser,
     queueSave,
     saveNow,
