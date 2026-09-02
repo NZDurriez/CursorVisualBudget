@@ -6470,6 +6470,17 @@ body.light-mode .auth-btn-discord {
    ADMIN — signed-in users
 ========================================================== */
 
+#admin.page {
+
+    container-type: inline-size;
+
+    container-name: admin;
+
+    min-width: 0;
+
+}
+
+
 .admin-page-header {
 
     margin-bottom: 16px;
@@ -6607,7 +6618,22 @@ body.light-mode .admin-table-card {
 
     overflow: hidden;
 
+    max-width: 100%;
+
+    min-width: 0;
+
     box-shadow: var(--shadow);
+
+}
+
+
+.admin-table-scroll {
+
+    overflow-x: auto;
+
+    max-width: 100%;
+
+    -webkit-overflow-scrolling: touch;
 
 }
 
@@ -7095,6 +7121,14 @@ body.light-mode .admin-presence.is-online {
 }
 
 
+.admin-users-table td:first-child,
+.admin-users-table td:last-child {
+
+    min-width: 0;
+
+}
+
+
 .admin-users-table tbody tr.is-current-admin-user td {
 
     background: rgba(59, 130, 246, 0.06);
@@ -7136,6 +7170,168 @@ body.light-mode .admin-presence.is-online {
 
     }
 
+@media (max-width: 1100px) {
+
+    #admin.page {
+
+        padding-left: 16px;
+
+        padding-right: 16px;
+
+    }
+
+}
+
+
+/* Stack the admin table when the content column is narrow
+   (phones using desktop site still have a wide CSS viewport). */
+@container admin (max-width: 880px) {
+
+    .admin-metrics {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    }
+
+    .admin-metric:nth-child(2) {
+
+        border-right: none;
+
+    }
+
+    .admin-metric:nth-child(1),
+    .admin-metric:nth-child(2) {
+
+        border-bottom: 1px solid var(--border);
+
+    }
+
+    .admin-users-table {
+
+        display: block;
+
+        width: 100%;
+
+        max-width: 100%;
+
+        overflow: visible;
+
+    }
+
+    .admin-users-table thead {
+
+        display: none;
+
+    }
+
+    .admin-users-table tbody {
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding: 10px 12px 12px;
+
+    }
+
+    .admin-users-table tr {
+
+        display: block;
+
+        background: var(--panel-hover);
+
+        border: 1px solid var(--border);
+
+        border-radius: 12px;
+
+        padding: 10px 12px;
+
+    }
+
+    .admin-users-table td {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 12px;
+
+        width: 100%;
+
+        max-width: 100%;
+
+        padding: 8px 0;
+
+        border: none;
+
+        border-top: 1px solid var(--border);
+
+        white-space: normal;
+
+        text-align: right;
+
+        font-size: 13px;
+
+    }
+
+    .admin-users-table tr td:first-child {
+
+        border-top: none;
+
+        padding-top: 2px;
+
+        text-align: left;
+
+        justify-content: flex-start;
+
+    }
+
+    .admin-users-table td::before {
+
+        content: attr(data-label);
+
+        font-size: 11px;
+
+        font-weight: 650;
+
+        letter-spacing: 0.3px;
+
+        text-transform: uppercase;
+
+        color: var(--text-muted);
+
+        text-align: left;
+
+        flex: 0 0 auto;
+
+    }
+
+    .admin-users-table tr td:first-child::before {
+
+        display: none;
+
+    }
+
+    .admin-users-table td[colspan] {
+
+        display: block;
+
+        text-align: left;
+
+        border-top: none;
+
+    }
+
+    .admin-users-table td[colspan]::before {
+
+        display: none;
+
+    }
+
     .admin-users-table th:nth-child(2),
     .admin-users-table td:nth-child(2),
     .admin-users-table th:nth-child(3),
@@ -7147,6 +7343,21 @@ body.light-mode .admin-presence.is-online {
 
     }
 
+    .admin-usage {
+
+        justify-content: flex-end;
+
+        max-width: 70%;
+
+    }
+
+    .admin-user-meta {
+
+        white-space: normal;
+
+    }
+
 }
+
 
 
