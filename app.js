@@ -538,6 +538,20 @@ const adminMimicBanner =
 const adminMimicExitBtn =
     document.getElementById("adminMimicExitBtn");
 
+const adminMimicModal =
+    document.getElementById("adminMimicModal");
+
+const adminMimicConfirmBtn =
+    document.getElementById("adminMimicConfirmBtn");
+
+const adminMimicCancelBtn =
+    document.getElementById("adminMimicCancelBtn");
+
+const adminMimicModalError =
+    document.getElementById("adminMimicModalError");
+
+let pendingAdminMimicUid = null;
+
 
 // ============================================================
 // STARTUP
@@ -797,7 +811,7 @@ function setupEvents() {
 
                 }
 
-                startAdminMimic(button.dataset.adminMimic);
+                openAdminMimicModal(button.dataset.adminMimic);
 
             }
         );
@@ -816,6 +830,62 @@ function setupEvents() {
         );
 
     }
+
+    if (adminMimicConfirmBtn) {
+
+        adminMimicConfirmBtn.addEventListener(
+            "click",
+            () => {
+
+                confirmAdminMimic();
+
+            }
+        );
+
+    }
+
+    if (adminMimicCancelBtn) {
+
+        adminMimicCancelBtn.addEventListener(
+            "click",
+            closeAdminMimicModal
+        );
+
+    }
+
+    if (adminMimicModal) {
+
+        adminMimicModal.addEventListener(
+            "click",
+            event => {
+
+                if (event.target === adminMimicModal) {
+
+                    closeAdminMimicModal();
+
+                }
+
+            }
+        );
+
+    }
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape" &&
+                adminMimicModal &&
+                !adminMimicModal.classList.contains("hidden")
+            ) {
+
+                closeAdminMimicModal();
+
+            }
+
+        }
+    );
 
     if (adminUsersTableHead) {
 
@@ -11414,7 +11484,50 @@ function refreshBudgetView() {
 }
 
 
-async function startAdminMimic(uid) {
+function setAdminMimicModalError(message) {
+
+    if (!adminMimicModalError) {
+
+        return;
+
+    }
+
+    if (!message) {
+
+        adminMimicModalError.hidden = true;
+        adminMimicModalError.textContent = "";
+        return;
+
+    }
+
+    adminMimicModalError.hidden = false;
+    adminMimicModalError.textContent = message;
+
+}
+
+
+function closeAdminMimicModal() {
+
+    pendingAdminMimicUid = null;
+
+    setAdminMimicModalError("");
+
+    if (adminMimicConfirmBtn) {
+
+        adminMimicConfirmBtn.disabled = false;
+
+    }
+
+    if (adminMimicModal) {
+
+        adminMimicModal.classList.add("hidden");
+
+    }
+
+}
+
+
+function openAdminMimicModal(uid) {
 
     if (
         !uid ||
@@ -11441,20 +11554,53 @@ async function startAdminMimic(uid) {
         adminUsersCache.find(user => user.uid === uid) ||
         {};
 
-    const name =
-        summary.displayName ||
-        summary.email ||
-        "this user";
+    pendingAdminMimicUid = uid;
 
-    const confirmed = confirm(
-        `View ${name}'s budget?\n\nYou can look around as them. Nothing will be saved to their account or yours.`
-    );
+    const nameEl = adminMimicModal
+        ? adminMimicModal.querySelector("[data-mimic-modal-name]")
+        : null;
 
-    if (!confirmed) {
+    if (nameEl) {
+
+        nameEl.textContent =
+            summary.displayName ||
+            summary.email ||
+            "this user";
+
+    }
+
+    setAdminMimicModalError("");
+
+    if (adminMimicModal) {
+
+        adminMimicModal.classList.remove("hidden");
+
+    }
+
+}
+
+
+async function confirmAdminMimic() {
+
+    const uid = pendingAdminMimicUid;
+
+    if (!uid) {
 
         return;
 
     }
+
+    const summary =
+        adminUsersCache.find(user => user.uid === uid) ||
+        {};
+
+    if (adminMimicConfirmBtn) {
+
+        adminMimicConfirmBtn.disabled = true;
+
+    }
+
+    setAdminMimicModalError("");
 
     try {
 
@@ -11467,7 +11613,16 @@ async function startAdminMimic(uid) {
             cloudData.profiles.length === 0
         ) {
 
-            alert("That account has no cloud budget to view yet.");
+            setAdminMimicModalError(
+                "That account has no cloud budget to view yet."
+            );
+
+            if (adminMimicConfirmBtn) {
+
+                adminMimicConfirmBtn.disabled = false;
+
+            }
+
             return;
 
         }
@@ -11492,6 +11647,7 @@ async function startAdminMimic(uid) {
         };
 
         applyStoragePayload(cloudData);
+        closeAdminMimicModal();
         updateAdminMimicBanner();
         refreshBudgetView();
         showPage("dashboard");
@@ -11500,11 +11656,17 @@ async function startAdminMimic(uid) {
 
         console.error("[BudgetCloud] View as failed:", error);
 
-        alert(
+        setAdminMimicModalError(
             error && error.message
                 ? error.message
                 : "Could not load that budget."
         );
+
+        if (adminMimicConfirmBtn) {
+
+            adminMimicConfirmBtn.disabled = false;
+
+        }
 
     }
 

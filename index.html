@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=admin-users-6">
+    <link rel="stylesheet" href="style.css?v=admin-users-7">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2530,8 +2530,52 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=admin-users-6"></script>
-<script src="app.js?v=admin-users-6"></script>
+<div
+    id="adminMimicModal"
+    class="modal hidden">
+
+    <div class="modal-content">
+
+        <h2>
+            View this budget?
+        </h2>
+
+        <p class="admin-mimic-copy">
+            You’ll look around as
+            <strong data-mimic-modal-name>this user</strong>.
+            Nothing is saved to their account or yours.
+            Exit view restores your budget.
+        </p>
+
+        <p
+            id="adminMimicModalError"
+            class="admin-status is-error"
+            hidden></p>
+
+        <div class="modal-buttons">
+
+            <button
+                type="button"
+                id="adminMimicCancelBtn"
+                class="secondary-btn cancel-btn">
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                id="adminMimicConfirmBtn"
+                class="primary-btn">
+                View budget
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module" src="cloud.js?v=admin-users-7"></script>
+<script src="app.js?v=admin-users-7"></script>
 
 </body>
 </html>

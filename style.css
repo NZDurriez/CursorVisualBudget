@@ -3532,6 +3532,13 @@ body.light-mode .action-btn.paid-btn {
 }
 
 
+.modal.hidden {
+
+    display: none;
+
+}
+
+
 .modal-content {
 
     width: 450px;
@@ -3669,6 +3676,37 @@ body.light-mode .modal {
     gap: 9px;
 
     margin-top: 25px;
+
+}
+
+
+.admin-mimic-copy {
+
+    margin: 0;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    color: var(--text-soft);
+
+}
+
+
+.admin-mimic-copy strong {
+
+    color: var(--text);
+
+}
+
+
+.modal-content .admin-status {
+
+    margin: 12px 0 0;
+
+    padding: 0;
+
+    border: none;
 
 }
 
