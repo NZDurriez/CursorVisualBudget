@@ -4,8 +4,8 @@ rules_version = '2';
 // Or paste into Firebase Console → Firestore → Rules
 //
 // Admin emails must match adminEmails in firebase-config.js.
-// The Admin page only lists identity fields from userDirectory —
-// never budget data from users/{userId}.
+// The Admin page shows identity only. Admins may list users/{userId}
+// to include offline accounts, but the UI never displays budget data.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -28,15 +28,17 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Only the signed-in owner can read/write their budget doc
+      // Owners read/write their budget. Admins may list accounts
+      // so the Admin page can show people who are offline too.
       allow read, write: if isOwner(userId);
+      allow read: if isAdmin();
     }
 
     match /userDirectory/{userId} {
       // Identity only (name, email, provider, last seen).
-      // Owners write their own row; admins can list everyone.
+      // Owners write their own row; admins can list and backfill.
       allow read, write: if isOwner(userId);
-      allow read: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
   }

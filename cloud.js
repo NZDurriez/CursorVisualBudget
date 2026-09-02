@@ -989,6 +989,137 @@ function firestoreTimestampToDate(value) {
 }
 
 
+const ADMIN_ONLINE_MS = 10 * 60 * 1000;
+
+
+function identityFromDirectoryDoc(entry, currentUid) {
+
+    const data = entry.data() || {};
+
+    const lastSeen =
+        firestoreTimestampToDate(data.lastSeen);
+
+    return {
+        uid: data.uid || entry.id,
+        email: data.email || "",
+        displayName: data.displayName || "",
+        photoURL: data.photoURL || "",
+        authProvider: data.authProvider || "",
+        lastSeen: lastSeen ? lastSeen.toISOString() : null,
+        isCurrentUser: entry.id === currentUid
+    };
+
+}
+
+
+function identityFromUserDoc(entry, currentUid) {
+
+    const data = entry.data() || {};
+
+    const lastSeen =
+        firestoreTimestampToDate(data.lastSeen) ||
+        firestoreTimestampToDate(data.updatedAt);
+
+    return {
+        uid: data.uid || entry.id,
+        email: data.email || "",
+        displayName: data.displayName || "",
+        photoURL: data.photoURL || "",
+        authProvider: data.authProvider || "",
+        lastSeen: lastSeen ? lastSeen.toISOString() : null,
+        isCurrentUser: entry.id === currentUid
+    };
+
+}
+
+
+function mergeUserIdentity(primary, extra) {
+
+    const lastSeenValues = [
+        primary.lastSeen,
+        extra.lastSeen
+    ].filter(Boolean);
+
+    lastSeenValues.sort();
+
+    return {
+        uid: primary.uid || extra.uid,
+        email: primary.email || extra.email,
+        displayName:
+            primary.displayName || extra.displayName,
+        photoURL: primary.photoURL || extra.photoURL,
+        authProvider:
+            primary.authProvider || extra.authProvider,
+        lastSeen:
+            lastSeenValues[lastSeenValues.length - 1] ||
+            null,
+        isCurrentUser:
+            primary.isCurrentUser || extra.isCurrentUser
+    };
+
+}
+
+
+function isRecentlySeen(iso) {
+
+    if (!iso) {
+
+        return false;
+
+    }
+
+    const time = new Date(iso).getTime();
+
+    if (Number.isNaN(time)) {
+
+        return false;
+
+    }
+
+    return Date.now() - time <= ADMIN_ONLINE_MS;
+
+}
+
+
+async function backfillDirectoryUsers(users) {
+
+    await Promise.all(
+        users.map(user => {
+
+            const payload = {
+                uid: user.uid,
+                email: user.email || "",
+                displayName: user.displayName || "",
+                photoURL: user.photoURL || "",
+                authProvider: user.authProvider || ""
+            };
+
+            if (user.lastSeen) {
+
+                payload.lastSeen = new Date(user.lastSeen);
+
+            }
+
+            return setDoc(
+                userDirectoryRef(user.uid),
+                payload,
+                { merge: true }
+            ).catch(error => {
+
+                console.warn(
+                    "[BudgetCloud] Directory backfill failed:",
+                    user.uid,
+                    error
+                );
+
+            });
+
+        })
+    );
+
+}
+
+
 async function listDirectoryUsers() {
 
     if (!db) {
@@ -1003,32 +1134,96 @@ async function listDirectoryUsers() {
 
     }
 
-    const snap =
-        await getDocs(collection(db, "userDirectory"));
-
     const currentUid =
         currentUser && currentUser.uid;
 
-    const users = snap.docs.map(entry => {
+    const directorySnap =
+        await getDocs(collection(db, "userDirectory"));
 
-        const data = entry.data() || {};
+    const byUid = new Map();
 
-        const lastSeen =
-            firestoreTimestampToDate(data.lastSeen);
+    directorySnap.docs.forEach(entry => {
+
+        const identity =
+            identityFromDirectoryDoc(entry, currentUid);
+
+        byUid.set(identity.uid, identity);
+
+    });
+
+    let listedExistingAccounts = false;
+
+    try {
+
+        const usersSnap =
+            await getDocs(collection(db, "users"));
+
+        listedExistingAccounts = true;
+
+        const missing = [];
+
+        usersSnap.docs.forEach(entry => {
+
+            const identity =
+                identityFromUserDoc(entry, currentUid);
+
+            const existing = byUid.get(identity.uid);
+
+            if (existing) {
+
+                byUid.set(
+                    identity.uid,
+                    mergeUserIdentity(existing, identity)
+                );
+
+            } else {
+
+                byUid.set(identity.uid, identity);
+
+                missing.push(identity);
+
+            }
+
+        });
+
+        if (missing.length > 0) {
+
+            await backfillDirectoryUsers(missing);
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "[BudgetCloud] Could not list existing users:",
+            error
+        );
+
+        if (byUid.size === 0) {
+
+            throw error;
+
+        }
+
+    }
+
+    const users = Array.from(byUid.values()).map(user => {
 
         return {
-            uid: data.uid || entry.id,
-            email: data.email || "",
-            displayName: data.displayName || "",
-            photoURL: data.photoURL || "",
-            authProvider: data.authProvider || "",
-            lastSeen: lastSeen ? lastSeen.toISOString() : null,
-            isCurrentUser: entry.id === currentUid
+            ...user,
+            isOnline: isRecentlySeen(user.lastSeen),
+            listedExistingAccounts
         };
 
     });
 
     users.sort((a, b) => {
+
+        if (a.isOnline !== b.isOnline) {
+
+            return a.isOnline ? -1 : 1;
+
+        }
 
         const aTime = a.lastSeen || "";
         const bTime = b.lastSeen || "";

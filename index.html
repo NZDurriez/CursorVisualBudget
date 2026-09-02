@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=admin-users-1">
+    <link rel="stylesheet" href="style.css?v=admin-users-2">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1833,9 +1833,9 @@
             </div>
 
             <p class="admin-help">
-                People who have signed in with Google or Discord.
-                Guest sessions on this device are not listed, and
-                nobody’s budget data is shown here.
+                Every signed-in account, whether they are online now
+                or not. Guest sessions on this device are not listed,
+                and nobody’s budget data is shown here.
             </p>
 
             <div class="dashboard-cards admin-stats">
@@ -1850,17 +1850,17 @@
 
                 <div class="card">
 
-                    <h3>Google</h3>
+                    <h3>Online</h3>
 
-                    <h2 id="adminGoogleCount">—</h2>
+                    <h2 id="adminOnlineCount">—</h2>
 
                 </div>
 
                 <div class="card">
 
-                    <h3>Discord</h3>
+                    <h3>Offline</h3>
 
-                    <h2 id="adminDiscordCount">—</h2>
+                    <h2 id="adminOfflineCount">—</h2>
 
                 </div>
 
@@ -1883,6 +1883,8 @@
 
                     <th>Sign-in</th>
 
+                    <th>Status</th>
+
                     <th>Last seen</th>
 
                 </tr>
@@ -1893,7 +1895,7 @@
 
                     <tr>
 
-                        <td colspan="4">
+                        <td colspan="5">
                             Sign in as an admin to load users.
                         </td>
 
@@ -2375,8 +2377,8 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=admin-users-1"></script>
-<script src="app.js?v=admin-users-1"></script>
+<script type="module" src="cloud.js?v=admin-users-2"></script>
+<script src="app.js?v=admin-users-2"></script>
 
 </body>
 </html>

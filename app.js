@@ -499,11 +499,11 @@ const adminRefreshBtn =
 const adminUserCount =
     document.getElementById("adminUserCount");
 
-const adminGoogleCount =
-    document.getElementById("adminGoogleCount");
+const adminOnlineCount =
+    document.getElementById("adminOnlineCount");
 
-const adminDiscordCount =
-    document.getElementById("adminDiscordCount");
+const adminOfflineCount =
+    document.getElementById("adminOfflineCount");
 
 const adminStatus =
     document.getElementById("adminStatus");
@@ -10873,29 +10873,24 @@ function userMatchesAdminSearch(user, needle) {
 }
 
 
-function adminProviderCounts(users) {
+function adminPresenceCounts(users) {
 
-    let google = 0;
-    let discord = 0;
+    let online = 0;
 
     users.forEach(user => {
 
-        const provider =
-            String(user.authProvider || "").toLowerCase();
+        if (user.isOnline) {
 
-        if (provider === "discord") {
-
-            discord += 1;
-
-        } else {
-
-            google += 1;
+            online += 1;
 
         }
 
     });
 
-    return { google, discord };
+    return {
+        online,
+        offline: users.length - online
+    };
 
 }
 
@@ -10915,7 +10910,7 @@ function renderAdminUsers() {
             user => userMatchesAdminSearch(user, needle)
         );
 
-    const counts = adminProviderCounts(adminUsersCache);
+    const counts = adminPresenceCounts(adminUsersCache);
 
     if (adminUserCount) {
 
@@ -10924,17 +10919,17 @@ function renderAdminUsers() {
 
     }
 
-    if (adminGoogleCount) {
+    if (adminOnlineCount) {
 
-        adminGoogleCount.textContent =
-            String(counts.google);
+        adminOnlineCount.textContent =
+            String(counts.online);
 
     }
 
-    if (adminDiscordCount) {
+    if (adminOfflineCount) {
 
-        adminDiscordCount.textContent =
-            String(counts.discord);
+        adminOfflineCount.textContent =
+            String(counts.offline);
 
     }
 
@@ -10942,7 +10937,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     Loading users…
                 </td>
             </tr>
@@ -10956,9 +10951,8 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
-                    No signed-in users yet. People appear here
-                    after they next sign in or save.
+                <td colspan="5">
+                    No signed-in users found.
                 </td>
             </tr>
         `;
@@ -10971,7 +10965,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="5">
                     No users match that search.
                 </td>
             </tr>
@@ -11007,6 +11001,14 @@ function renderAdminUsers() {
             ? `<span class="admin-you-badge">You</span>`
             : "";
 
+        const statusLabel = user.isOnline
+            ? "Online"
+            : "Offline";
+
+        const statusClass = user.isOnline
+            ? "is-online"
+            : "is-offline";
+
         return `
             <tr class="${user.isCurrentUser ? "is-current-admin-user" : ""}">
                 <td data-label="User">
@@ -11023,6 +11025,11 @@ function renderAdminUsers() {
                 </td>
                 <td data-label="Sign-in">
                     ${escapeHtml(provider)}
+                </td>
+                <td data-label="Status">
+                    <span class="admin-presence ${statusClass}">
+                        ${statusLabel}
+                    </span>
                 </td>
                 <td data-label="Last seen">
                     ${escapeHtml(formatAdminLastSeen(user.lastSeen))}
@@ -11084,7 +11091,18 @@ async function loadAdminUsers(options) {
         adminUsersCache =
             await window.BudgetCloud.listDirectoryUsers();
 
-        setAdminStatus("");
+        const listedExisting =
+            adminUsersCache.length === 0 ||
+            adminUsersCache.some(
+                user => user.listedExistingAccounts
+            );
+
+        setAdminStatus(
+            listedExisting
+                ? ""
+                : "Showing recent sign-ins only. Publish the updated Firestore rules to include older offline accounts.",
+            !listedExisting
+        );
         renderAdminUsers();
 
     } catch (error) {

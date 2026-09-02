@@ -6629,6 +6629,59 @@ body.light-mode .auth-btn-discord {
 }
 
 
+.admin-presence {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.2px;
+
+}
+
+
+.admin-presence::before {
+
+    content: "";
+
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+
+}
+
+
+.admin-presence.is-online {
+
+    color: #34d399;
+
+}
+
+
+.admin-presence.is-offline {
+
+    color: var(--text-muted);
+
+}
+
+
+body.light-mode .admin-presence.is-online {
+
+    color: #059669;
+
+}
+
+
 .admin-you-badge {
 
     display: inline-flex;
