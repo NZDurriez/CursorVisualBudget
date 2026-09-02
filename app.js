@@ -1246,6 +1246,12 @@ if (deleteItemBtn) {
         "click",
         () => {
 
+            if (isAdminMimicking()) {
+
+                return;
+
+            }
+
             if (
                 !editingType ||
                 !editingId
@@ -2526,6 +2532,12 @@ function openCreateProfileForm() {
 
 function editProfile(profileId) {
 
+    if (isAdminMimicking()) {
+
+        return;
+
+    }
+
     const profile =
         profiles.find(
             entry => entry.id === profileId
@@ -2878,6 +2890,12 @@ function saveProfile(event) {
 
 function deleteProfile(profileId) {
 
+    if (isAdminMimicking()) {
+
+        return;
+
+    }
+
     const profile =
         profiles.find(
             profile =>
@@ -3070,6 +3088,12 @@ window.showBudgetPage = showPage;
 // ============================================================
 
 function openModal(type, id = null) {
+
+    if (id && isAdminMimicking()) {
+
+        return;
+
+    }
 
     editingType = type;
     editingId = id;
@@ -3483,6 +3507,12 @@ function saveItem(event) {
 
 function deleteItem(type, id) {
 
+    if (isAdminMimicking()) {
+
+        return;
+
+    }
+
     let message;
 
     if (type === "income") {
@@ -3506,6 +3536,12 @@ if (deleteItemBtn) {
     deleteItemBtn.addEventListener(
         "click",
         () => {
+
+            if (isAdminMimicking()) {
+
+                return;
+
+            }
 
             if (
                 !editingType ||
@@ -4843,6 +4879,12 @@ function updateSavingsGoalPreview() {
 
 function openSavingsGoalForm(id = null) {
 
+    if (id && isAdminMimicking()) {
+
+        return;
+
+    }
+
     ensureSavingsGoalsArray();
 
 
@@ -5170,6 +5212,12 @@ function saveSavingsGoal(event) {
 
 function deleteSavingsGoal(id) {
 
+    if (isAdminMimicking()) {
+
+        return;
+
+    }
+
     ensureSavingsGoalsArray();
 
 
@@ -5267,6 +5315,12 @@ function openSavingsProgressModal(
     goalId,
     contributionId = null
 ) {
+
+    if (contributionId && isAdminMimicking()) {
+
+        return;
+
+    }
 
     ensureSavingsGoalsArray();
 
@@ -5571,6 +5625,12 @@ function editSavingsContribution(
     contributionId
 ) {
 
+    if (isAdminMimicking()) {
+
+        return;
+
+    }
+
     openSavingsProgressModal(
         goalId,
         contributionId
@@ -5583,6 +5643,12 @@ function deleteSavingsContribution(
     goalId,
     contributionId
 ) {
+
+    if (isAdminMimicking()) {
+
+        return;
+
+    }
 
     ensureSavingsGoalsArray();
 
@@ -7945,6 +8011,12 @@ function updatePayCalculator() {
 // ============================================================
 
 function editItem(type, id) {
+
+    if (isAdminMimicking()) {
+
+        return;
+
+    }
 
     if (type === "savings") {
 
