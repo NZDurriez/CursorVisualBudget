@@ -11156,71 +11156,6 @@ function formatAdminRelativeTime(iso) {
 }
 
 
-function formatAdminUsage(user) {
-
-    const income = Number(user.incomeCount) || 0;
-    const payments = Number(user.paymentCount) || 0;
-    const oneOffs = Number(user.oneOffCount) || 0;
-    const profiles = Number(user.profileCount) || 0;
-    const items = income + payments + oneOffs;
-
-    if (items === 0 && profiles <= 1) {
-
-        return `<span class="admin-usage-empty">Empty</span>`;
-
-    }
-
-    const chips = [];
-
-    if (profiles > 0) {
-
-        chips.push(
-            `<span class="admin-usage-chip">${profiles} ${
-                profiles === 1 ? "profile" : "profiles"
-            }</span>`
-        );
-
-    }
-
-    if (income > 0) {
-
-        chips.push(
-            `<span class="admin-usage-chip">${income} income</span>`
-        );
-
-    }
-
-    if (payments > 0) {
-
-        chips.push(
-            `<span class="admin-usage-chip">${payments} ${
-                payments === 1 ? "bill" : "bills"
-            }</span>`
-        );
-
-    }
-
-    if (oneOffs > 0) {
-
-        chips.push(
-            `<span class="admin-usage-chip">${oneOffs} ${
-                oneOffs === 1 ? "one-off" : "one-offs"
-            }</span>`
-        );
-
-    }
-
-    if (chips.length === 0) {
-
-        return `<span class="admin-usage-empty">Empty</span>`;
-
-    }
-
-    return `<div class="admin-usage">${chips.join("")}</div>`;
-
-}
-
-
 function userMatchesAdminActivity(user) {
 
     if (adminActivityFilter === "online") {
@@ -11315,16 +11250,6 @@ function adminSortValue(user, key) {
     if (key === "lastSeen" || key === "firstSeen") {
 
         return user[key] || "";
-
-    }
-
-    if (key === "usage") {
-
-        return (
-            (Number(user.incomeCount) || 0) +
-            (Number(user.paymentCount) || 0) +
-            (Number(user.oneOffCount) || 0)
-        );
 
     }
 
@@ -11762,7 +11687,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="4">
                     Loading users…
                 </td>
             </tr>
@@ -11776,7 +11701,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="4">
                     No signed-in users found.
                 </td>
             </tr>
@@ -11790,7 +11715,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="4">
                     No users match that search or filter.
                 </td>
             </tr>
@@ -11868,13 +11793,10 @@ function renderAdminUsers() {
                         ${firstSeen}
                     </div>
                 </td>
-                <td data-label="Usage">
-                    ${formatAdminUsage(user)}
-                </td>
                 <td data-label="View">
                     ${
                         user.isCurrentUser
-                            ? `<span class="admin-usage-empty">—</span>`
+                            ? `<span class="admin-muted">—</span>`
                             : `<button
                                 type="button"
                                 class="admin-mimic-btn"

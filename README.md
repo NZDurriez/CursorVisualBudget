@@ -38,7 +38,7 @@ Google sign-in uses a **popup** (required on GitHub Pages). A same-window redire
 
 ## Admin panel
 
-Signed-in accounts whose email is listed in **both** `adminEmails` (`firebase-config.js`) and `isAdmin()` (`firestore.rules`) can open **Admin** in the sidebar. The list comes from `userDirectory` (identity and usage counts only). Budget JSON is not downloaded for the list.
+Signed-in accounts whose email is listed in **both** `adminEmails` (`firebase-config.js`) and `isAdmin()` (`firestore.rules`) can open **Admin** in the sidebar. The list comes from `userDirectory` (identity and last seen). Usage counts stay in the directory for the Empty/Active filter; they are not shown as a table column. Budget JSON is not downloaded for the list.
 
 **View as** loads one person’s budget into your session so you can test their dashboard. Nothing is written to their account or yours; Exit restores your budget.
 
