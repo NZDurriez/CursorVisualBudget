@@ -6628,6 +6628,29 @@ body.light-mode .auth-btn-discord {
 }
 
 
+body.is-mimicking .edit-btn,
+body.is-mimicking .delete-btn,
+body.is-mimicking .delete-modal-btn,
+body.is-mimicking .row-actions,
+body.is-mimicking .profile-management-actions,
+body.is-mimicking .savings-goal-actions,
+body.is-mimicking .col-actions,
+body.is-mimicking td.actions,
+body.is-mimicking td[data-label="Actions"] {
+
+    display: none !important;
+
+}
+
+
+body.is-mimicking .forecast-event,
+body.is-mimicking .calendar-event {
+
+    cursor: default;
+
+}
+
+
 .admin-metrics {
 
     display: grid;
