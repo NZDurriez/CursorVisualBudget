@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=admin-users-2">
+    <link rel="stylesheet" href="style.css?v=admin-users-3">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1834,8 +1834,9 @@
 
             <p class="admin-help">
                 Every signed-in account, whether they are online now
-                or not. Guest sessions on this device are not listed,
-                and nobody’s budget data is shown here.
+                or not. Online means the app is open (updated about
+                every minute). Usage is item counts only — nobody’s
+                amounts are shown. Guest sessions are not listed.
             </p>
 
             <div class="dashboard-cards admin-stats">
@@ -1864,6 +1865,81 @@
 
                 </div>
 
+                <div class="card">
+
+                    <h3>New this week</h3>
+
+                    <h2 id="adminNewCount">—</h2>
+
+                </div>
+
+            </div>
+
+            <div class="admin-toolbar">
+
+                <div
+                    class="admin-filter-group"
+                    role="group"
+                    aria-label="Activity filter">
+
+                    <button
+                        type="button"
+                        class="admin-filter-btn is-active"
+                        data-admin-filter="all">
+                        All
+                    </button>
+
+                    <button
+                        type="button"
+                        class="admin-filter-btn"
+                        data-admin-filter="online">
+                        Online
+                    </button>
+
+                    <button
+                        type="button"
+                        class="admin-filter-btn"
+                        data-admin-filter="recent">
+                        Recently active
+                    </button>
+
+                    <button
+                        type="button"
+                        class="admin-filter-btn"
+                        data-admin-filter="never">
+                        Never came back
+                    </button>
+
+                </div>
+
+                <div
+                    class="admin-filter-group"
+                    role="group"
+                    aria-label="Sign-in filter">
+
+                    <button
+                        type="button"
+                        class="admin-filter-btn is-active"
+                        data-admin-provider="all">
+                        All sign-in
+                    </button>
+
+                    <button
+                        type="button"
+                        class="admin-filter-btn"
+                        data-admin-provider="google">
+                        Google
+                    </button>
+
+                    <button
+                        type="button"
+                        class="admin-filter-btn"
+                        data-admin-provider="discord">
+                        Discord
+                    </button>
+
+                </div>
+
             </div>
 
             <p
@@ -1877,15 +1953,68 @@
 
                 <tr>
 
-                    <th>User</th>
+                    <th>
+                        <button
+                            type="button"
+                            class="admin-sort-btn"
+                            data-admin-sort="name">
+                            User
+                        </button>
+                    </th>
 
-                    <th>Email</th>
+                    <th>
+                        <button
+                            type="button"
+                            class="admin-sort-btn"
+                            data-admin-sort="email">
+                            Email
+                        </button>
+                    </th>
 
-                    <th>Sign-in</th>
+                    <th>
+                        <button
+                            type="button"
+                            class="admin-sort-btn"
+                            data-admin-sort="provider">
+                            Sign-in
+                        </button>
+                    </th>
 
-                    <th>Status</th>
+                    <th>
+                        <button
+                            type="button"
+                            class="admin-sort-btn"
+                            data-admin-sort="status">
+                            Status
+                        </button>
+                    </th>
 
-                    <th>Last seen</th>
+                    <th>
+                        <button
+                            type="button"
+                            class="admin-sort-btn is-active"
+                            data-admin-sort="lastSeen">
+                            Last seen
+                        </button>
+                    </th>
+
+                    <th>
+                        <button
+                            type="button"
+                            class="admin-sort-btn"
+                            data-admin-sort="firstSeen">
+                            First seen
+                        </button>
+                    </th>
+
+                    <th>
+                        <button
+                            type="button"
+                            class="admin-sort-btn"
+                            data-admin-sort="usage">
+                            Usage
+                        </button>
+                    </th>
 
                 </tr>
 
@@ -1895,7 +2024,7 @@
 
                     <tr>
 
-                        <td colspan="5">
+                        <td colspan="7">
                             Sign in as an admin to load users.
                         </td>
 
@@ -2377,8 +2506,8 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=admin-users-2"></script>
-<script src="app.js?v=admin-users-2"></script>
+<script type="module" src="cloud.js?v=admin-users-3"></script>
+<script src="app.js?v=admin-users-3"></script>
 
 </body>
 </html>

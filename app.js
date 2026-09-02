@@ -505,12 +505,26 @@ const adminOnlineCount =
 const adminOfflineCount =
     document.getElementById("adminOfflineCount");
 
+const adminNewCount =
+    document.getElementById("adminNewCount");
+
 const adminStatus =
     document.getElementById("adminStatus");
+
+const adminUsersTableHead =
+    document.querySelector(".admin-users-table thead");
 
 let adminUsersCache = [];
 
 let adminUsersLoading = false;
+
+let adminActivityFilter = "all";
+
+let adminProviderFilter = "all";
+
+let adminSortKey = "lastSeen";
+
+let adminSortDir = "desc";
 
 
 // ============================================================
@@ -682,6 +696,91 @@ function setupEvents() {
         adminUserSearch.addEventListener(
             "input",
             () => {
+
+                renderAdminUsers();
+
+            }
+        );
+
+    }
+
+    document.querySelectorAll("[data-admin-filter]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            adminActivityFilter =
+                button.dataset.adminFilter || "all";
+
+            document.querySelectorAll("[data-admin-filter]").forEach(entry => {
+
+                entry.classList.toggle(
+                    "is-active",
+                    entry === button
+                );
+
+            });
+
+            renderAdminUsers();
+
+        });
+
+    });
+
+    document.querySelectorAll("[data-admin-provider]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            adminProviderFilter =
+                button.dataset.adminProvider || "all";
+
+            document.querySelectorAll("[data-admin-provider]").forEach(entry => {
+
+                entry.classList.toggle(
+                    "is-active",
+                    entry === button
+                );
+
+            });
+
+            renderAdminUsers();
+
+        });
+
+    });
+
+    if (adminUsersTableHead) {
+
+        adminUsersTableHead.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest("[data-admin-sort]");
+
+                if (!button) {
+
+                    return;
+
+                }
+
+                const key = button.dataset.adminSort;
+
+                if (adminSortKey === key) {
+
+                    adminSortDir =
+                        adminSortDir === "asc"
+                            ? "desc"
+                            : "asc";
+
+                } else {
+
+                    adminSortKey = key;
+                    adminSortDir =
+                        key === "name" || key === "email"
+                            ? "asc"
+                            : "desc";
+
+                }
 
                 renderAdminUsers();
 
@@ -10838,6 +10937,261 @@ function formatAdminLastSeen(iso) {
 }
 
 
+function formatAdminRelativeTime(iso) {
+
+    if (!iso) {
+
+        return "Unknown";
+
+    }
+
+    const date = new Date(iso);
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "Unknown";
+
+    }
+
+    const diff = Date.now() - date.getTime();
+
+    if (diff < 45 * 1000) {
+
+        return "Just now";
+
+    }
+
+    if (diff < 60 * 60 * 1000) {
+
+        const minutes = Math.max(
+            1,
+            Math.round(diff / 60000)
+        );
+
+        return minutes === 1
+            ? "1 min ago"
+            : `${minutes} min ago`;
+
+    }
+
+    if (diff < 24 * 60 * 60 * 1000) {
+
+        const hours = Math.max(
+            1,
+            Math.round(diff / 3600000)
+        );
+
+        return hours === 1
+            ? "1 hour ago"
+            : `${hours} hours ago`;
+
+    }
+
+    if (diff < 7 * 24 * 60 * 60 * 1000) {
+
+        const days = Math.max(
+            1,
+            Math.round(diff / 86400000)
+        );
+
+        return days === 1
+            ? "1 day ago"
+            : `${days} days ago`;
+
+    }
+
+    return formatAdminLastSeen(iso);
+
+}
+
+
+function formatAdminUsage(user) {
+
+    const income = Number(user.incomeCount) || 0;
+    const payments = Number(user.paymentCount) || 0;
+    const oneOffs = Number(user.oneOffCount) || 0;
+    const profiles = Number(user.profileCount) || 0;
+    const items = income + payments + oneOffs;
+
+    if (items === 0 && profiles <= 1) {
+
+        return "Empty";
+
+    }
+
+    const parts = [];
+
+    if (profiles > 0) {
+
+        parts.push(
+            profiles === 1
+                ? "1 profile"
+                : `${profiles} profiles`
+        );
+
+    }
+
+    if (income > 0) {
+
+        parts.push(
+            income === 1
+                ? "1 income"
+                : `${income} income`
+        );
+
+    }
+
+    if (payments > 0) {
+
+        parts.push(
+            payments === 1
+                ? "1 bill"
+                : `${payments} bills`
+        );
+
+    }
+
+    if (oneOffs > 0) {
+
+        parts.push(
+            oneOffs === 1
+                ? "1 one-off"
+                : `${oneOffs} one-offs`
+        );
+
+    }
+
+    return parts.join(" · ") || "Empty";
+
+}
+
+
+function userMatchesAdminActivity(user) {
+
+    if (adminActivityFilter === "online") {
+
+        return Boolean(user.isOnline);
+
+    }
+
+    if (adminActivityFilter === "recent") {
+
+        return Boolean(user.isRecentlyActive);
+
+    }
+
+    if (adminActivityFilter === "never") {
+
+        return Boolean(user.isNeverCameBack);
+
+    }
+
+    return true;
+
+}
+
+
+function userMatchesAdminProvider(user) {
+
+    if (adminProviderFilter === "all") {
+
+        return true;
+
+    }
+
+    const provider =
+        String(user.authProvider || "google").toLowerCase();
+
+    return provider === adminProviderFilter;
+
+}
+
+
+function adminSortValue(user, key) {
+
+    if (key === "name") {
+
+        return (
+            user.displayName ||
+            user.email ||
+            user.uid ||
+            ""
+        ).toLowerCase();
+
+    }
+
+    if (key === "email") {
+
+        return String(user.email || "").toLowerCase();
+
+    }
+
+    if (key === "provider") {
+
+        return String(user.authProvider || "").toLowerCase();
+
+    }
+
+    if (key === "status") {
+
+        return user.isOnline ? 1 : 0;
+
+    }
+
+    if (key === "lastSeen" || key === "firstSeen") {
+
+        return user[key] || "";
+
+    }
+
+    if (key === "usage") {
+
+        return (
+            (Number(user.incomeCount) || 0) +
+            (Number(user.paymentCount) || 0) +
+            (Number(user.oneOffCount) || 0)
+        );
+
+    }
+
+    return "";
+
+}
+
+
+function compareAdminUsers(left, right) {
+
+    const direction = adminSortDir === "asc" ? 1 : -1;
+
+    const a = adminSortValue(left, adminSortKey);
+    const b = adminSortValue(right, adminSortKey);
+
+    if (typeof a === "number" && typeof b === "number") {
+
+        return (a - b) * direction;
+
+    }
+
+    return String(a).localeCompare(String(b)) * direction;
+
+}
+
+
+function updateAdminSortButtons() {
+
+    document.querySelectorAll("[data-admin-sort]").forEach(button => {
+
+        const active =
+            button.dataset.adminSort === adminSortKey;
+
+        button.classList.toggle("is-active", active);
+
+        button.dataset.sortDir = active ? adminSortDir : "";
+
+    });
+
+}
+
 function getAdminSearchNeedle() {
 
     if (!adminUserSearch) {
@@ -10876,6 +11230,7 @@ function userMatchesAdminSearch(user, needle) {
 function adminPresenceCounts(users) {
 
     let online = 0;
+    let newThisWeek = 0;
 
     users.forEach(user => {
 
@@ -10885,11 +11240,18 @@ function adminPresenceCounts(users) {
 
         }
 
+        if (user.isNewThisWeek) {
+
+            newThisWeek += 1;
+
+        }
+
     });
 
     return {
         online,
-        offline: users.length - online
+        offline: users.length - online,
+        newThisWeek
     };
 
 }
@@ -10905,12 +11267,15 @@ function renderAdminUsers() {
 
     const needle = getAdminSearchNeedle();
 
-    const visible =
-        adminUsersCache.filter(
-            user => userMatchesAdminSearch(user, needle)
-        );
+    const visible = adminUsersCache
+        .filter(user => userMatchesAdminSearch(user, needle))
+        .filter(userMatchesAdminActivity)
+        .filter(userMatchesAdminProvider)
+        .sort(compareAdminUsers);
 
     const counts = adminPresenceCounts(adminUsersCache);
+
+    updateAdminSortButtons();
 
     if (adminUserCount) {
 
@@ -10933,11 +11298,18 @@ function renderAdminUsers() {
 
     }
 
+    if (adminNewCount) {
+
+        adminNewCount.textContent =
+            String(counts.newThisWeek);
+
+    }
+
     if (adminUsersLoading && adminUsersCache.length === 0) {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="7">
                     Loading users…
                 </td>
             </tr>
@@ -10951,7 +11323,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="5">
+                <td colspan="7">
                     No signed-in users found.
                 </td>
             </tr>
@@ -10965,8 +11337,8 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="5">
-                    No users match that search.
+                <td colspan="7">
+                    No users match that search or filter.
                 </td>
             </tr>
         `;
@@ -11032,7 +11404,17 @@ function renderAdminUsers() {
                     </span>
                 </td>
                 <td data-label="Last seen">
-                    ${escapeHtml(formatAdminLastSeen(user.lastSeen))}
+                    <span title="${escapeHtml(formatAdminLastSeen(user.lastSeen))}">
+                        ${escapeHtml(formatAdminRelativeTime(user.lastSeen))}
+                    </span>
+                </td>
+                <td data-label="First seen">
+                    <span title="${escapeHtml(formatAdminLastSeen(user.firstSeen))}">
+                        ${escapeHtml(formatAdminRelativeTime(user.firstSeen))}
+                    </span>
+                </td>
+                <td data-label="Usage">
+                    ${escapeHtml(formatAdminUsage(user))}
                 </td>
             </tr>
         `;

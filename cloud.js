@@ -36,6 +36,11 @@ import {
 
 
 const SAVE_DEBOUNCE_MS = 450;
+const HEARTBEAT_MS = 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const ADMIN_ONLINE_MS = 10 * 60 * 1000;
+const ADMIN_RECENT_MS = 7 * DAY_MS;
+const ADMIN_NEW_MS = 7 * DAY_MS;
 const DISCORD_OAUTH_STATE = "budget_discord_oauth";
 const GOOGLE_OAUTH_PENDING = "budget_google_oauth";
 
@@ -46,6 +51,8 @@ let db = null;
 let googleProvider = null;
 let currentUser = null;
 let saveTimer = null;
+let heartbeatTimer = null;
+let heartbeatListenersBound = false;
 let readyResolve;
 let authReadyResolve;
 
@@ -147,14 +154,28 @@ async function initFirebase() {
 
             if (currentUser) {
 
-                upsertUserDirectory().catch(error => {
+                upsertUserDirectory({
+                    touchFirstSeen: true
+                }).catch(error => {
 
                     console.warn(
                         "[BudgetCloud] Directory update failed:",
                         error
                     );
 
+                }).finally(() => {
+
+                    if (currentUser) {
+
+                        startPresenceHeartbeat();
+
+                    }
+
                 });
+
+            } else {
+
+                stopPresenceHeartbeat();
 
             }
 
@@ -792,6 +813,8 @@ function cleanupDiscordQueryParams() {
 
 async function signOutUser() {
 
+    stopPresenceHeartbeat();
+
     if (!auth) {
 
         return;
@@ -870,7 +893,10 @@ async function saveNow(storageData) {
 
     try {
 
-        await upsertUserDirectory();
+        await upsertUserDirectory({
+            touchFirstSeen: true,
+            usage: usageFromStorageData(storageData)
+        });
 
     } catch (error) {
 
@@ -884,7 +910,151 @@ async function saveNow(storageData) {
 }
 
 
-async function upsertUserDirectory() {
+function usageCountsFromProfiles(profiles) {
+
+    const list = Array.isArray(profiles) ? profiles : [];
+
+    let incomeCount = 0;
+    let paymentCount = 0;
+    let oneOffCount = 0;
+
+    list.forEach(profile => {
+
+        const budget =
+            profile && profile.budget
+                ? profile.budget
+                : {};
+
+        incomeCount += Array.isArray(budget.income)
+            ? budget.income.length
+            : 0;
+
+        paymentCount += Array.isArray(budget.payments)
+            ? budget.payments.length
+            : 0;
+
+        oneOffCount += Array.isArray(budget.oneOffPayments)
+            ? budget.oneOffPayments.length
+            : 0;
+
+    });
+
+    return {
+        profileCount: list.length,
+        incomeCount,
+        paymentCount,
+        oneOffCount
+    };
+
+}
+
+
+function usageFromStorageData(storageData) {
+
+    return {
+        ...usageCountsFromProfiles(
+            storageData && storageData.profiles
+        ),
+        lastSave: serverTimestamp()
+    };
+
+}
+
+
+function directoryIdentityPayload() {
+
+    return {
+        uid: currentUser.uid,
+        email: currentUser.email || "",
+        displayName: currentUser.displayName || "",
+        photoURL: currentUser.photoURL || "",
+        authProvider: getAuthProviderLabel(currentUser)
+    };
+
+}
+
+
+function onPresenceVisibilityChange() {
+
+    if (!document.hidden) {
+
+        pingPresence();
+
+    }
+
+}
+
+
+function startPresenceHeartbeat() {
+
+    stopPresenceHeartbeat(false);
+
+    pingPresence();
+
+    heartbeatTimer = setInterval(
+        pingPresence,
+        HEARTBEAT_MS
+    );
+
+    if (!heartbeatListenersBound) {
+
+        document.addEventListener(
+            "visibilitychange",
+            onPresenceVisibilityChange
+        );
+
+        heartbeatListenersBound = true;
+
+    }
+
+}
+
+
+function stopPresenceHeartbeat(unbind) {
+
+    if (heartbeatTimer) {
+
+        clearInterval(heartbeatTimer);
+
+        heartbeatTimer = null;
+
+    }
+
+    if (unbind !== false && heartbeatListenersBound) {
+
+        document.removeEventListener(
+            "visibilitychange",
+            onPresenceVisibilityChange
+        );
+
+        heartbeatListenersBound = false;
+
+    }
+
+}
+
+
+function pingPresence() {
+
+    if (!currentUser || !db || document.hidden) {
+
+        return;
+
+    }
+
+    upsertUserDirectory({ heartbeat: true }).catch(error => {
+
+        console.warn(
+            "[BudgetCloud] Presence heartbeat failed:",
+            error
+        );
+
+    });
+
+}
+
+
+async function upsertUserDirectory(options) {
 
     if (!currentUser || !db) {
 
@@ -892,16 +1062,34 @@ async function upsertUserDirectory() {
 
     }
 
+    const settings = options || {};
+
+    const payload = directoryIdentityPayload();
+
+    payload.lastSeen = serverTimestamp();
+
+    if (settings.usage) {
+
+        Object.assign(payload, settings.usage);
+
+    }
+
+    if (settings.touchFirstSeen && !settings.heartbeat) {
+
+        const snap =
+            await getDoc(userDirectoryRef(currentUser.uid));
+
+        if (!snap.exists()) {
+
+            payload.firstSeen = serverTimestamp();
+
+        }
+
+    }
+
     await setDoc(
         userDirectoryRef(currentUser.uid),
-        {
-            uid: currentUser.uid,
-            email: currentUser.email || "",
-            displayName: currentUser.displayName || "",
-            photoURL: currentUser.photoURL || "",
-            authProvider: getAuthProviderLabel(currentUser),
-            lastSeen: serverTimestamp()
-        },
+        payload,
         { merge: true }
     );
 
@@ -989,15 +1177,82 @@ function firestoreTimestampToDate(value) {
 }
 
 
-const ADMIN_ONLINE_MS = 10 * 60 * 1000;
+function toIsoOrNull(value) {
+
+    const date = firestoreTimestampToDate(value);
+
+    return date ? date.toISOString() : null;
+
+}
+
+
+function asCount(value) {
+
+    const count = Number(value);
+
+    return Number.isFinite(count) ? count : 0;
+
+}
+
+
+function pickNewerIso(left, right) {
+
+    if (!left) {
+
+        return right || null;
+
+    }
+
+    if (!right) {
+
+        return left;
+
+    }
+
+    return left > right ? left : right;
+
+}
+
+
+function usageFieldsFromData(data) {
+
+    const counts = usageCountsFromProfiles(data.profiles);
+
+    const lastSave =
+        toIsoOrNull(data.lastSave) ||
+        toIsoOrNull(data.updatedAt);
+
+    return {
+        firstSeen: toIsoOrNull(data.firstSeen),
+        lastSave,
+        profileCount: asCount(
+            data.profileCount !== undefined
+                ? data.profileCount
+                : counts.profileCount
+        ),
+        incomeCount: asCount(
+            data.incomeCount !== undefined
+                ? data.incomeCount
+                : counts.incomeCount
+        ),
+        paymentCount: asCount(
+            data.paymentCount !== undefined
+                ? data.paymentCount
+                : counts.paymentCount
+        ),
+        oneOffCount: asCount(
+            data.oneOffCount !== undefined
+                ? data.oneOffCount
+                : counts.oneOffCount
+        )
+    };
+
+}
 
 
 function identityFromDirectoryDoc(entry, currentUid) {
 
     const data = entry.data() || {};
-
-    const lastSeen =
-        firestoreTimestampToDate(data.lastSeen);
 
     return {
         uid: data.uid || entry.id,
@@ -1005,8 +1260,12 @@ function identityFromDirectoryDoc(entry, currentUid) {
         displayName: data.displayName || "",
         photoURL: data.photoURL || "",
         authProvider: data.authProvider || "",
-        lastSeen: lastSeen ? lastSeen.toISOString() : null,
-        isCurrentUser: entry.id === currentUid
+        lastSeen: toIsoOrNull(data.lastSeen),
+        isCurrentUser: entry.id === currentUid,
+        hasUsage:
+            data.profileCount !== undefined ||
+            data.incomeCount !== undefined,
+        ...usageFieldsFromData(data)
     };
 
 }
@@ -1016,9 +1275,11 @@ function identityFromUserDoc(entry, currentUid) {
 
     const data = entry.data() || {};
 
-    const lastSeen =
-        firestoreTimestampToDate(data.lastSeen) ||
-        firestoreTimestampToDate(data.updatedAt);
+    const counts = usageCountsFromProfiles(data.profiles);
+
+    const lastActivity =
+        toIsoOrNull(data.lastSeen) ||
+        toIsoOrNull(data.updatedAt);
 
     return {
         uid: data.uid || entry.id,
@@ -1026,7 +1287,13 @@ function identityFromUserDoc(entry, currentUid) {
         displayName: data.displayName || "",
         photoURL: data.photoURL || "",
         authProvider: data.authProvider || "",
-        lastSeen: lastSeen ? lastSeen.toISOString() : null,
+        lastSeen: lastActivity,
+        firstSeen: toIsoOrNull(data.firstSeen),
+        lastSave: toIsoOrNull(data.updatedAt),
+        profileCount: counts.profileCount,
+        incomeCount: counts.incomeCount,
+        paymentCount: counts.paymentCount,
+        oneOffCount: counts.oneOffCount,
         isCurrentUser: entry.id === currentUid
     };
 
@@ -1034,13 +1301,6 @@ function identityFromUserDoc(entry, currentUid) {
 
 
 function mergeUserIdentity(primary, extra) {
-
-    const lastSeenValues = [
-        primary.lastSeen,
-        extra.lastSeen
-    ].filter(Boolean);
-
-    lastSeenValues.sort();
 
     return {
         uid: primary.uid || extra.uid,
@@ -1050,9 +1310,31 @@ function mergeUserIdentity(primary, extra) {
         photoURL: primary.photoURL || extra.photoURL,
         authProvider:
             primary.authProvider || extra.authProvider,
-        lastSeen:
-            lastSeenValues[lastSeenValues.length - 1] ||
-            null,
+        lastSeen: pickNewerIso(
+            primary.lastSeen,
+            extra.lastSeen
+        ),
+        firstSeen: primary.firstSeen || extra.firstSeen,
+        lastSave: pickNewerIso(
+            primary.lastSave,
+            extra.lastSave
+        ),
+        profileCount:
+            typeof extra.profileCount === "number"
+                ? extra.profileCount
+                : asCount(primary.profileCount),
+        incomeCount:
+            typeof extra.incomeCount === "number"
+                ? extra.incomeCount
+                : asCount(primary.incomeCount),
+        paymentCount:
+            typeof extra.paymentCount === "number"
+                ? extra.paymentCount
+                : asCount(primary.paymentCount),
+        oneOffCount:
+            typeof extra.oneOffCount === "number"
+                ? extra.oneOffCount
+                : asCount(primary.oneOffCount),
         isCurrentUser:
             primary.isCurrentUser || extra.isCurrentUser
     };
@@ -1060,7 +1342,7 @@ function mergeUserIdentity(primary, extra) {
 }
 
 
-function isRecentlySeen(iso) {
+function isWithinMs(iso, ms) {
 
     if (!iso) {
 
@@ -1076,7 +1358,39 @@ function isRecentlySeen(iso) {
 
     }
 
-    return Date.now() - time <= ADMIN_ONLINE_MS;
+    return Date.now() - time <= ms;
+
+}
+
+
+function isRecentlySeen(iso) {
+
+    return isWithinMs(iso, ADMIN_ONLINE_MS);
+
+}
+
+
+function isNeverCameBackUser(user) {
+
+    if (!user.firstSeen || !user.lastSeen) {
+
+        return false;
+
+    }
+
+    const first = new Date(user.firstSeen).getTime();
+    const last = new Date(user.lastSeen).getTime();
+
+    if (Number.isNaN(first) || Number.isNaN(last)) {
+
+        return false;
+
+    }
+
+    return (
+        last - first <= DAY_MS &&
+        Date.now() - last > DAY_MS
+    );
 
 }
 
@@ -1091,12 +1405,22 @@ async function backfillDirectoryUsers(users) {
                 email: user.email || "",
                 displayName: user.displayName || "",
                 photoURL: user.photoURL || "",
-                authProvider: user.authProvider || ""
+                authProvider: user.authProvider || "",
+                profileCount: asCount(user.profileCount),
+                incomeCount: asCount(user.incomeCount),
+                paymentCount: asCount(user.paymentCount),
+                oneOffCount: asCount(user.oneOffCount)
             };
 
             if (user.lastSeen) {
 
                 payload.lastSeen = new Date(user.lastSeen);
+
+            }
+
+            if (user.lastSave) {
+
+                payload.lastSave = new Date(user.lastSave);
 
             }
 
@@ -1171,10 +1495,16 @@ async function listDirectoryUsers() {
 
             if (existing) {
 
-                byUid.set(
-                    identity.uid,
-                    mergeUserIdentity(existing, identity)
-                );
+                const merged =
+                    mergeUserIdentity(existing, identity);
+
+                byUid.set(identity.uid, merged);
+
+                if (!existing.hasUsage) {
+
+                    missing.push(merged);
+
+                }
 
             } else {
 
@@ -1212,6 +1542,15 @@ async function listDirectoryUsers() {
         return {
             ...user,
             isOnline: isRecentlySeen(user.lastSeen),
+            isRecentlyActive: isWithinMs(
+                user.lastSeen,
+                ADMIN_RECENT_MS
+            ),
+            isNeverCameBack: isNeverCameBackUser(user),
+            isNewThisWeek: isWithinMs(
+                user.firstSeen,
+                ADMIN_NEW_MS
+            ),
             listedExistingAccounts
         };
 
