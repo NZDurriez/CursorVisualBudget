@@ -16,6 +16,15 @@ export const firebaseConfig = {
 export const firebaseEnabled = true;
 
 /**
+ * Google / Discord emails that can open the Admin page and list
+ * other signed-in users. Must stay in sync with isAdmin() in
+ * firestore.rules — the rules are what actually grant access.
+ */
+export const adminEmails = [
+    "alex.mangin35@gmail.com"
+];
+
+/**
  * Discord OAuth — not enabled.
  * Requires Blaze + Cloud Functions; left disabled on purpose.
  */
@@ -43,6 +52,26 @@ export function isFirebaseConfigured() {
     );
 
 }
+
+export function isAdminEmail(email) {
+
+    if (!email) {
+
+        return false;
+
+    }
+
+    const needle =
+        String(email).trim().toLowerCase();
+
+    return adminEmails.some(
+        allowed =>
+            String(allowed).trim().toLowerCase() ===
+            needle
+    );
+
+}
+
 
 export function isDiscordConfigured() {
 

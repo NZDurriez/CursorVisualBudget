@@ -14,6 +14,19 @@ export const firebaseConfig = {
 
 export const firebaseEnabled = false;
 
+/** Emails that can open Admin. Keep in sync with firestore.rules. */
+export const adminEmails = [
+    "YOUR_ADMIN_EMAIL@example.com"
+];
+
+export function isAdminEmail(email) {
+    if (!email) return false;
+    const needle = String(email).trim().toLowerCase();
+    return adminEmails.some(
+        allowed => String(allowed).trim().toLowerCase() === needle
+    );
+}
+
 export const discordConfig = {
     enabled: false,
     clientId: "YOUR_DISCORD_CLIENT_ID",

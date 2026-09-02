@@ -2,14 +2,41 @@ rules_version = '2';
 
 // Deploy with: firebase deploy --only firestore:rules
 // Or paste into Firebase Console → Firestore → Rules
+//
+// Admin emails must match adminEmails in firebase-config.js.
+// The Admin page only lists identity fields from userDirectory —
+// never budget data from users/{userId}.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email is string
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in [
+          'alex.mangin35@gmail.com'
+        ];
+    }
+
     match /users/{userId} {
       // Only the signed-in owner can read/write their budget doc
-      allow read, write: if request.auth != null
-        && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
+    }
+
+    match /userDirectory/{userId} {
+      // Identity only (name, email, provider, last seen).
+      // Owners write their own row; admins can list everyone.
+      allow read, write: if isOwner(userId);
+      allow read: if isAdmin();
     }
 
   }

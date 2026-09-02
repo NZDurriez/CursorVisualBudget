@@ -35,3 +35,13 @@ Google sign-in uses a **popup** (required on GitHub Pages). A same-window redire
 
 - Web config keys are public by design; **Firestore rules** enforce access
 - Never put private secrets in frontend code
+
+## Admin panel
+
+Signed-in accounts whose email is listed in **both** `adminEmails` (`firebase-config.js`) and `isAdmin()` (`firestore.rules`) can open **Admin** in the sidebar. That page lists other people who have signed in with Google or Discord (name, email, provider, last seen). Budget data is never shown.
+
+1. Put your Google sign-in email in `adminEmails` in `firebase-config.js`
+2. Put the same email in `isAdmin()` in `firestore.rules`
+3. Deploy rules: `firebase deploy --only firestore:rules` (or paste the rules in Firebase Console → Firestore → Rules)
+
+Users appear after they next sign in or save. Guest (this device) sessions are not listed.

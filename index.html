@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=upcoming-view-toggle-1">
+    <link rel="stylesheet" href="style.css?v=admin-users-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -130,6 +130,19 @@
                 <i class="fa-solid fa-calendar-days"></i>
 
                 <span class="nav-label">Calendar</span>
+            </button>
+
+            <button
+                class="nav-btn"
+                id="adminNavBtn"
+                title="Admin"
+                aria-label="Admin"
+                data-page="admin"
+                hidden>
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                <span class="nav-label">Admin</span>
             </button>
 
         </nav>
@@ -1777,6 +1790,121 @@
 
         </section>
 
+        <!-- ================================ -->
+        <!-- ADMIN -->
+        <!-- ================================ -->
+
+        <section
+            id="admin"
+            class="page">
+
+            <div class="page-header">
+
+                <h3>Signed-in users</h3>
+
+                <div class="page-header-actions">
+
+                    <div class="sort-selector admin-search">
+
+                        <label for="adminUserSearch">
+                            Search
+                        </label>
+
+                        <input
+                            type="search"
+                            id="adminUserSearch"
+                            placeholder="Name or email">
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="adminRefreshBtn"
+                        class="secondary-btn">
+
+                        <i class="fa-solid fa-rotate-right"></i>
+
+                        <span class="nav-label">Refresh</span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <p class="admin-help">
+                People who have signed in with Google or Discord.
+                Guest sessions on this device are not listed, and
+                nobody’s budget data is shown here.
+            </p>
+
+            <div class="dashboard-cards admin-stats">
+
+                <div class="card">
+
+                    <h3>Total users</h3>
+
+                    <h2 id="adminUserCount">—</h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>Google</h3>
+
+                    <h2 id="adminGoogleCount">—</h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>Discord</h3>
+
+                    <h2 id="adminDiscordCount">—</h2>
+
+                </div>
+
+            </div>
+
+            <p
+                id="adminStatus"
+                class="admin-status"
+                hidden></p>
+
+            <table class="data-table admin-users-table">
+
+                <thead>
+
+                <tr>
+
+                    <th>User</th>
+
+                    <th>Email</th>
+
+                    <th>Sign-in</th>
+
+                    <th>Last seen</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody id="adminUsersTable">
+
+                    <tr>
+
+                        <td colspan="4">
+                            Sign in as an admin to load users.
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
     </main>
 
 </div>
@@ -2247,8 +2375,8 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=google-popup-2"></script>
-<script src="app.js?v=upcoming-view-toggle-1"></script>
+<script type="module" src="cloud.js?v=admin-users-1"></script>
+<script src="app.js?v=admin-users-1"></script>
 
 </body>
 </html>

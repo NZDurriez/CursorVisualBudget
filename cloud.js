@@ -16,8 +16,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
 import {
+    collection,
     doc,
     getDoc,
+    getDocs,
     getFirestore,
     serverTimestamp,
     setDoc
@@ -27,6 +29,7 @@ import {
     discordConfig,
     firebaseConfig,
     getDiscordFunctionUrl,
+    isAdminEmail,
     isDiscordConfigured,
     isFirebaseConfigured
 } from "./firebase-config.js";
@@ -62,6 +65,13 @@ const authReadyPromise = new Promise(resolve => {
 function userDocRef(uid) {
 
     return doc(db, "users", uid);
+
+}
+
+
+function userDirectoryRef(uid) {
+
+    return doc(db, "userDirectory", uid);
 
 }
 
@@ -134,6 +144,19 @@ async function initFirebase() {
             currentUser = user || null;
 
             updateAuthUi();
+
+            if (currentUser) {
+
+                upsertUserDirectory().catch(error => {
+
+                    console.warn(
+                        "[BudgetCloud] Directory update failed:",
+                        error
+                    );
+
+                });
+
+            }
 
             if (typeof window.onBudgetAuthChanged === "function") {
 
@@ -223,6 +246,33 @@ function updateAuthUi() {
 
     const signOutBtn =
         document.getElementById("googleSignOutBtn");
+
+    const adminNavBtn =
+        document.getElementById("adminNavBtn");
+
+    const isAdmin = isCurrentUserAdmin();
+
+    if (adminNavBtn) {
+
+        adminNavBtn.hidden = !isAdmin;
+
+    }
+
+    document.body.classList.toggle("is-admin", isAdmin);
+
+    const adminPage =
+        document.getElementById("admin");
+
+    if (
+        !isAdmin &&
+        adminPage &&
+        adminPage.classList.contains("active") &&
+        typeof window.showBudgetPage === "function"
+    ) {
+
+        window.showBudgetPage("dashboard");
+
+    }
 
 
     if (!configured) {
@@ -818,6 +868,43 @@ async function saveNow(storageData) {
         { merge: true }
     );
 
+    try {
+
+        await upsertUserDirectory();
+
+    } catch (error) {
+
+        console.warn(
+            "[BudgetCloud] Directory update failed:",
+            error
+        );
+
+    }
+
+}
+
+
+async function upsertUserDirectory() {
+
+    if (!currentUser || !db) {
+
+        return;
+
+    }
+
+    await setDoc(
+        userDirectoryRef(currentUser.uid),
+        {
+            uid: currentUser.uid,
+            email: currentUser.email || "",
+            displayName: currentUser.displayName || "",
+            photoURL: currentUser.photoURL || "",
+            authProvider: getAuthProviderLabel(currentUser),
+            lastSeen: serverTimestamp()
+        },
+        { merge: true }
+    );
+
 }
 
 
@@ -862,6 +949,107 @@ async function loadUserData() {
 function isSignedIn() {
 
     return Boolean(currentUser);
+
+}
+
+
+function isCurrentUserAdmin() {
+
+    return Boolean(
+        currentUser &&
+        currentUser.emailVerified &&
+        isAdminEmail(currentUser.email)
+    );
+
+}
+
+
+function firestoreTimestampToDate(value) {
+
+    if (!value) {
+
+        return null;
+
+    }
+
+    if (typeof value.toDate === "function") {
+
+        return value.toDate();
+
+    }
+
+    if (value instanceof Date) {
+
+        return value;
+
+    }
+
+    return null;
+
+}
+
+
+async function listDirectoryUsers() {
+
+    if (!db) {
+
+        throw new Error("Firebase is not configured.");
+
+    }
+
+    if (!isCurrentUserAdmin()) {
+
+        throw new Error("Admin access required.");
+
+    }
+
+    const snap =
+        await getDocs(collection(db, "userDirectory"));
+
+    const currentUid =
+        currentUser && currentUser.uid;
+
+    const users = snap.docs.map(entry => {
+
+        const data = entry.data() || {};
+
+        const lastSeen =
+            firestoreTimestampToDate(data.lastSeen);
+
+        return {
+            uid: data.uid || entry.id,
+            email: data.email || "",
+            displayName: data.displayName || "",
+            photoURL: data.photoURL || "",
+            authProvider: data.authProvider || "",
+            lastSeen: lastSeen ? lastSeen.toISOString() : null,
+            isCurrentUser: entry.id === currentUid
+        };
+
+    });
+
+    users.sort((a, b) => {
+
+        const aTime = a.lastSeen || "";
+        const bTime = b.lastSeen || "";
+
+        if (aTime !== bTime) {
+
+            return bTime.localeCompare(aTime);
+
+        }
+
+        const aName =
+            (a.displayName || a.email || a.uid).toLowerCase();
+
+        const bName =
+            (b.displayName || b.email || b.uid).toLowerCase();
+
+        return aName.localeCompare(bName);
+
+    });
+
+    return users;
 
 }
 
@@ -938,10 +1126,12 @@ window.BudgetCloud = {
     isConfigured: isFirebaseConfigured,
     isDiscordConfigured,
     isSignedIn,
+    isCurrentUserAdmin,
     getUser,
     queueSave,
     saveNow,
     loadUserData,
+    listDirectoryUsers,
     signInWithGoogle,
     beginDiscordSignIn,
     signOutUser,

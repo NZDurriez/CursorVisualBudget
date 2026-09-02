@@ -487,6 +487,31 @@ const calendarAddOneOff =
 const calendarAddCancel =
     document.getElementById("calendarAddCancel");
 
+const adminUsersTable =
+    document.getElementById("adminUsersTable");
+
+const adminUserSearch =
+    document.getElementById("adminUserSearch");
+
+const adminRefreshBtn =
+    document.getElementById("adminRefreshBtn");
+
+const adminUserCount =
+    document.getElementById("adminUserCount");
+
+const adminGoogleCount =
+    document.getElementById("adminGoogleCount");
+
+const adminDiscordCount =
+    document.getElementById("adminDiscordCount");
+
+const adminStatus =
+    document.getElementById("adminStatus");
+
+let adminUsersCache = [];
+
+let adminUsersLoading = false;
+
 
 // ============================================================
 // STARTUP
@@ -638,6 +663,32 @@ function setupEvents() {
         });
 
     });
+
+    if (adminRefreshBtn) {
+
+        adminRefreshBtn.addEventListener(
+            "click",
+            () => {
+
+                loadAdminUsers({ force: true });
+
+            }
+        );
+
+    }
+
+    if (adminUserSearch) {
+
+        adminUserSearch.addEventListener(
+            "input",
+            () => {
+
+                renderAdminUsers();
+
+            }
+        );
+
+    }
 
     setupSevenDayForecast();
 
@@ -1398,14 +1449,35 @@ window.onBudgetAuthChanged = async function onBudgetAuthChanged(user) {
 
         await syncFromCloudOnLogin();
 
-        return;
+    } else if (window.BudgetCloud) {
+
+        window.BudgetCloud.refreshAuthUi();
 
     }
 
+    const adminPage =
+        document.getElementById("admin");
 
-    if (window.BudgetCloud) {
+    const isAdmin =
+        window.BudgetCloud &&
+        typeof window.BudgetCloud.isCurrentUserAdmin ===
+            "function" &&
+        window.BudgetCloud.isCurrentUserAdmin();
 
-        window.BudgetCloud.refreshAuthUi();
+    if (
+        adminPage &&
+        adminPage.classList.contains("active")
+    ) {
+
+        if (isAdmin) {
+
+            loadAdminUsers({ force: true });
+
+        } else {
+
+            showPage("dashboard");
+
+        }
 
     }
 
@@ -2687,7 +2759,9 @@ function showPage(page) {
                     ? "Savings Calculator"
                     : page === "paycalc"
                         ? "Pay Calculator"
-                        : page.charAt(0).toUpperCase() + page.slice(1);
+                        : page === "admin"
+                            ? "Admin"
+                            : page.charAt(0).toUpperCase() + page.slice(1);
 
 
     if (page !== "dashboard") {
@@ -2715,7 +2789,30 @@ function showPage(page) {
 
     }
 
+    if (page === "admin") {
+
+        const isAdmin =
+            window.BudgetCloud &&
+            typeof window.BudgetCloud.isCurrentUserAdmin ===
+                "function" &&
+            window.BudgetCloud.isCurrentUserAdmin();
+
+        if (!isAdmin) {
+
+            showPage("dashboard");
+
+            return;
+
+        }
+
+        loadAdminUsers();
+
+    }
+
 }
+
+
+window.showBudgetPage = showPage;
 
 
 // ============================================================
@@ -10686,6 +10783,340 @@ function generateId() {
             .toString(36)
             .substring(2)
     );
+
+}
+
+
+function setAdminStatus(message, isError) {
+
+    if (!adminStatus) {
+
+        return;
+
+    }
+
+    if (!message) {
+
+        adminStatus.hidden = true;
+        adminStatus.textContent = "";
+        adminStatus.classList.remove("is-error");
+        return;
+
+    }
+
+    adminStatus.hidden = false;
+    adminStatus.textContent = message;
+    adminStatus.classList.toggle("is-error", Boolean(isError));
+
+}
+
+
+function formatAdminLastSeen(iso) {
+
+    if (!iso) {
+
+        return "Unknown";
+
+    }
+
+    const date = new Date(iso);
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "Unknown";
+
+    }
+
+    return date.toLocaleString(
+        "en-NZ",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
+
+}
+
+
+function getAdminSearchNeedle() {
+
+    if (!adminUserSearch) {
+
+        return "";
+
+    }
+
+    return adminUserSearch.value.trim().toLowerCase();
+
+}
+
+
+function userMatchesAdminSearch(user, needle) {
+
+    if (!needle) {
+
+        return true;
+
+    }
+
+    const haystack = [
+        user.displayName,
+        user.email,
+        user.authProvider,
+        user.uid
+    ]
+        .join(" ")
+        .toLowerCase();
+
+    return haystack.includes(needle);
+
+}
+
+
+function adminProviderCounts(users) {
+
+    let google = 0;
+    let discord = 0;
+
+    users.forEach(user => {
+
+        const provider =
+            String(user.authProvider || "").toLowerCase();
+
+        if (provider === "discord") {
+
+            discord += 1;
+
+        } else {
+
+            google += 1;
+
+        }
+
+    });
+
+    return { google, discord };
+
+}
+
+
+function renderAdminUsers() {
+
+    if (!adminUsersTable) {
+
+        return;
+
+    }
+
+    const needle = getAdminSearchNeedle();
+
+    const visible =
+        adminUsersCache.filter(
+            user => userMatchesAdminSearch(user, needle)
+        );
+
+    const counts = adminProviderCounts(adminUsersCache);
+
+    if (adminUserCount) {
+
+        adminUserCount.textContent =
+            String(adminUsersCache.length);
+
+    }
+
+    if (adminGoogleCount) {
+
+        adminGoogleCount.textContent =
+            String(counts.google);
+
+    }
+
+    if (adminDiscordCount) {
+
+        adminDiscordCount.textContent =
+            String(counts.discord);
+
+    }
+
+    if (adminUsersLoading && adminUsersCache.length === 0) {
+
+        adminUsersTable.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    Loading users…
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+    if (adminUsersCache.length === 0) {
+
+        adminUsersTable.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    No signed-in users yet. People appear here
+                    after they next sign in or save.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+    if (visible.length === 0) {
+
+        adminUsersTable.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    No users match that search.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+    adminUsersTable.innerHTML = visible.map(user => {
+
+        const name =
+            user.displayName ||
+            user.email ||
+            "Signed-in user";
+
+        const email = user.email || "No email";
+
+        const provider =
+            user.authProvider || "Google";
+
+        const photo = user.photoURL
+            ? `<img
+                    class="admin-user-avatar"
+                    src="${escapeHtml(user.photoURL)}"
+                    alt=""
+                    referrerpolicy="no-referrer">`
+            : `<span class="admin-user-avatar admin-user-avatar-fallback" aria-hidden="true">
+                    <i class="fa-solid fa-user"></i>
+                </span>`;
+
+        const youBadge = user.isCurrentUser
+            ? `<span class="admin-you-badge">You</span>`
+            : "";
+
+        return `
+            <tr class="${user.isCurrentUser ? "is-current-admin-user" : ""}">
+                <td data-label="User">
+                    <div class="admin-user-cell">
+                        ${photo}
+                        <div class="admin-user-copy">
+                            <strong>${escapeHtml(name)}</strong>
+                            ${youBadge}
+                        </div>
+                    </div>
+                </td>
+                <td data-label="Email">
+                    ${escapeHtml(email)}
+                </td>
+                <td data-label="Sign-in">
+                    ${escapeHtml(provider)}
+                </td>
+                <td data-label="Last seen">
+                    ${escapeHtml(formatAdminLastSeen(user.lastSeen))}
+                </td>
+            </tr>
+        `;
+
+    }).join("");
+
+}
+
+
+async function loadAdminUsers(options) {
+
+    const force = Boolean(options && options.force);
+
+    if (
+        !window.BudgetCloud ||
+        typeof window.BudgetCloud.listDirectoryUsers !==
+            "function" ||
+        !window.BudgetCloud.isCurrentUserAdmin()
+    ) {
+
+        adminUsersCache = [];
+        setAdminStatus(
+            "Sign in with an admin Google account to view users.",
+            true
+        );
+        renderAdminUsers();
+        return;
+
+    }
+
+    if (adminUsersLoading) {
+
+        return;
+
+    }
+
+    if (!force && adminUsersCache.length > 0) {
+
+        renderAdminUsers();
+        return;
+
+    }
+
+    adminUsersLoading = true;
+    setAdminStatus("");
+    renderAdminUsers();
+
+    if (adminRefreshBtn) {
+
+        adminRefreshBtn.disabled = true;
+
+    }
+
+    try {
+
+        adminUsersCache =
+            await window.BudgetCloud.listDirectoryUsers();
+
+        setAdminStatus("");
+        renderAdminUsers();
+
+    } catch (error) {
+
+        console.error("[BudgetCloud] Admin user list failed:", error);
+
+        const code = String(error && error.code || "");
+        const permissionDenied =
+            code.includes("permission-denied") ||
+            /permission/i.test(String(error && error.message || ""));
+
+        setAdminStatus(
+            permissionDenied
+                ? "Could not load users. Deploy the updated Firestore rules, then refresh."
+                : (error && error.message) ||
+                    "Could not load users.",
+            true
+        );
+
+        renderAdminUsers();
+
+    } finally {
+
+        adminUsersLoading = false;
+
+        if (adminRefreshBtn) {
+
+            adminRefreshBtn.disabled = false;
+
+        }
+
+    }
 
 }
 

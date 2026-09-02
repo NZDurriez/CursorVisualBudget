@@ -6366,7 +6366,8 @@ body.light-mode .paid-status-label.is-unpaid {
 
 /* Important: .auth-btn { display } must not override HTML hidden */
 .auth-btn[hidden],
-.auth-panel [hidden] {
+.auth-panel [hidden],
+.nav-btn[hidden] {
 
     display: none !important;
 
@@ -6463,4 +6464,230 @@ body.light-mode .auth-btn-discord {
     background: transparent;
 
 }
+
+
+/* ==========================================================
+   ADMIN — signed-in users
+========================================================== */
+
+.admin-help {
+
+    margin: 0 0 18px;
+
+    max-width: 640px;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    color: var(--text-muted);
+
+}
+
+
+.admin-stats {
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+}
+
+
+.admin-stats .card {
+
+    min-height: 0;
+
+    padding: 18px 20px;
+
+}
+
+
+.admin-search {
+
+    min-width: 220px;
+
+}
+
+
+.admin-search input {
+
+    border: none;
+
+    background: transparent;
+
+    color: var(--text);
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    outline: none;
+
+    min-width: 160px;
+
+    width: 100%;
+
+}
+
+
+.admin-search input::placeholder {
+
+    color: var(--text-muted);
+
+    font-weight: 500;
+
+}
+
+
+.admin-status {
+
+    margin: 0 0 14px;
+
+    font-size: 13px;
+
+    color: var(--text-muted);
+
+}
+
+
+.admin-status.is-error {
+
+    color: #f87171;
+
+}
+
+
+.admin-user-cell {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 0;
+
+}
+
+
+.admin-user-avatar {
+
+    width: 36px;
+
+    height: 36px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 1px solid var(--border);
+
+    flex-shrink: 0;
+
+}
+
+
+.admin-user-avatar-fallback {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(59, 130, 246, 0.12);
+
+    color: var(--primary);
+
+    font-size: 13px;
+
+}
+
+
+.admin-user-copy {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 0;
+
+    flex-wrap: wrap;
+
+}
+
+
+.admin-user-copy strong {
+
+    font-size: 14px;
+
+    font-weight: 650;
+
+}
+
+
+.admin-you-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 2px 8px;
+
+    border-radius: 999px;
+
+    background: rgba(59, 130, 246, 0.16);
+
+    color: var(--primary);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.4px;
+
+    text-transform: uppercase;
+
+}
+
+
+.admin-users-table tbody tr.is-current-admin-user td {
+
+    background: rgba(59, 130, 246, 0.06);
+
+}
+
+
+@media (max-width: 1200px) {
+
+    .admin-stats {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    }
+
+}
+
+
+@media (max-width: 900px) {
+
+    .admin-stats {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .admin-search {
+
+        width: 100%;
+
+        min-width: 0;
+
+    }
+
+}
+
 
