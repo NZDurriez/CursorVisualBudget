@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=admin-users-3">
+    <link rel="stylesheet" href="style.css?v=admin-users-4">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1798,7 +1798,7 @@
             id="admin"
             class="page">
 
-            <div class="page-header">
+            <div class="page-header admin-page-header">
 
                 <h3>Signed-in users</h3>
 
@@ -1832,48 +1832,43 @@
 
             </div>
 
-            <p class="admin-help">
-                Every signed-in account, whether they are online now
-                or not. Online means the app is open (updated about
-                every minute). Usage is item counts only — nobody’s
-                amounts are shown. Guest sessions are not listed.
-            </p>
+            <div class="admin-metrics">
 
-            <div class="dashboard-cards admin-stats">
+                <div class="admin-metric">
 
-                <div class="card">
+                    <span>Total</span>
 
-                    <h3>Total users</h3>
-
-                    <h2 id="adminUserCount">—</h2>
+                    <strong id="adminUserCount">—</strong>
 
                 </div>
 
-                <div class="card">
+                <div class="admin-metric">
 
-                    <h3>Online</h3>
+                    <span>Online</span>
 
-                    <h2 id="adminOnlineCount">—</h2>
-
-                </div>
-
-                <div class="card">
-
-                    <h3>Offline</h3>
-
-                    <h2 id="adminOfflineCount">—</h2>
+                    <strong id="adminOnlineCount">—</strong>
 
                 </div>
 
-                <div class="card">
+                <div class="admin-metric">
 
-                    <h3>New this week</h3>
+                    <span>Offline</span>
 
-                    <h2 id="adminNewCount">—</h2>
+                    <strong id="adminOfflineCount">—</strong>
+
+                </div>
+
+                <div class="admin-metric">
+
+                    <span>New this week</span>
+
+                    <strong id="adminNewCount">—</strong>
 
                 </div>
 
             </div>
+
+            <div class="admin-table-card">
 
             <div class="admin-toolbar">
 
@@ -1966,24 +1961,6 @@
                         <button
                             type="button"
                             class="admin-sort-btn"
-                            data-admin-sort="email">
-                            Email
-                        </button>
-                    </th>
-
-                    <th>
-                        <button
-                            type="button"
-                            class="admin-sort-btn"
-                            data-admin-sort="provider">
-                            Sign-in
-                        </button>
-                    </th>
-
-                    <th>
-                        <button
-                            type="button"
-                            class="admin-sort-btn"
                             data-admin-sort="status">
                             Status
                         </button>
@@ -1995,15 +1972,6 @@
                             class="admin-sort-btn is-active"
                             data-admin-sort="lastSeen">
                             Last seen
-                        </button>
-                    </th>
-
-                    <th>
-                        <button
-                            type="button"
-                            class="admin-sort-btn"
-                            data-admin-sort="firstSeen">
-                            First seen
                         </button>
                     </th>
 
@@ -2024,7 +1992,7 @@
 
                     <tr>
 
-                        <td colspan="7">
+                        <td colspan="4">
                             Sign in as an admin to load users.
                         </td>
 
@@ -2033,6 +2001,8 @@
                 </tbody>
 
             </table>
+
+            </div>
 
         </section>
 
@@ -2506,8 +2476,8 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=admin-users-3"></script>
-<script src="app.js?v=admin-users-3"></script>
+<script type="module" src="cloud.js?v=admin-users-4"></script>
+<script src="app.js?v=admin-users-4"></script>
 
 </body>
 </html>

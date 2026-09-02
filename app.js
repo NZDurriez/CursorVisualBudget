@@ -11015,53 +11015,57 @@ function formatAdminUsage(user) {
 
     if (items === 0 && profiles <= 1) {
 
-        return "Empty";
+        return `<span class="admin-usage-empty">Empty</span>`;
 
     }
 
-    const parts = [];
+    const chips = [];
 
     if (profiles > 0) {
 
-        parts.push(
-            profiles === 1
-                ? "1 profile"
-                : `${profiles} profiles`
+        chips.push(
+            `<span class="admin-usage-chip">${profiles} ${
+                profiles === 1 ? "profile" : "profiles"
+            }</span>`
         );
 
     }
 
     if (income > 0) {
 
-        parts.push(
-            income === 1
-                ? "1 income"
-                : `${income} income`
+        chips.push(
+            `<span class="admin-usage-chip">${income} income</span>`
         );
 
     }
 
     if (payments > 0) {
 
-        parts.push(
-            payments === 1
-                ? "1 bill"
-                : `${payments} bills`
+        chips.push(
+            `<span class="admin-usage-chip">${payments} ${
+                payments === 1 ? "bill" : "bills"
+            }</span>`
         );
 
     }
 
     if (oneOffs > 0) {
 
-        parts.push(
-            oneOffs === 1
-                ? "1 one-off"
-                : `${oneOffs} one-offs`
+        chips.push(
+            `<span class="admin-usage-chip">${oneOffs} ${
+                oneOffs === 1 ? "one-off" : "one-offs"
+            }</span>`
         );
 
     }
 
-    return parts.join(" · ") || "Empty";
+    if (chips.length === 0) {
+
+        return `<span class="admin-usage-empty">Empty</span>`;
+
+    }
+
+    return `<div class="admin-usage">${chips.join("")}</div>`;
 
 }
 
@@ -11309,7 +11313,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="7">
+                <td colspan="4">
                     Loading users…
                 </td>
             </tr>
@@ -11323,7 +11327,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="7">
+                <td colspan="4">
                     No signed-in users found.
                 </td>
             </tr>
@@ -11337,7 +11341,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="7">
+                <td colspan="4">
                     No users match that search or filter.
                 </td>
             </tr>
@@ -11381,22 +11385,26 @@ function renderAdminUsers() {
             ? "is-online"
             : "is-offline";
 
+        const firstSeen = user.firstSeen
+            ? `<small class="admin-first-seen" title="${escapeHtml(formatAdminLastSeen(user.firstSeen))}">First seen ${escapeHtml(formatAdminRelativeTime(user.firstSeen))}</small>`
+            : "";
+
         return `
             <tr class="${user.isCurrentUser ? "is-current-admin-user" : ""}">
                 <td data-label="User">
                     <div class="admin-user-cell">
                         ${photo}
                         <div class="admin-user-copy">
-                            <strong>${escapeHtml(name)}</strong>
-                            ${youBadge}
+                            <div class="admin-user-name">
+                                <strong>${escapeHtml(name)}</strong>
+                                ${youBadge}
+                            </div>
+                            <small class="admin-user-meta">
+                                ${escapeHtml(email)}
+                                <span class="admin-provider-badge">${escapeHtml(provider)}</span>
+                            </small>
                         </div>
                     </div>
-                </td>
-                <td data-label="Email">
-                    ${escapeHtml(email)}
-                </td>
-                <td data-label="Sign-in">
-                    ${escapeHtml(provider)}
                 </td>
                 <td data-label="Status">
                     <span class="admin-presence ${statusClass}">
@@ -11404,17 +11412,15 @@ function renderAdminUsers() {
                     </span>
                 </td>
                 <td data-label="Last seen">
-                    <span title="${escapeHtml(formatAdminLastSeen(user.lastSeen))}">
-                        ${escapeHtml(formatAdminRelativeTime(user.lastSeen))}
-                    </span>
-                </td>
-                <td data-label="First seen">
-                    <span title="${escapeHtml(formatAdminLastSeen(user.firstSeen))}">
-                        ${escapeHtml(formatAdminRelativeTime(user.firstSeen))}
-                    </span>
+                    <div class="admin-seen">
+                        <span title="${escapeHtml(formatAdminLastSeen(user.lastSeen))}">
+                            ${escapeHtml(formatAdminRelativeTime(user.lastSeen))}
+                        </span>
+                        ${firstSeen}
+                    </div>
                 </td>
                 <td data-label="Usage">
-                    ${escapeHtml(formatAdminUsage(user))}
+                    ${formatAdminUsage(user)}
                 </td>
             </tr>
         `;

@@ -6470,33 +6470,90 @@ body.light-mode .auth-btn-discord {
    ADMIN — signed-in users
 ========================================================== */
 
-.admin-help {
+.admin-page-header {
 
-    margin: 0 0 18px;
+    margin-bottom: 16px;
 
-    max-width: 640px;
+}
 
-    font-size: 13px;
 
-    line-height: 1.5;
+.admin-metrics {
+
+    display: grid;
+
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    margin: 0 0 14px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow);
+
+}
+
+
+.admin-metric {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    padding: 12px 16px;
+
+    border-right: 1px solid var(--border);
+
+    min-width: 0;
+
+}
+
+
+.admin-metric:last-child {
+
+    border-right: none;
+
+}
+
+
+.admin-metric span {
+
+    font-size: 11px;
+
+    font-weight: 650;
+
+    letter-spacing: 0.4px;
+
+    text-transform: uppercase;
 
     color: var(--text-muted);
 
 }
 
 
-.admin-stats {
+.admin-metric strong {
 
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    font-size: 22px;
+
+    font-weight: 700;
+
+    letter-spacing: -0.4px;
+
+    line-height: 1.1;
 
 }
 
 
-.admin-stats .card {
+body.light-mode .admin-metrics,
+body.light-mode .admin-table-card {
 
-    min-height: 0;
-
-    padding: 18px 20px;
+    border-color: rgba(148, 163, 184, 0.35);
 
 }
 
@@ -6540,13 +6597,45 @@ body.light-mode .auth-btn-discord {
 }
 
 
+.admin-table-card {
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow);
+
+}
+
+
+.admin-table-card .admin-users-table {
+
+    border: none;
+
+    box-shadow: none;
+
+    border-radius: 0;
+
+    background: transparent;
+
+}
+
+
 .admin-status {
 
-    margin: 0 0 14px;
+    margin: 0;
+
+    padding: 10px 16px;
 
     font-size: 13px;
 
     color: var(--text-muted);
+
+    border-bottom: 1px solid var(--border);
 
 }
 
@@ -6609,13 +6698,24 @@ body.light-mode .auth-btn-discord {
 
     display: flex;
 
+    flex-direction: column;
+
+    gap: 3px;
+
+    min-width: 0;
+
+}
+
+
+.admin-user-name {
+
+    display: flex;
+
     align-items: center;
 
     gap: 8px;
 
     min-width: 0;
-
-    flex-wrap: wrap;
 
 }
 
@@ -6625,6 +6725,58 @@ body.light-mode .auth-btn-discord {
     font-size: 14px;
 
     font-weight: 650;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+.admin-user-meta {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 0;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+.admin-provider-badge {
+
+    flex-shrink: 0;
+
+    padding: 1px 7px;
+
+    border-radius: 999px;
+
+    background: rgba(148, 163, 184, 0.16);
+
+    color: var(--text-muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.3px;
+
+    text-transform: uppercase;
 
 }
 
@@ -6642,6 +6794,8 @@ body.light-mode .auth-btn-discord {
     font-weight: 700;
 
     letter-spacing: 0.2px;
+
+    white-space: nowrap;
 
 }
 
@@ -6682,6 +6836,71 @@ body.light-mode .admin-presence.is-online {
 }
 
 
+.admin-seen {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    white-space: nowrap;
+
+}
+
+
+.admin-first-seen {
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+
+}
+
+
+.admin-usage {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+
+}
+
+
+.admin-usage-chip {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 3px 8px;
+
+    border-radius: 999px;
+
+    background: rgba(148, 163, 184, 0.14);
+
+    color: var(--text);
+
+    font-size: 11px;
+
+    font-weight: 650;
+
+    white-space: nowrap;
+
+}
+
+
+.admin-usage-empty {
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+}
+
+
 .admin-toolbar {
 
     display: flex;
@@ -6690,9 +6909,13 @@ body.light-mode .admin-presence.is-online {
 
     align-items: center;
 
-    gap: 10px;
+    gap: 8px;
 
-    margin: 0 0 16px;
+    margin: 0;
+
+    padding: 10px 12px;
+
+    border-bottom: 1px solid var(--border);
 
 }
 
@@ -6829,7 +7052,9 @@ body.light-mode .admin-presence.is-online {
 
     align-items: center;
 
-    padding: 2px 8px;
+    flex-shrink: 0;
+
+    padding: 2px 7px;
 
     border-radius: 999px;
 
@@ -6848,6 +7073,28 @@ body.light-mode .admin-presence.is-online {
 }
 
 
+.admin-users-table th,
+.admin-users-table td {
+
+    padding: 12px 16px;
+
+    vertical-align: middle;
+
+}
+
+
+.admin-users-table th:nth-child(2),
+.admin-users-table td:nth-child(2),
+.admin-users-table th:nth-child(3),
+.admin-users-table td:nth-child(3) {
+
+    white-space: nowrap;
+
+    width: 1%;
+
+}
+
+
 .admin-users-table tbody tr.is-current-admin-user td {
 
     background: rgba(59, 130, 246, 0.06);
@@ -6857,9 +7104,22 @@ body.light-mode .admin-presence.is-online {
 
 @media (max-width: 1200px) {
 
-    .admin-stats {
+    .admin-metrics {
 
         grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    }
+
+    .admin-metric:nth-child(2) {
+
+        border-right: none;
+
+    }
+
+    .admin-metric:nth-child(1),
+    .admin-metric:nth-child(2) {
+
+        border-bottom: 1px solid var(--border);
 
     }
 
@@ -6868,17 +7128,22 @@ body.light-mode .admin-presence.is-online {
 
 @media (max-width: 900px) {
 
-    .admin-stats {
-
-        grid-template-columns: 1fr;
-
-    }
-
     .admin-search {
 
         width: 100%;
 
         min-width: 0;
+
+    }
+
+    .admin-users-table th:nth-child(2),
+    .admin-users-table td:nth-child(2),
+    .admin-users-table th:nth-child(3),
+    .admin-users-table td:nth-child(3) {
+
+        width: auto;
+
+        white-space: normal;
 
     }
 
