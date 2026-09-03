@@ -4170,7 +4170,7 @@ body.light-mode .modal {
 }
 
 
-.admin-mimic-copy {
+.admin-view-as-copy {
 
     margin: 0;
 
@@ -4183,7 +4183,7 @@ body.light-mode .modal {
 }
 
 
-.admin-mimic-copy strong {
+.admin-view-as-copy strong {
 
     color: var(--text);
 
@@ -7170,9 +7170,9 @@ body.light-mode .auth-btn-discord {
 }
 
 
-.admin-mimic-banner[hidden],
-body:not(.is-admin) #adminMimicBanner,
-body:not(.is-admin) #adminMimicModal,
+.admin-view-as-banner[hidden],
+body:not(.is-admin) #adminViewAsBanner,
+body:not(.is-admin) #adminViewAsModal,
 body:not(.is-admin) #admin {
 
     display: none !important;
@@ -7180,7 +7180,7 @@ body:not(.is-admin) #admin {
 }
 
 
-.admin-mimic-banner:not([hidden]) {
+.admin-view-as-banner:not([hidden]) {
 
     display: flex;
 
@@ -7207,14 +7207,14 @@ body:not(.is-admin) #admin {
 }
 
 
-.admin-mimic-banner strong {
+.admin-view-as-banner strong {
 
     font-weight: 700;
 
 }
 
 
-.admin-mimic-exit {
+.admin-view-as-exit {
 
     flex-shrink: 0;
 
@@ -7241,14 +7241,14 @@ body:not(.is-admin) #admin {
 }
 
 
-.admin-mimic-exit:hover {
+.admin-view-as-exit:hover {
 
     background: rgba(255, 255, 255, 0.12);
 
 }
 
 
-.admin-mimic-btn {
+.admin-view-as-btn {
 
     border: 1px solid var(--border);
 
@@ -7275,30 +7275,30 @@ body:not(.is-admin) #admin {
 }
 
 
-.admin-mimic-btn:hover {
+.admin-view-as-btn:hover {
 
     border-color: var(--border-hover);
 
 }
 
 
-body.is-mimicking .edit-btn,
-body.is-mimicking .delete-btn,
-body.is-mimicking .delete-modal-btn,
-body.is-mimicking .row-actions,
-body.is-mimicking .profile-management-actions,
-body.is-mimicking .savings-goal-actions,
-body.is-mimicking .col-actions,
-body.is-mimicking td.actions,
-body.is-mimicking td[data-label="Actions"] {
+body.is-viewing-as .edit-btn,
+body.is-viewing-as .delete-btn,
+body.is-viewing-as .delete-modal-btn,
+body.is-viewing-as .row-actions,
+body.is-viewing-as .profile-management-actions,
+body.is-viewing-as .savings-goal-actions,
+body.is-viewing-as .col-actions,
+body.is-viewing-as td.actions,
+body.is-viewing-as td[data-label="Actions"] {
 
     display: none !important;
 
 }
 
 
-body.is-mimicking .forecast-event,
-body.is-mimicking .calendar-event {
+body.is-viewing-as .forecast-event,
+body.is-viewing-as .calendar-event {
 
     cursor: default;
 
