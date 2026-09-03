@@ -390,6 +390,23 @@ const cancelBtn =
 
 const deleteItemBtn =
     document.getElementById("deleteItemBtn");
+
+const confirmModal =
+    document.getElementById("confirmModal");
+
+const confirmModalTitle =
+    document.getElementById("confirmModalTitle");
+
+const confirmModalMessage =
+    document.getElementById("confirmModalMessage");
+
+const confirmModalCancelBtn =
+    document.getElementById("confirmModalCancelBtn");
+
+const confirmModalConfirmBtn =
+    document.getElementById("confirmModalConfirmBtn");
+
+let confirmModalAction = null;
 	
 const calendarGrid =
     document.getElementById("calendarGrid");
@@ -692,6 +709,8 @@ function setupEvents() {
     setupBudgetSettingsToggle();
 
     setupUpcomingPaymentsSelection();
+
+    setupConfirmModal();
 
     // Navigation
     navButtons.forEach(button => {
@@ -1261,29 +1280,31 @@ if (deleteItemBtn) {
 
             }
 
-            const confirmed =
-                confirm(
-                    "Are you sure you want to delete this item?"
-                );
+            const copy =
+                getItemDeleteConfirmCopy(editingType);
 
-            if (!confirmed) {
 
-                return;
+            openConfirmModal({
+                title: copy.title,
+                message: copy.message,
+                confirmLabel: "Delete",
+                onConfirm: () => {
 
-            }
+                    const type =
+                        editingType;
 
-            const type =
-                editingType;
+                    const id =
+                        editingId;
 
-            const id =
-                editingId;
+                    closeModal();
 
-            closeModal();
+                    deleteItem(
+                        type,
+                        id
+                    );
 
-            deleteItem(
-                type,
-                id
-            );
+                }
+            });
 
         }
     );
@@ -3213,10 +3234,205 @@ if (deleteItemBtn) {
 
 function closeModal() {
 
+    closeConfirmModal();
+
     modal.classList.add("hidden");
 
     editingType = null;
     editingId = null;
+
+}
+
+
+function getItemDeleteConfirmCopy(type) {
+
+    if (type === "oneoff") {
+
+        return {
+            title: "Delete this one-off payment?",
+            message: "This can’t be undone."
+        };
+
+    }
+
+
+    if (type === "payment") {
+
+        return {
+            title: "Delete this payment?",
+            message: "This can’t be undone."
+        };
+
+    }
+
+
+    if (type === "income") {
+
+        return {
+            title: "Delete this income?",
+            message: "This can’t be undone."
+        };
+
+    }
+
+
+    return {
+        title: "Delete this item?",
+        message: "This can’t be undone."
+    };
+
+}
+
+
+function closeConfirmModal() {
+
+    confirmModalAction = null;
+
+
+    if (confirmModalConfirmBtn) {
+
+        confirmModalConfirmBtn.disabled = false;
+
+    }
+
+
+    if (confirmModal) {
+
+        confirmModal.classList.add("hidden");
+
+    }
+
+}
+
+
+function openConfirmModal(options) {
+
+    const settings =
+        options || {};
+
+
+    if (confirmModalTitle) {
+
+        confirmModalTitle.textContent =
+            settings.title || "Are you sure?";
+
+    }
+
+
+    if (confirmModalMessage) {
+
+        confirmModalMessage.textContent =
+            settings.message || "";
+
+        confirmModalMessage.hidden =
+            !settings.message;
+
+    }
+
+
+    if (confirmModalConfirmBtn) {
+
+        confirmModalConfirmBtn.textContent =
+            settings.confirmLabel || "Delete";
+
+        confirmModalConfirmBtn.disabled = false;
+
+    }
+
+
+    confirmModalAction =
+        typeof settings.onConfirm === "function"
+            ? settings.onConfirm
+            : null;
+
+
+    if (confirmModal) {
+
+        confirmModal.classList.remove("hidden");
+
+    }
+
+
+    if (confirmModalConfirmBtn) {
+
+        confirmModalConfirmBtn.focus();
+
+    }
+
+}
+
+
+function setupConfirmModal() {
+
+    if (confirmModalCancelBtn) {
+
+        confirmModalCancelBtn.addEventListener(
+            "click",
+            closeConfirmModal
+        );
+
+    }
+
+
+    if (confirmModalConfirmBtn) {
+
+        confirmModalConfirmBtn.addEventListener(
+            "click",
+            () => {
+
+                const action =
+                    confirmModalAction;
+
+                closeConfirmModal();
+
+                if (action) {
+
+                    action();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (confirmModal) {
+
+        confirmModal.addEventListener(
+            "click",
+            event => {
+
+                if (event.target === confirmModal) {
+
+                    closeConfirmModal();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape" &&
+                confirmModal &&
+                !confirmModal.classList.contains("hidden")
+            ) {
+
+                event.preventDefault();
+
+                closeConfirmModal();
+
+            }
+
+        }
+    );
 
 }
 
@@ -3314,7 +3530,18 @@ function saveItem(event) {
         }
 
 
+        const existing =
+            editingId
+                ? budget.oneOffPayments.find(
+                    entry =>
+                        entry.id === editingId
+                )
+                : null;
+
+
         const item = {
+
+            ...(existing || {}),
 
             id:
                 editingId ||
@@ -3513,62 +3740,12 @@ function deleteItem(type, id) {
 
     }
 
-    let message;
 
-    if (type === "income") {
+    if (!id) {
 
-        message = "Delete this income?";
-
-    } else if (type === "payment") {
-
-        message = "Delete this payment?";
-
-    } else if (type === "oneoff") {
-
-        message = "Delete this one-off payment?";
+        return;
 
     }
-
-
-    // Delete item from modal
-if (deleteItemBtn) {
-
-    deleteItemBtn.addEventListener(
-        "click",
-        () => {
-
-            if (isAdminMimicking()) {
-
-                return;
-
-            }
-
-            if (
-                !editingType ||
-                !editingId
-            ) {
-
-                return;
-
-            }
-
-            const type =
-                editingType;
-
-            const id =
-                editingId;
-
-            closeModal();
-
-            deleteItem(
-                type,
-                id
-            );
-
-        }
-    );
-
-}
 
 
     if (type === "income") {
@@ -3594,6 +3771,10 @@ if (deleteItemBtn) {
                 item =>
                     item.id !== id
             );
+
+    } else {
+
+        return;
 
     }
 
@@ -3646,27 +3827,40 @@ function isPaymentPaidThisPeriod(payment) {
 }
 
 
+function getPeriodPayableItems() {
+
+    const recurring =
+        Array.isArray(budget.payments)
+            ? budget.payments
+            : [];
+
+
+    const oneOffs =
+        Array.isArray(budget.oneOffPayments)
+            ? budget.oneOffPayments
+            : [];
+
+
+    return [
+        ...recurring,
+        ...oneOffs
+    ];
+
+}
+
+
 function getPaymentsPaidSummary() {
 
-    if (
-        !Array.isArray(budget.payments) ||
-        budget.payments.length === 0
-    ) {
-
-        return {
-            paid: 0,
-            total: 0
-        };
-
-    }
+    const items =
+        getPeriodPayableItems();
 
 
     const total =
-        budget.payments.length;
+        items.length;
 
 
     const paid =
-        budget.payments.filter(
+        items.filter(
             item =>
                 isPaymentPaidThisPeriod(item)
         ).length;
@@ -3680,12 +3874,82 @@ function getPaymentsPaidSummary() {
 }
 
 
+function findPayableItem(id) {
+
+    if (!id) {
+
+        return null;
+
+    }
+
+
+    let kind = "";
+
+    let rawId = id;
+
+
+    if (id.startsWith("oneoff:")) {
+
+        kind = "oneoff";
+
+        rawId = id.slice(7);
+
+    } else if (id.startsWith("payment:")) {
+
+        kind = "payment";
+
+        rawId = id.slice(8);
+
+    }
+
+
+    if (kind !== "payment") {
+
+        const oneOff =
+            Array.isArray(budget.oneOffPayments)
+                ? budget.oneOffPayments.find(
+                    item => item.id === rawId
+                )
+                : null;
+
+
+        if (oneOff) {
+
+            return oneOff;
+
+        }
+
+    }
+
+
+    if (kind !== "oneoff") {
+
+        const payment =
+            Array.isArray(budget.payments)
+                ? budget.payments.find(
+                    item => item.id === rawId
+                )
+                : null;
+
+
+        if (payment) {
+
+            return payment;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
 function markPaid(id) {
 
     const payment =
-        budget.payments.find(
-            item => item.id === id
-        );
+        findPayableItem(id);
 
 
     if (!payment) {
@@ -9725,7 +9989,6 @@ function renderUpcomingPayments() {
 
 
         const paidThisPeriod =
-            !isOneOff &&
             isPaymentPaidThisPeriod(payment);
 
 
@@ -9753,20 +10016,11 @@ function renderUpcomingPayments() {
         `;
 
 
-        const paidCell =
-            isOneOff
-                ? `
-                    <span
-                        class="upcoming-oneoff-paid-note"
-                        title="One-off payments aren’t marked paid. They drop off when the next budget period starts.">
-                        —
-                    </span>
-                `
-                : `
+        const paidCell = `
                     <button
                         type="button"
                         class="paid-status-btn ${paidThisPeriod ? "is-paid" : "is-unpaid"}"
-                        onclick="event.stopPropagation(); markPaid('${escapeHtml(payment.id)}')"
+                        onclick="event.stopPropagation(); markPaid('${escapeHtml(listId)}')"
                         title="${paidThisPeriod ? "Undo paid for this period" : "Mark paid for this period"}">
 
                         ${paidThisPeriod ? "Paid" : "Mark paid"}

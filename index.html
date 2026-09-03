@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=upcoming-oneoff-2">
+    <link rel="stylesheet" href="style.css?v=oneoff-paid-confirm-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2179,6 +2179,48 @@
 
 </div>
 
+<div
+    id="confirmModal"
+    class="modal confirm-modal hidden"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirmModalTitle"
+    aria-describedby="confirmModalMessage">
+
+    <div class="modal-content">
+
+        <h2 id="confirmModalTitle">
+            Delete this item?
+        </h2>
+
+        <p
+            id="confirmModalMessage"
+            class="confirm-modal-copy">
+            This can’t be undone.
+        </p>
+
+        <div class="modal-buttons">
+
+            <button
+                type="button"
+                id="confirmModalCancelBtn"
+                class="secondary-btn cancel-btn">
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                id="confirmModalConfirmBtn"
+                class="confirm-modal-delete">
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
 <!-- ===================================== -->
 <!-- PROFILE MANAGEMENT MODAL -->
 <!-- ===================================== -->
@@ -2565,8 +2607,8 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=upcoming-oneoff-2"></script>
-<script src="app.js?v=upcoming-oneoff-2"></script>
+<script type="module" src="cloud.js?v=oneoff-paid-confirm-1"></script>
+<script src="app.js?v=oneoff-paid-confirm-1"></script>
 
 </body>
 </html>
