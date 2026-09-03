@@ -55,7 +55,7 @@ let currentUserIsAdmin = false;
 let saveTimer = null;
 let heartbeatTimer = null;
 let heartbeatListenersBound = false;
-let mimicMode = false;
+let viewAsMode = false;
 let readyResolve;
 let authReadyResolve;
 
@@ -848,7 +848,7 @@ async function signOutUser() {
 
 function queueSave(storageData) {
 
-    if (mimicMode || !currentUser || !db) {
+    if (viewAsMode || !currentUser || !db) {
 
         return;
 
@@ -875,7 +875,7 @@ function queueSave(storageData) {
 
 async function saveNow(storageData) {
 
-    if (mimicMode || !currentUser || !db) {
+    if (viewAsMode || !currentUser || !db) {
 
         return;
 
@@ -1162,18 +1162,18 @@ function isSignedIn() {
 }
 
 
-function isMimicking() {
+function isViewAsActive() {
 
-    return mimicMode;
+    return viewAsMode;
 
 }
 
 
-function setMimicMode(active) {
+function setViewAsMode(active) {
 
-    mimicMode = Boolean(active);
+    viewAsMode = Boolean(active);
 
-    if (mimicMode) {
+    if (viewAsMode) {
 
         clearTimeout(saveTimer);
 
@@ -1702,8 +1702,8 @@ window.BudgetCloud = {
     isDiscordConfigured,
     isSignedIn,
     isCurrentUserAdmin,
-    isMimicking,
-    setMimicMode,
+    isViewAsActive,
+    setViewAsMode,
     getUser,
     queueSave,
     saveNow,

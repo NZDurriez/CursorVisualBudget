@@ -554,45 +554,45 @@ let adminSortKey = "lastSeen";
 
 let adminSortDir = "desc";
 
-let adminMimicSession = null;
+let adminViewAsSession = null;
 
-let adminMimicRestore = null;
+let adminViewAsRestore = null;
 
-const adminMimicBanner =
-    document.getElementById("adminMimicBanner");
+const adminViewAsBanner =
+    document.getElementById("adminViewAsBanner");
 
-const adminMimicBannerMount =
-    adminMimicBanner
+const adminViewAsBannerMount =
+    adminViewAsBanner
         ? {
-            parent: adminMimicBanner.parentNode,
-            next: adminMimicBanner.nextSibling
+            parent: adminViewAsBanner.parentNode,
+            next: adminViewAsBanner.nextSibling
         }
         : null;
 
-const adminMimicExitBtn =
-    document.getElementById("adminMimicExitBtn");
+const adminViewAsExitBtn =
+    document.getElementById("adminViewAsExitBtn");
 
-const adminMimicModal =
-    document.getElementById("adminMimicModal");
+const adminViewAsModal =
+    document.getElementById("adminViewAsModal");
 
-const adminMimicModalMount =
-    adminMimicModal
+const adminViewAsModalMount =
+    adminViewAsModal
         ? {
-            parent: adminMimicModal.parentNode,
-            next: adminMimicModal.nextSibling
+            parent: adminViewAsModal.parentNode,
+            next: adminViewAsModal.nextSibling
         }
         : null;
 
-const adminMimicConfirmBtn =
-    document.getElementById("adminMimicConfirmBtn");
+const adminViewAsConfirmBtn =
+    document.getElementById("adminViewAsConfirmBtn");
 
-const adminMimicCancelBtn =
-    document.getElementById("adminMimicCancelBtn");
+const adminViewAsCancelBtn =
+    document.getElementById("adminViewAsCancelBtn");
 
-const adminMimicModalError =
-    document.getElementById("adminMimicModalError");
+const adminViewAsModalError =
+    document.getElementById("adminViewAsModalError");
 
-let pendingAdminMimicUid = null;
+let pendingAdminViewAsUid = null;
 
 
 // ============================================================
@@ -1149,7 +1149,7 @@ function setupEvents() {
             event => {
 
                 const button =
-                    event.target.closest("[data-admin-mimic]");
+                    event.target.closest("[data-admin-view-as]");
 
                 if (!button) {
 
@@ -1157,57 +1157,57 @@ function setupEvents() {
 
                 }
 
-                openAdminMimicModal(button.dataset.adminMimic);
+                openAdminViewAsModal(button.dataset.adminViewAs);
 
             }
         );
 
     }
 
-    if (adminMimicExitBtn) {
+    if (adminViewAsExitBtn) {
 
-        adminMimicExitBtn.addEventListener(
+        adminViewAsExitBtn.addEventListener(
             "click",
             () => {
 
-                stopAdminMimic();
+                stopAdminViewAs();
 
             }
         );
 
     }
 
-    if (adminMimicConfirmBtn) {
+    if (adminViewAsConfirmBtn) {
 
-        adminMimicConfirmBtn.addEventListener(
+        adminViewAsConfirmBtn.addEventListener(
             "click",
             () => {
 
-                confirmAdminMimic();
+                confirmAdminViewAs();
 
             }
         );
 
     }
 
-    if (adminMimicCancelBtn) {
+    if (adminViewAsCancelBtn) {
 
-        adminMimicCancelBtn.addEventListener(
+        adminViewAsCancelBtn.addEventListener(
             "click",
-            closeAdminMimicModal
+            closeAdminViewAsModal
         );
 
     }
 
-    if (adminMimicModal) {
+    if (adminViewAsModal) {
 
-        adminMimicModal.addEventListener(
+        adminViewAsModal.addEventListener(
             "click",
             event => {
 
-                if (event.target === adminMimicModal) {
+                if (event.target === adminViewAsModal) {
 
-                    closeAdminMimicModal();
+                    closeAdminViewAsModal();
 
                 }
 
@@ -1222,11 +1222,11 @@ function setupEvents() {
 
             if (
                 event.key === "Escape" &&
-                adminMimicModal &&
-                !adminMimicModal.classList.contains("hidden")
+                adminViewAsModal &&
+                !adminViewAsModal.classList.contains("hidden")
             ) {
 
-                closeAdminMimicModal();
+                closeAdminViewAsModal();
 
             }
 
@@ -1592,7 +1592,7 @@ if (deleteItemBtn) {
         "click",
         () => {
 
-            if (isAdminMimicking()) {
+            if (isAdminViewingAs()) {
 
                 return;
 
@@ -2037,9 +2037,9 @@ async function syncFromCloudOnLogin() {
 
 window.onBudgetAuthChanged = async function onBudgetAuthChanged(user) {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
-        stopAdminMimic({ silent: true });
+        stopAdminViewAs({ silent: true });
 
     }
 
@@ -2102,7 +2102,7 @@ function getStoragePayload() {
 
 function saveData() {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
         return;
 
@@ -2882,7 +2882,7 @@ function openCreateProfileForm() {
 
 function editProfile(profileId) {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
         return;
 
@@ -3240,7 +3240,7 @@ function saveProfile(event) {
 
 function deleteProfile(profileId) {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
         return;
 
@@ -3439,7 +3439,7 @@ window.showBudgetPage = showPage;
 
 function openModal(type, id = null) {
 
-    if (id && isAdminMimicking()) {
+    if (id && isAdminViewingAs()) {
 
         return;
 
@@ -4136,7 +4136,7 @@ function saveItem(event) {
 
 function deleteItem(type, id) {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
         return;
 
@@ -5555,7 +5555,7 @@ function updateSavingsGoalPreview() {
 
 function openSavingsGoalForm(id = null) {
 
-    if (id && isAdminMimicking()) {
+    if (id && isAdminViewingAs()) {
 
         return;
 
@@ -5888,7 +5888,7 @@ function saveSavingsGoal(event) {
 
 function deleteSavingsGoal(id) {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
         return;
 
@@ -5992,7 +5992,7 @@ function openSavingsProgressModal(
     contributionId = null
 ) {
 
-    if (contributionId && isAdminMimicking()) {
+    if (contributionId && isAdminViewingAs()) {
 
         return;
 
@@ -6301,7 +6301,7 @@ function editSavingsContribution(
     contributionId
 ) {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
         return;
 
@@ -6320,7 +6320,7 @@ function deleteSavingsContribution(
     contributionId
 ) {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
         return;
 
@@ -8688,7 +8688,7 @@ function updatePayCalculator() {
 
 function editItem(type, id) {
 
-    if (isAdminMimicking()) {
+    if (isAdminViewingAs()) {
 
         return;
 
@@ -12331,9 +12331,9 @@ function adminPresenceCounts(users) {
 }
 
 
-function isAdminMimicking() {
+function isAdminViewingAs() {
 
-    return Boolean(adminMimicSession);
+    return Boolean(adminViewAsSession);
 
 }
 
@@ -12383,27 +12383,27 @@ function syncAdminOnlyUi() {
 
     const allow = isSignedInAdmin();
 
-    if (!allow && isAdminMimicking()) {
+    if (!allow && isAdminViewingAs()) {
 
-        stopAdminMimic({ silent: true });
+        stopAdminViewAs({ silent: true });
 
     }
 
     setAdminOnlyElementMounted(
-        adminMimicBanner,
-        adminMimicBannerMount,
+        adminViewAsBanner,
+        adminViewAsBannerMount,
         allow
     );
 
     setAdminOnlyElementMounted(
-        adminMimicModal,
-        adminMimicModalMount,
+        adminViewAsModal,
+        adminViewAsModalMount,
         allow
     );
 
     if (allow) {
 
-        updateAdminMimicBanner();
+        updateAdminViewAsBanner();
 
     }
 
@@ -12417,29 +12417,29 @@ function cloneStoragePayload(payload) {
 }
 
 
-function updateAdminMimicBanner() {
+function updateAdminViewAsBanner() {
 
-    if (!adminMimicBanner) {
+    if (!adminViewAsBanner) {
 
         return;
 
     }
 
     const active =
-        isSignedInAdmin() && isAdminMimicking();
+        isSignedInAdmin() && isAdminViewingAs();
 
-    adminMimicBanner.hidden = !active;
+    adminViewAsBanner.hidden = !active;
 
-    document.body.classList.toggle("is-mimicking", active);
+    document.body.classList.toggle("is-viewing-as", active);
 
     const nameEl =
-        adminMimicBanner.querySelector("[data-mimic-name]");
+        adminViewAsBanner.querySelector("[data-view-as-name]");
 
-    if (nameEl && adminMimicSession) {
+    if (nameEl && adminViewAsSession) {
 
         nameEl.textContent =
-            adminMimicSession.displayName ||
-            adminMimicSession.email ||
+            adminViewAsSession.displayName ||
+            adminViewAsSession.email ||
             "this user";
 
     }
@@ -12457,9 +12457,9 @@ function refreshBudgetView() {
 }
 
 
-function setAdminMimicModalError(message) {
+function setAdminViewAsModalError(message) {
 
-    if (!adminMimicModalError) {
+    if (!adminViewAsModalError) {
 
         return;
 
@@ -12467,40 +12467,40 @@ function setAdminMimicModalError(message) {
 
     if (!message) {
 
-        adminMimicModalError.hidden = true;
-        adminMimicModalError.textContent = "";
+        adminViewAsModalError.hidden = true;
+        adminViewAsModalError.textContent = "";
         return;
 
     }
 
-    adminMimicModalError.hidden = false;
-    adminMimicModalError.textContent = message;
+    adminViewAsModalError.hidden = false;
+    adminViewAsModalError.textContent = message;
 
 }
 
 
-function closeAdminMimicModal() {
+function closeAdminViewAsModal() {
 
-    pendingAdminMimicUid = null;
+    pendingAdminViewAsUid = null;
 
-    setAdminMimicModalError("");
+    setAdminViewAsModalError("");
 
-    if (adminMimicConfirmBtn) {
+    if (adminViewAsConfirmBtn) {
 
-        adminMimicConfirmBtn.disabled = false;
+        adminViewAsConfirmBtn.disabled = false;
 
     }
 
-    if (adminMimicModal) {
+    if (adminViewAsModal) {
 
-        adminMimicModal.classList.add("hidden");
+        adminViewAsModal.classList.add("hidden");
 
     }
 
 }
 
 
-function openAdminMimicModal(uid) {
+function openAdminViewAsModal(uid) {
 
     if (
         !uid ||
@@ -12527,10 +12527,10 @@ function openAdminMimicModal(uid) {
         adminUsersCache.find(user => user.uid === uid) ||
         {};
 
-    pendingAdminMimicUid = uid;
+    pendingAdminViewAsUid = uid;
 
-    const nameEl = adminMimicModal
-        ? adminMimicModal.querySelector("[data-mimic-modal-name]")
+    const nameEl = adminViewAsModal
+        ? adminViewAsModal.querySelector("[data-view-as-modal-name]")
         : null;
 
     if (nameEl) {
@@ -12542,20 +12542,20 @@ function openAdminMimicModal(uid) {
 
     }
 
-    setAdminMimicModalError("");
+    setAdminViewAsModalError("");
 
-    if (adminMimicModal) {
+    if (adminViewAsModal) {
 
-        adminMimicModal.classList.remove("hidden");
+        adminViewAsModal.classList.remove("hidden");
 
     }
 
 }
 
 
-async function confirmAdminMimic() {
+async function confirmAdminViewAs() {
 
-    const uid = pendingAdminMimicUid;
+    const uid = pendingAdminViewAsUid;
 
     if (!uid) {
 
@@ -12567,13 +12567,13 @@ async function confirmAdminMimic() {
         adminUsersCache.find(user => user.uid === uid) ||
         {};
 
-    if (adminMimicConfirmBtn) {
+    if (adminViewAsConfirmBtn) {
 
-        adminMimicConfirmBtn.disabled = true;
+        adminViewAsConfirmBtn.disabled = true;
 
     }
 
-    setAdminMimicModalError("");
+    setAdminViewAsModalError("");
 
     try {
 
@@ -12586,13 +12586,13 @@ async function confirmAdminMimic() {
             cloudData.profiles.length === 0
         ) {
 
-            setAdminMimicModalError(
+            setAdminViewAsModalError(
                 "That account has no cloud budget to view yet."
             );
 
-            if (adminMimicConfirmBtn) {
+            if (adminViewAsConfirmBtn) {
 
-                adminMimicConfirmBtn.disabled = false;
+                adminViewAsConfirmBtn.disabled = false;
 
             }
 
@@ -12600,28 +12600,28 @@ async function confirmAdminMimic() {
 
         }
 
-        if (!adminMimicRestore) {
+        if (!adminViewAsRestore) {
 
-            adminMimicRestore =
+            adminViewAsRestore =
                 cloneStoragePayload(getStoragePayload());
 
         }
 
-        if (window.BudgetCloud.setMimicMode) {
+        if (window.BudgetCloud.setViewAsMode) {
 
-            window.BudgetCloud.setMimicMode(true);
+            window.BudgetCloud.setViewAsMode(true);
 
         }
 
-        adminMimicSession = {
+        adminViewAsSession = {
             uid,
             displayName: summary.displayName || "",
             email: summary.email || ""
         };
 
         applyStoragePayload(cloudData);
-        closeAdminMimicModal();
-        updateAdminMimicBanner();
+        closeAdminViewAsModal();
+        updateAdminViewAsBanner();
         refreshBudgetView();
         showPage("dashboard");
 
@@ -12629,15 +12629,15 @@ async function confirmAdminMimic() {
 
         console.error("[BudgetCloud] View as failed:", error);
 
-        setAdminMimicModalError(
+        setAdminViewAsModalError(
             error && error.message
                 ? error.message
                 : "Could not load that budget."
         );
 
-        if (adminMimicConfirmBtn) {
+        if (adminViewAsConfirmBtn) {
 
-            adminMimicConfirmBtn.disabled = false;
+            adminViewAsConfirmBtn.disabled = false;
 
         }
 
@@ -12646,31 +12646,31 @@ async function confirmAdminMimic() {
 }
 
 
-function stopAdminMimic(options) {
+function stopAdminViewAs(options) {
 
     const silent = Boolean(options && options.silent);
 
-    if (!isAdminMimicking() && !adminMimicRestore) {
+    if (!isAdminViewingAs() && !adminViewAsRestore) {
 
         return;
 
     }
 
-    if (window.BudgetCloud && window.BudgetCloud.setMimicMode) {
+    if (window.BudgetCloud && window.BudgetCloud.setViewAsMode) {
 
-        window.BudgetCloud.setMimicMode(false);
-
-    }
-
-    if (adminMimicRestore) {
-
-        applyStoragePayload(adminMimicRestore);
+        window.BudgetCloud.setViewAsMode(false);
 
     }
 
-    adminMimicSession = null;
-    adminMimicRestore = null;
-    updateAdminMimicBanner();
+    if (adminViewAsRestore) {
+
+        applyStoragePayload(adminViewAsRestore);
+
+    }
+
+    adminViewAsSession = null;
+    adminViewAsRestore = null;
+    updateAdminViewAsBanner();
     refreshBudgetView();
 
     if (!silent) {
@@ -12847,8 +12847,8 @@ function renderAdminUsers() {
                             ? `<span class="admin-muted">—</span>`
                             : `<button
                                 type="button"
-                                class="admin-mimic-btn"
-                                data-admin-mimic="${escapeHtml(user.uid)}">
+                                class="admin-view-as-btn"
+                                data-admin-view-as="${escapeHtml(user.uid)}">
                                 View as
                             </button>`
                     }
