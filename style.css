@@ -4705,6 +4705,68 @@ body.light-mode .upcoming-payments-bank-check:not([hidden]) {
 
 
 
+.upcoming-payment-name {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
+.upcoming-oneoff-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 2px 8px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.3px;
+
+    text-transform: uppercase;
+
+    background: rgba(168, 85, 247, 0.18);
+
+    color: rgb(216, 180, 254);
+
+}
+
+
+
+body.light-mode .upcoming-oneoff-badge {
+
+    background: rgba(168, 85, 247, 0.14);
+
+    color: rgb(126, 34, 206);
+
+}
+
+
+
+.upcoming-oneoff-paid-note {
+
+    color: var(--text-muted);
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+}
+
+
+
 .upcoming-payments-table td:nth-child(3),
 .upcoming-payments-table th:nth-child(3) {
 
@@ -6051,6 +6113,12 @@ body.light-mode .paid-status-label.is-unpaid {
         text-align: left;
 
         justify-content: flex-start;
+
+    }
+
+    .upcoming-payments-table .upcoming-payment-name {
+
+        width: 100%;
 
     }
 
