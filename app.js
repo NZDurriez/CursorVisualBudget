@@ -68,10 +68,13 @@ const upcomingViewTitle =
 const UPCOMING_VIEW_KEY =
     "budgioUpcomingView";
 
+const savedUpcomingView =
+    localStorage.getItem(UPCOMING_VIEW_KEY);
+
 let upcomingView =
-    localStorage.getItem(UPCOMING_VIEW_KEY) ===
-    "forecast"
-        ? "forecast"
+    savedUpcomingView === "forecast" ||
+    savedUpcomingView === "forecast-14"
+        ? savedUpcomingView
         : "list";
 
 const SIDEBAR_COLLAPSED_KEY =
@@ -8653,10 +8656,29 @@ function renderDashboard() {
 
 
 // ============================================================
-// 7-DAY FORECAST
+// UPCOMING FORECAST
 // ============================================================
 
 const FORECAST_VISIBLE_EVENTS = 3;
+
+
+function isUpcomingForecastView(view) {
+
+    return (
+        view === "forecast" ||
+        view === "forecast-14"
+    );
+
+}
+
+
+function getUpcomingForecastDays() {
+
+    return upcomingView === "forecast-14"
+        ? 14
+        : 7;
+
+}
 
 
 function openForecastCalendar() {
@@ -8671,8 +8693,8 @@ function openForecastCalendar() {
 function applyUpcomingView(view) {
 
     upcomingView =
-        view === "forecast"
-            ? "forecast"
+        isUpcomingForecastView(view)
+            ? view
             : "list";
 
 
@@ -8715,11 +8737,28 @@ function applyUpcomingView(view) {
     if (upcomingViewTitle) {
 
         upcomingViewTitle.textContent =
-            upcomingView === "forecast"
-                ? "7-day forecast"
-                : "Upcoming Payments";
+            upcomingView === "forecast-14"
+                ? "14-day forecast"
+                : upcomingView === "forecast"
+                    ? "7-day forecast"
+                    : "Upcoming Payments";
 
     }
+
+
+    if (sevenDayForecast) {
+
+        sevenDayForecast.setAttribute(
+            "aria-label",
+            upcomingView === "forecast-14"
+                ? "Fourteen day money forecast"
+                : "Seven day money forecast"
+        );
+
+    }
+
+
+    renderSevenDayForecast();
 
 }
 
@@ -8920,9 +8959,13 @@ function renderSevenDayForecast() {
     let paydayLabel = "";
 
 
+    const forecastDays =
+        getUpcomingForecastDays();
+
+
     for (
         let offset = 0;
-        offset < 7;
+        offset < forecastDays;
         offset++
     ) {
 
@@ -9017,7 +9060,9 @@ function renderSevenDayForecast() {
         ) {
 
             forecastSummary.textContent =
-                "Quiet week ahead";
+                upcomingView === "forecast-14"
+                    ? "Quiet fortnight ahead"
+                    : "Quiet week ahead";
 
         } else if (paydayLabel && billCount > 0) {
 
