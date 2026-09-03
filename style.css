@@ -406,7 +406,48 @@ body.light-mode {
 
     gap: 6px;
 
-    overflow: hidden;
+    overflow-x: hidden;
+
+    overflow-y: auto;
+
+    padding-right: 2px;
+
+    padding-bottom: 4px;
+
+    scrollbar-width: thin;
+
+    scrollbar-color: #94a3b8 transparent;
+
+    scrollbar-gutter: stable;
+
+    overscroll-behavior: contain;
+
+}
+
+
+.sidebar nav::-webkit-scrollbar {
+
+    display: block;
+
+    width: 8px;
+
+    height: 8px;
+
+}
+
+
+.sidebar nav::-webkit-scrollbar-track {
+
+    background: transparent;
+
+}
+
+
+.sidebar nav::-webkit-scrollbar-thumb {
+
+    background: #94a3b8;
+
+    border-radius: 20px;
 
 }
 
@@ -5859,6 +5900,8 @@ body.light-mode .paid-status-label.is-unpaid {
         -webkit-overflow-scrolling: touch;
 
         scrollbar-width: thin;
+
+        scrollbar-gutter: auto;
 
         flex: 0 0 auto;
 
