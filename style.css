@@ -395,7 +395,7 @@ body.light-mode {
    NAVIGATION
 ========================================================== */
 
-.sidebar nav {
+.sidebar-scroll {
 
     display: flex;
 
@@ -405,28 +405,20 @@ body.light-mode {
 
     min-height: 0;
 
-    gap: 6px;
-
     overflow-x: hidden;
 
     overflow-y: auto;
 
-    padding-right: 2px;
-
-    padding-bottom: 4px;
-
     scrollbar-width: thin;
 
     scrollbar-color: #94a3b8 transparent;
-
-    scrollbar-gutter: stable;
 
     overscroll-behavior: contain;
 
 }
 
 
-.sidebar nav::-webkit-scrollbar {
+.sidebar-scroll::-webkit-scrollbar {
 
     display: block;
 
@@ -437,18 +429,33 @@ body.light-mode {
 }
 
 
-.sidebar nav::-webkit-scrollbar-track {
+.sidebar-scroll::-webkit-scrollbar-track {
 
     background: transparent;
 
 }
 
 
-.sidebar nav::-webkit-scrollbar-thumb {
+.sidebar-scroll::-webkit-scrollbar-thumb {
 
     background: #94a3b8;
 
     border-radius: 20px;
+
+}
+
+
+.sidebar nav {
+
+    display: flex;
+
+    flex-direction: column;
+
+    flex: 1 0 auto;
+
+    min-height: 0;
+
+    gap: 6px;
 
 }
 
@@ -555,10 +562,35 @@ body.light-mode {
     }
 
 
-    html.sidebar-collapsed .sidebar nav,
+    html.sidebar-collapsed .sidebar-scroll {
+
+        overflow-x: hidden;
+
+        overflow-y: auto;
+
+        scrollbar-gutter: auto;
+
+        min-height: 0;
+
+    }
+
+
+    html.sidebar-collapsed .sidebar-scroll::-webkit-scrollbar {
+
+        width: 6px;
+
+    }
+
+
     html.sidebar-collapsed .sidebar-footer {
 
         overflow: visible;
+
+        flex-shrink: 0;
+
+        background: var(--sidebar);
+
+        z-index: 2;
 
     }
 
@@ -649,10 +681,16 @@ body.light-mode {
     }
 
 
-    html.sidebar-collapsed .sidebar .nav-btn::after,
-    html.sidebar-collapsed .sidebar-toggle::after,
+    html.sidebar-collapsed .sidebar nav .nav-btn::after,
     html.sidebar-collapsed .theme-switch-option::after,
     html.sidebar-collapsed .auth-btn::after {
+
+        content: none;
+
+    }
+
+
+    html.sidebar-collapsed .sidebar-toggle::after {
 
         content: attr(aria-label);
 
@@ -713,14 +751,8 @@ body.light-mode {
     }
 
 
-    html.sidebar-collapsed .sidebar .nav-btn:hover::after,
-    html.sidebar-collapsed .sidebar .nav-btn:focus-visible::after,
     html.sidebar-collapsed .sidebar-toggle:hover::after,
-    html.sidebar-collapsed .sidebar-toggle:focus-visible::after,
-    html.sidebar-collapsed .theme-switch-option:hover::after,
-    html.sidebar-collapsed .theme-switch-option:focus-visible::after,
-    html.sidebar-collapsed .auth-btn:hover::after,
-    html.sidebar-collapsed .auth-btn:focus-visible::after {
+    html.sidebar-collapsed .sidebar-toggle:focus-visible::after {
 
         opacity: 1;
 
@@ -729,10 +761,7 @@ body.light-mode {
     }
 
 
-    html.sidebar-collapsed body.light-mode .sidebar .nav-btn::after,
-    html.sidebar-collapsed body.light-mode .sidebar-toggle::after,
-    html.sidebar-collapsed body.light-mode .theme-switch-option::after,
-    html.sidebar-collapsed body.light-mode .auth-btn::after {
+    html.sidebar-collapsed body.light-mode .sidebar-toggle::after {
 
         background: #ffffff;
 
@@ -743,6 +772,54 @@ body.light-mode {
         box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
 
     }
+
+}
+
+
+.sidebar-rail-tooltip {
+
+    position: fixed;
+
+    z-index: 4000;
+
+    padding: 10px 12px;
+
+    background: #0f172a;
+
+    color: #e2e8f0;
+
+    border: 1px solid rgba(148, 163, 184, 0.22);
+
+    border-radius: 8px;
+
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+
+    font-size: 12px;
+
+    font-weight: 400;
+
+    line-height: 1.5;
+
+    white-space: nowrap;
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+
+    pointer-events: none;
+
+    transform: translateY(-50%);
+
+}
+
+
+body.light-mode .sidebar-rail-tooltip {
+
+    background: #ffffff;
+
+    color: #334155;
+
+    border-color: rgba(148, 163, 184, 0.35);
+
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
 
 }
 
@@ -5868,6 +5945,12 @@ body.light-mode .paid-status-label.is-unpaid {
         border-right: none;
 
         border-bottom: 1px solid var(--border);
+
+    }
+
+    .sidebar-scroll {
+
+        display: contents;
 
     }
 
