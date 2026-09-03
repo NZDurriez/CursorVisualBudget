@@ -12906,11 +12906,10 @@ function setupTheme() {
 
     const savedTheme = localStorage.getItem("budgetTheme");
 
-    if (savedTheme === "light") {
-
-        document.body.classList.add("light-mode");
-
-    }
+    document.body.classList.toggle(
+        "light-mode",
+        savedTheme !== "dark"
+    );
 
     applyDocumentColorScheme();
 

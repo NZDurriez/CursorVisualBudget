@@ -4,7 +4,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="color-scheme" content="dark light">
+    <meta name="color-scheme" content="light dark">
 
     <title>Budgio</title>
 
@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=sidebar-scroll-1">
+    <link rel="stylesheet" href="style.css?v=light-default-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,12 +54,23 @@
             if (localStorage.getItem("budgioSidebarCollapsed") === "1") {
                 document.documentElement.classList.add("sidebar-collapsed");
             }
+            if (localStorage.getItem("budgetTheme") !== "dark") {
+                document.documentElement.style.colorScheme = "light";
+            }
         } catch (error) {}
     </script>
 
 </head>
 
-<body>
+<body class="light-mode">
+
+<script>
+    try {
+        if (localStorage.getItem("budgetTheme") === "dark") {
+            document.body.classList.remove("light-mode");
+        }
+    } catch (error) {}
+</script>
 
 <div class="app">
 
@@ -183,7 +194,7 @@
                     class="theme-switch-option"
                     data-theme="light"
                     aria-label="Light"
-                    aria-pressed="false">
+                    aria-pressed="true">
 
                     <i class="fa-solid fa-sun" aria-hidden="true"></i>
 
@@ -196,7 +207,7 @@
                     class="theme-switch-option"
                     data-theme="dark"
                     aria-label="Dark"
-                    aria-pressed="true">
+                    aria-pressed="false">
 
                     <i class="fa-solid fa-moon" aria-hidden="true"></i>
 
@@ -2648,7 +2659,7 @@
 </div>
 
 <script type="module" src="cloud.js?v=forecast-14-1"></script>
-<script src="app.js?v=forecast-14-1"></script>
+<script src="app.js?v=light-default-1"></script>
 
 </body>
 </html>
