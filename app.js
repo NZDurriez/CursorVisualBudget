@@ -957,6 +957,15 @@ function setupSidebarIconTooltips() {
             }
 
 
+            if (!isCollapsedSidebarIconMode()) {
+
+                hideSidebarIconTooltip();
+
+                return;
+
+            }
+
+
             if (sidebarIconTooltipAnchor === target) {
 
                 return;
@@ -988,6 +997,15 @@ function setupSidebarIconTooltips() {
                 !target ||
                 !appSidebar.contains(target)
             ) {
+
+                return;
+
+            }
+
+
+            if (!isCollapsedSidebarIconMode()) {
+
+                hideSidebarIconTooltip();
 
                 return;
 
