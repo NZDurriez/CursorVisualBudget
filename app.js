@@ -74,6 +74,15 @@ let upcomingView =
         ? "forecast"
         : "list";
 
+const SIDEBAR_COLLAPSED_KEY =
+    "budgioSidebarCollapsed";
+
+const appSidebar =
+    document.getElementById("appSidebar");
+
+const sidebarToggle =
+    document.getElementById("sidebarToggle");
+
 const incomePeriodLabel =
     document.getElementById("incomePeriodLabel");
 
@@ -662,6 +671,147 @@ if (document.readyState === "loading") {
 // EVENTS
 // ============================================================
 
+function isSidebarCollapsed() {
+
+    return document.documentElement.classList.contains(
+        "sidebar-collapsed"
+    );
+
+}
+
+
+function updateSidebarToggle() {
+
+    if (!sidebarToggle) {
+
+        return;
+
+    }
+
+
+    const collapsed =
+        isSidebarCollapsed();
+
+
+    sidebarToggle.setAttribute(
+        "aria-expanded",
+        collapsed ? "false" : "true"
+    );
+
+    const label =
+        collapsed
+            ? "Expand sidebar"
+            : "Collapse sidebar";
+
+    sidebarToggle.title = label;
+
+    sidebarToggle.setAttribute(
+        "aria-label",
+        label
+    );
+
+
+    const icon =
+        sidebarToggle.querySelector("i");
+
+
+    if (icon) {
+
+        icon.className =
+            collapsed
+                ? "fa-solid fa-angles-right"
+                : "fa-solid fa-angles-left";
+
+    }
+
+}
+
+
+function applySidebarCollapsed(collapsed) {
+
+    document.documentElement.classList.toggle(
+        "sidebar-collapsed",
+        collapsed
+    );
+
+
+    document.documentElement.classList.toggle(
+        "sidebar-peek-blocked",
+        collapsed
+    );
+
+
+    try {
+
+        localStorage.setItem(
+            SIDEBAR_COLLAPSED_KEY,
+            collapsed ? "1" : "0"
+        );
+
+    } catch (error) {}
+
+
+    updateSidebarToggle();
+
+}
+
+
+function setupSidebarToggle() {
+
+    const saved =
+        localStorage.getItem(SIDEBAR_COLLAPSED_KEY) ===
+        "1";
+
+
+    document.documentElement.classList.toggle(
+        "sidebar-collapsed",
+        saved
+    );
+
+    updateSidebarToggle();
+
+
+    if (sidebarToggle) {
+
+        sidebarToggle.addEventListener(
+            "click",
+            () => {
+
+                const next =
+                    !isSidebarCollapsed();
+
+                applySidebarCollapsed(next);
+
+                if (next) {
+
+                    sidebarToggle.blur();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (appSidebar) {
+
+        appSidebar.addEventListener(
+            "mouseleave",
+            () => {
+
+                document.documentElement.classList.remove(
+                    "sidebar-peek-blocked"
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
 function setupBudgetSettingsToggle() {
 
     const panel =
@@ -711,6 +861,8 @@ function setupEvents() {
     setupUpcomingPaymentsSelection();
 
     setupConfirmModal();
+
+    setupSidebarToggle();
 
     // Navigation
     navButtons.forEach(button => {

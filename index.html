@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=oneoff-paid-confirm-1">
+    <link rel="stylesheet" href="style.css?v=sidebar-collapse-2">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,6 +48,14 @@
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <script>
+        try {
+            if (localStorage.getItem("budgioSidebarCollapsed") === "1") {
+                document.documentElement.classList.add("sidebar-collapsed");
+            }
+        } catch (error) {}
+    </script>
 
 </head>
 
@@ -59,18 +67,35 @@
     <!-- SIDEBAR -->
     <!-- ===================================== -->
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="appSidebar">
 
-        <div class="logo">
+        <div class="sidebar-header">
 
-            <img
-                class="logo-mark"
-                src="assets/budgio-logo.png?v=budgio-transparent-1"
-                alt="Budgio"
-                width="38"
-                height="38">
+            <div class="logo">
 
-            <h1>Budgio</h1>
+                <img
+                    class="logo-mark"
+                    src="assets/budgio-logo.png?v=budgio-transparent-1"
+                    alt="Budgio"
+                    width="38"
+                    height="38">
+
+                <h1>Budgio</h1>
+
+            </div>
+
+            <button
+                type="button"
+                id="sidebarToggle"
+                class="sidebar-toggle"
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+                aria-expanded="true"
+                aria-controls="appSidebar">
+
+                <i class="fa-solid fa-angles-left" aria-hidden="true"></i>
+
+            </button>
 
         </div>
 
@@ -2607,8 +2632,8 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=oneoff-paid-confirm-1"></script>
-<script src="app.js?v=oneoff-paid-confirm-1"></script>
+<script type="module" src="cloud.js?v=sidebar-collapse-2"></script>
+<script src="app.js?v=sidebar-collapse-2"></script>
 
 </body>
 </html>
