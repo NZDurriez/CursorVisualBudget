@@ -795,7 +795,7 @@ function setupSidebarToggle() {
 
 function isCollapsedSidebarIconMode() {
 
-    if (!appSidebar) {
+    if (!isSidebarCollapsed() || !appSidebar) {
 
         return false;
 
@@ -803,7 +803,9 @@ function isCollapsedSidebarIconMode() {
 
 
     const label =
-        appSidebar.querySelector(".nav-label");
+        appSidebar.querySelector(
+            "nav .nav-btn:not([hidden]) .nav-label"
+        );
 
 
     if (!label) {
@@ -814,8 +816,8 @@ function isCollapsedSidebarIconMode() {
 
 
     return (
-        window.getComputedStyle(label).display ===
-        "none"
+        window.getComputedStyle(label).display === "none" ||
+        label.getClientRects().length === 0
     );
 
 }
