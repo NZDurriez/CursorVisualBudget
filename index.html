@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=sidebar-tooltips-6">
+    <link rel="stylesheet" href="style.css?v=sidebar-rail-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -88,7 +88,6 @@
                 type="button"
                 id="sidebarToggle"
                 class="sidebar-toggle"
-                title="Collapse sidebar"
                 aria-label="Collapse sidebar"
                 aria-expanded="true"
                 aria-controls="appSidebar">
@@ -101,7 +100,7 @@
 
         <nav>
 
-            <button class="nav-btn active" title="Dashboard" aria-label="Dashboard"
+            <button class="nav-btn active" aria-label="Dashboard"
                     data-page="dashboard">
 
                 <i class="fa-solid fa-chart-line"></i>
@@ -109,7 +108,7 @@
                 <span class="nav-label">Dashboard</span>
             </button>
 
-            <button class="nav-btn" title="Income" aria-label="Income"
+            <button class="nav-btn" aria-label="Income"
                     data-page="income">
 
                 <i class="fa-solid fa-money-bill-wave"></i>
@@ -117,7 +116,7 @@
                 <span class="nav-label">Income</span>
             </button>
 
-            <button class="nav-btn" title="Recurring Payments" aria-label="Recurring Payments"
+            <button class="nav-btn" aria-label="Recurring Payments"
                     data-page="payments">
 
                 <i class="fa-solid fa-credit-card"></i>
@@ -125,7 +124,7 @@
                 <span class="nav-label">Recurring Payments</span>
             </button>
 
-			<button class="nav-btn" title="One-Off Payments" aria-label="One-Off Payments"
+			<button class="nav-btn" aria-label="One-Off Payments"
 					data-page="oneoff">
 
 				<i class="fa-solid fa-receipt"></i>
@@ -133,7 +132,7 @@
                 <span class="nav-label">One-Off Payments</span>
 			</button>
 
-            <button class="nav-btn" title="Savings Calculator" aria-label="Savings Calculator"
+            <button class="nav-btn" aria-label="Savings Calculator"
                     data-page="savings">
 
                 <i class="fa-solid fa-piggy-bank"></i>
@@ -141,7 +140,7 @@
                 <span class="nav-label">Savings Calculator</span>
             </button>
 
-            <button class="nav-btn" title="Pay Calculator" aria-label="Pay Calculator"
+            <button class="nav-btn" aria-label="Pay Calculator"
                     data-page="paycalc">
 
                 <i class="fa-solid fa-calculator"></i>
@@ -149,7 +148,7 @@
                 <span class="nav-label">Pay Calculator</span>
             </button>
 
-            <button class="nav-btn" title="Calendar" aria-label="Calendar"
+            <button class="nav-btn" aria-label="Calendar"
                     data-page="calendar">
 
                 <i class="fa-solid fa-calendar-days"></i>
@@ -160,7 +159,6 @@
             <button
                 class="nav-btn"
                 id="adminNavBtn"
-                title="Admin"
                 aria-label="Admin"
                 data-page="admin"
                 hidden>
@@ -213,7 +211,6 @@
                 href="https://discord.gg/g5GsEPJXcJ"
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Join us on Discord"
                 aria-label="Join us on Discord">
 
                 <i class="fa-brands fa-discord"></i>
@@ -2638,14 +2635,8 @@
 
 </div>
 
-<div
-    id="sidebarIconTooltip"
-    class="sidebar-icon-tooltip"
-    role="tooltip"
-    hidden></div>
-
-<script type="module" src="cloud.js?v=sidebar-tooltips-6"></script>
-<script src="app.js?v=sidebar-tooltips-6"></script>
+<script type="module" src="cloud.js?v=sidebar-rail-1"></script>
+<script src="app.js?v=sidebar-rail-1"></script>
 
 </body>
 </html>
