@@ -832,6 +832,15 @@ function setupEvents() {
 
     setupSidebarToggle();
 
+    if (itemFrequency) {
+
+        itemFrequency.addEventListener(
+            "change",
+            updateItemDateLabel
+        );
+
+    }
+
     // Navigation
     navButtons.forEach(button => {
 
@@ -3271,12 +3280,12 @@ if (deleteItemBtn) {
 
     frequencyGroup.style.display = "flex";
 
-    itemDateLabel.textContent = "Next Date";
+    syncIncomeFrequencyOptions(type);
 
     modalTitle.textContent =
         type === "income"
-            ? "Add Income"
-            : "Add Payment";
+            ? (id ? "Edit Income" : "Add Income")
+            : (id ? "Edit Payment" : "Add Payment");
 
 }
 
@@ -3334,15 +3343,25 @@ if (deleteItemBtn) {
         if (type !== "oneoff") {
 
             itemFrequency.value =
-                item.frequency;
+                item.frequency || "Weekly";
 
         }
+
+        updateItemDateLabel();
 
     } else {
 
         // New item
         itemDate.value =
             getTodayString();
+
+        if (type !== "oneoff") {
+
+            itemFrequency.value = "Weekly";
+
+        }
+
+        updateItemDateLabel();
 
     }
 
@@ -3360,6 +3379,69 @@ function closeModal() {
 
     editingType = null;
     editingId = null;
+
+}
+
+
+function isOneOffFrequency(frequency) {
+
+    return frequency === "One-off";
+
+}
+
+
+function syncIncomeFrequencyOptions(type) {
+
+    if (!itemFrequency) {
+
+        return;
+
+    }
+
+
+    itemFrequency
+        .querySelectorAll("[data-income-only]")
+        .forEach(option => {
+
+            const incomeOnly =
+                type === "income";
+
+            option.hidden = !incomeOnly;
+
+            option.disabled = !incomeOnly;
+
+        });
+
+}
+
+
+function updateItemDateLabel() {
+
+    if (!itemDateLabel) {
+
+        return;
+
+    }
+
+
+    const oneOffIncome =
+        editingType === "income" &&
+        isOneOffFrequency(itemFrequency.value);
+
+
+    if (
+        editingType === "oneoff" ||
+        oneOffIncome
+    ) {
+
+        itemDateLabel.textContent = "Date";
+
+        return;
+
+    }
+
+
+    itemDateLabel.textContent = "Next Date";
 
 }
 
@@ -4170,6 +4252,13 @@ function calculateNextDate(
     }
 
 
+    if (isOneOffFrequency(frequency)) {
+
+        return dateString;
+
+    }
+
+
     const date =
         new Date(dateString + "T00:00:00");
 
@@ -4446,6 +4535,9 @@ function getFrequencySortValue(frequency) {
 
         case "Yearly":
             return 5;
+
+        case "One-off":
+            return 6;
 
         default:
             return 99;
@@ -8501,8 +8593,37 @@ function renderDashboard() {
     }
 
 
+    const today =
+        getTodayString();
+
+
+    const upcomingIncome =
+        budget.income.filter(item => {
+
+            if (
+                isOneOffFrequency(item.frequency) &&
+                item.nextDate &&
+                item.nextDate < today
+            ) {
+
+                return false;
+
+            }
+
+
+            return true;
+
+        });
+
+
     const sorted =
-        [...budget.income].sort(
+        [
+            ...(
+                upcomingIncome.length > 0
+                    ? upcomingIncome
+                    : budget.income
+            )
+        ].sort(
             (a, b) =>
                 new Date(a.nextDate) -
                 new Date(b.nextDate)
@@ -9297,6 +9418,20 @@ function getBudgetPeriodTotal(items) {
 
     items.forEach(item => {
 
+        if (isOneOffFrequency(item.frequency)) {
+
+            if (isDueInCurrentBudgetPeriod(item.nextDate)) {
+
+                total +=
+                    Number(item.amount) || 0;
+
+            }
+
+            return;
+
+        }
+
+
         switch (schedule) {
 
             // =================================================
@@ -9515,6 +9650,18 @@ function getMonthlyTotal(items) {
 
                 break;
 
+
+            case "One-off":
+
+                if (isDueInCurrentBudgetPeriod(item.nextDate)) {
+
+                    total +=
+                        Number(item.amount) || 0;
+
+                }
+
+                break;
+
         }
 
     });
@@ -9554,6 +9701,12 @@ function getFortnightlyTotal(items) {
 
             case "Yearly":
                 total += item.amount / 26;
+                break;
+
+            case "One-off":
+                if (isDueInCurrentBudgetPeriod(item.nextDate)) {
+                    total += Number(item.amount) || 0;
+                }
                 break;
 
         }
@@ -10569,7 +10722,7 @@ function clearOneOffPaymentsFromPreviousPeriods() {
 
     // New fortnight/week/month cycle has begun —
     // remove one-offs from the previous cycle
-    const previousCount =
+    const previousPaymentCount =
         budget.oneOffPayments.length;
 
 
@@ -10588,14 +10741,48 @@ function clearOneOffPaymentsFromPreviousPeriods() {
         });
 
 
+    const previousIncomeCount =
+        Array.isArray(budget.income)
+            ? budget.income.length
+            : 0;
+
+
+    if (Array.isArray(budget.income)) {
+
+        budget.income =
+            budget.income.filter(item => {
+
+                if (!isOneOffFrequency(item.frequency)) {
+
+                    return true;
+
+                }
+
+
+                if (!item || !item.nextDate) {
+
+                    return false;
+
+                }
+
+
+                return item.nextDate >= period.start;
+
+            });
+
+    }
+
+
     budget.settings.lastSeenPeriodStart =
         period.start;
 
 
     console.log(
         "New budget cycle detected. Cleared",
-        previousCount - budget.oneOffPayments.length,
-        "one-off payment(s) from the previous period."
+        previousPaymentCount - budget.oneOffPayments.length,
+        "one-off payment(s) and",
+        previousIncomeCount - budget.income.length,
+        "one-off income item(s) from the previous period."
     );
 
 
@@ -11445,6 +11632,14 @@ function isRecurringOnDate(item, targetDate) {
                     anchorDate,
                     date
                 )
+            );
+
+
+        case "One-off":
+
+            return (
+                formatDateForInput(date) ===
+                item.nextDate
             );
 
 
