@@ -517,7 +517,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) {
 
         position: fixed;
 
@@ -544,7 +544,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .sidebar-header,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .sidebar-header {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .sidebar-header {
 
         flex-direction: row;
 
@@ -560,7 +560,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .logo,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .logo {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .logo {
 
         justify-content: flex-start;
 
@@ -570,7 +570,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .logo h1,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .logo h1 {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .logo h1 {
 
         display: block;
 
@@ -578,9 +578,9 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .nav-label,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .nav-label,
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .nav-label,
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .theme-switch-option span,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .theme-switch-option span {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .theme-switch-option span {
 
         display: inline;
 
@@ -588,7 +588,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .auth-copy,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .auth-copy {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .auth-copy {
 
         display: flex;
 
@@ -596,9 +596,9 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .auth-user,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .auth-user,
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .auth-user,
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .auth-user:has([data-auth-avatar][hidden]),
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .auth-user:has([data-auth-avatar][hidden]) {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .auth-user:has([data-auth-avatar][hidden]) {
 
         display: flex;
 
@@ -606,7 +606,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .nav-btn,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .nav-btn {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .nav-btn {
 
         justify-content: flex-start;
 
@@ -618,7 +618,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .nav-btn:hover,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .nav-btn:hover {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .nav-btn:hover {
 
         transform: translateX(2px);
 
@@ -626,7 +626,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .theme-switch,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .theme-switch {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .theme-switch {
 
         grid-template-columns: 1fr 1fr;
 
@@ -638,7 +638,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .theme-switch-option,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .theme-switch-option {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .theme-switch-option {
 
         height: 32px;
 
@@ -648,7 +648,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .auth-btn,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .auth-btn {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .auth-btn {
 
         gap: 8px;
 
@@ -656,7 +656,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:hover .auth-user,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:focus-within .auth-user {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) .sidebar:has(:focus-visible) .auth-user {
 
         justify-content: flex-start;
 
@@ -664,7 +664,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed:not(.sidebar-peek-blocked) body.light-mode .sidebar:hover,
-    html.sidebar-collapsed:not(.sidebar-peek-blocked) body.light-mode .sidebar:focus-within {
+    html.sidebar-collapsed:not(.sidebar-peek-blocked) body.light-mode .sidebar:has(:focus-visible) {
 
         box-shadow:
             12px 0 36px rgba(15, 23, 42, 0.16);
