@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=oneoff-income-1">
+    <link rel="stylesheet" href="style.css?v=sidebar-tooltips-6">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -184,6 +184,7 @@
                     type="button"
                     class="theme-switch-option"
                     data-theme="light"
+                    aria-label="Light"
                     aria-pressed="false">
 
                     <i class="fa-solid fa-sun" aria-hidden="true"></i>
@@ -196,6 +197,7 @@
                     type="button"
                     class="theme-switch-option"
                     data-theme="dark"
+                    aria-label="Dark"
                     aria-pressed="true">
 
                     <i class="fa-solid fa-moon" aria-hidden="true"></i>
@@ -246,7 +248,8 @@
                 <button
                     type="button"
                     id="googleSignInBtn"
-                    class="auth-btn auth-btn-google">
+                    class="auth-btn auth-btn-google"
+                    aria-label="Sign in with Google">
 
                     <i class="fa-brands fa-google"></i>
 
@@ -257,6 +260,7 @@
                     type="button"
                     id="googleSignOutBtn"
                     class="auth-btn auth-btn-signout"
+                    aria-label="Sign out"
                     hidden>
 
                     <i class="fa-solid fa-right-from-bracket"></i>
@@ -2634,8 +2638,14 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=oneoff-income-1"></script>
-<script src="app.js?v=oneoff-income-1"></script>
+<div
+    id="sidebarIconTooltip"
+    class="sidebar-icon-tooltip"
+    role="tooltip"
+    hidden></div>
+
+<script type="module" src="cloud.js?v=sidebar-tooltips-6"></script>
+<script src="app.js?v=sidebar-tooltips-6"></script>
 
 </body>
 </html>

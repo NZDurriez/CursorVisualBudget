@@ -77,8 +77,16 @@ let upcomingView =
 const SIDEBAR_COLLAPSED_KEY =
     "budgioSidebarCollapsed";
 
+let sidebarIconTooltipAnchor = null;
+
 const sidebarToggle =
     document.getElementById("sidebarToggle");
+
+const appSidebar =
+    document.getElementById("appSidebar");
+
+const sidebarIconTooltip =
+    document.getElementById("sidebarIconTooltip");
 
 const incomePeriodLabel =
     document.getElementById("incomePeriodLabel");
@@ -744,6 +752,8 @@ function applySidebarCollapsed(collapsed) {
 
     updateSidebarToggle();
 
+    hideSidebarIconTooltip();
+
 }
 
 
@@ -776,6 +786,271 @@ function setupSidebarToggle() {
         );
 
     }
+
+
+    setupSidebarIconTooltips();
+
+}
+
+
+function isCollapsedSidebarIconMode() {
+
+    if (!isSidebarCollapsed() || !appSidebar) {
+
+        return false;
+
+    }
+
+
+    const label =
+        appSidebar.querySelector(
+            "nav .nav-btn:not([hidden]) .nav-label"
+        );
+
+
+    if (!label) {
+
+        return false;
+
+    }
+
+
+    return (
+        window.getComputedStyle(label).display === "none" ||
+        label.getClientRects().length === 0
+    );
+
+}
+
+
+function getSidebarIconTooltipLabel(element) {
+
+    if (!element) {
+
+        return "";
+
+    }
+
+
+    return (
+        element.getAttribute("aria-label") ||
+        element.getAttribute("title") ||
+        element.getAttribute("data-restore-title") ||
+        ""
+    ).trim();
+
+}
+
+
+function hideSidebarIconTooltip() {
+
+    if (
+        sidebarIconTooltipAnchor &&
+        sidebarIconTooltipAnchor.dataset.restoreTitle
+    ) {
+
+        sidebarIconTooltipAnchor.setAttribute(
+            "title",
+            sidebarIconTooltipAnchor.dataset.restoreTitle
+        );
+
+        delete sidebarIconTooltipAnchor.dataset.restoreTitle;
+
+    }
+
+
+    sidebarIconTooltipAnchor = null;
+
+
+    if (sidebarIconTooltip) {
+
+        sidebarIconTooltip.hidden = true;
+
+        sidebarIconTooltip.textContent = "";
+
+    }
+
+}
+
+
+function showSidebarIconTooltip(element) {
+
+    if (
+        !sidebarIconTooltip ||
+        !element ||
+        !document.documentElement.classList.contains("sidebar-collapsed") ||
+        !isCollapsedSidebarIconMode()
+    ) {
+
+        hideSidebarIconTooltip();
+        return;
+
+    }
+
+
+    const label =
+        getSidebarIconTooltipLabel(element);
+
+
+    if (!label) {
+
+        return;
+
+    }
+
+
+    if (sidebarIconTooltipAnchor !== element) {
+
+        hideSidebarIconTooltip();
+
+    }
+
+
+    const nativeTitle =
+        element.getAttribute("title");
+
+
+    if (nativeTitle) {
+
+        element.dataset.restoreTitle = nativeTitle;
+
+        element.removeAttribute("title");
+
+    }
+
+
+    sidebarIconTooltipAnchor = element;
+
+    sidebarIconTooltip.hidden = false;
+
+    sidebarIconTooltip.textContent = label;
+
+
+    const rect =
+        element.getBoundingClientRect();
+
+    const tipRect =
+        sidebarIconTooltip.getBoundingClientRect();
+
+    const top = Math.max(
+        8,
+        Math.min(
+            rect.top + (rect.height / 2) - (tipRect.height / 2),
+            window.innerHeight - tipRect.height - 8
+        )
+    );
+
+
+    sidebarIconTooltip.style.top = `${top}px`;
+
+    sidebarIconTooltip.style.left = `${rect.right + 10}px`;
+
+}
+
+
+function setupSidebarIconTooltips() {
+
+    if (!appSidebar) {
+
+        return;
+
+    }
+
+
+    const selector =
+        ".nav-btn, .sidebar-toggle, .theme-switch-option, .auth-btn";
+
+
+    appSidebar.addEventListener(
+        "mouseover",
+        event => {
+
+            const target =
+                event.target.closest(selector);
+
+
+            if (
+                !target ||
+                !appSidebar.contains(target) ||
+                !isCollapsedSidebarIconMode()
+            ) {
+
+                hideSidebarIconTooltip();
+                return;
+
+            }
+
+
+            if (sidebarIconTooltipAnchor === target) {
+
+                return;
+
+            }
+
+
+            showSidebarIconTooltip(target);
+
+        }
+    );
+
+
+    appSidebar.addEventListener(
+        "mouseleave",
+        hideSidebarIconTooltip
+    );
+
+
+    appSidebar.addEventListener(
+        "focusin",
+        event => {
+
+            const target =
+                event.target.closest(selector);
+
+
+            if (
+                !target ||
+                !appSidebar.contains(target)
+            ) {
+
+                return;
+
+            }
+
+
+            if (!isCollapsedSidebarIconMode()) {
+
+                hideSidebarIconTooltip();
+
+                return;
+
+            }
+
+
+            showSidebarIconTooltip(target);
+
+        }
+    );
+
+
+    appSidebar.addEventListener(
+        "focusout",
+        event => {
+
+            if (
+                event.relatedTarget &&
+                appSidebar.contains(event.relatedTarget)
+            ) {
+
+                return;
+
+            }
+
+
+            hideSidebarIconTooltip();
+
+        }
+    );
 
 }
 
