@@ -9196,6 +9196,36 @@ function getUpcomingPaymentListId(payment) {
 }
 
 
+function isDueInCurrentBudgetPeriod(dateString) {
+
+    if (!dateString) {
+
+        return false;
+
+    }
+
+
+    const period =
+        getCurrentBudgetPeriod();
+
+
+    // No payday/period configured — show the next
+    // occurrence of each bill rather than hiding them
+    if (!period) {
+
+        return true;
+
+    }
+
+
+    return (
+        dateString >= period.start &&
+        dateString <= period.end
+    );
+
+}
+
+
 function getVisibleUpcomingPayments() {
 
     const recurring =
@@ -9216,11 +9246,15 @@ function getVisibleUpcomingPayments() {
             : [];
 
 
-    return [...recurring, ...oneOffs].sort(
-        (a, b) =>
-            new Date(a.nextDate) -
-            new Date(b.nextDate)
-    );
+    return [...recurring, ...oneOffs]
+        .filter(item =>
+            isDueInCurrentBudgetPeriod(item.nextDate)
+        )
+        .sort(
+            (a, b) =>
+                new Date(a.nextDate) -
+                new Date(b.nextDate)
+        );
 
 }
 
