@@ -210,6 +210,8 @@ body.light-mode {
 
 .sidebar {
 
+    position: relative;
+
     background:
         linear-gradient(
             180deg,
@@ -388,57 +390,6 @@ body.light-mode {
 }
 
 
-.sidebar-icon-tooltip {
-
-    display: none;
-
-    position: fixed;
-
-    z-index: 1200;
-
-    padding: 6px 10px;
-
-    background: #0f172a;
-
-    color: #e2e8f0;
-
-    border: 1px solid rgba(148, 163, 184, 0.28);
-
-    border-radius: 8px;
-
-    font-family: inherit;
-
-    font-size: 12px;
-
-    font-weight: 650;
-
-    line-height: 1.2;
-
-    white-space: nowrap;
-
-    pointer-events: none;
-
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-
-}
-
-
-html.sidebar-collapsed .sidebar-icon-tooltip:not([hidden]) {
-
-    display: block;
-
-}
-
-
-body.light-mode .sidebar-icon-tooltip {
-
-    background: #0f172a;
-
-    color: #f8fafc;
-
-}
-
-
 /* ==========================================================
    NAVIGATION
 ========================================================== */
@@ -481,6 +432,51 @@ body.light-mode .sidebar-icon-tooltip {
 
 @media (min-width: 951px) {
 
+    .sidebar {
+
+        overflow: visible;
+
+        z-index: 320;
+
+    }
+
+
+    .sidebar-toggle {
+
+        position: absolute;
+
+        top: 36px;
+
+        right: 0;
+
+        transform: translateX(50%);
+
+        width: 24px;
+
+        height: 24px;
+
+        border-radius: 999px;
+
+        background: var(--sidebar);
+
+        border: 1px solid var(--border);
+
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+
+        font-size: 11px;
+
+        z-index: 1;
+
+    }
+
+
+    .sidebar-toggle:hover {
+
+        background: var(--panel-hover);
+
+    }
+
+
     html.sidebar-collapsed .app {
 
         grid-template-columns: 76px 1fr;
@@ -492,7 +488,7 @@ body.light-mode .sidebar-icon-tooltip {
 
         padding: 18px 8px;
 
-        overflow: hidden;
+        overflow: visible;
 
     }
 
@@ -506,6 +502,21 @@ body.light-mode .sidebar-icon-tooltip {
         gap: 10px;
 
         margin-bottom: 16px;
+
+    }
+
+
+    html.sidebar-collapsed .sidebar-toggle {
+
+        top: 30px;
+
+    }
+
+
+    html.sidebar-collapsed .sidebar nav,
+    html.sidebar-collapsed .sidebar-footer {
+
+        overflow: visible;
 
     }
 
@@ -569,6 +580,8 @@ body.light-mode .sidebar-icon-tooltip {
 
     html.sidebar-collapsed .theme-switch-option {
 
+        position: relative;
+
         height: 30px;
 
         gap: 0;
@@ -577,6 +590,8 @@ body.light-mode .sidebar-icon-tooltip {
 
 
     html.sidebar-collapsed .auth-btn {
+
+        position: relative;
 
         padding: 0;
 
@@ -588,6 +603,102 @@ body.light-mode .sidebar-icon-tooltip {
     html.sidebar-collapsed .auth-user {
 
         justify-content: center;
+
+    }
+
+
+    html.sidebar-collapsed .sidebar .nav-btn::after,
+    html.sidebar-collapsed .sidebar-toggle::after,
+    html.sidebar-collapsed .theme-switch-option::after,
+    html.sidebar-collapsed .auth-btn::after {
+
+        content: attr(aria-label);
+
+        position: absolute;
+
+        top: 50%;
+
+        left: calc(100% + 10px);
+
+        transform: translateY(-50%);
+
+        width: max-content;
+
+        max-width: min(240px, 70vw);
+
+        padding: 10px 12px;
+
+        background: #0f172a;
+
+        color: #e2e8f0;
+
+        border: 1px solid rgba(148, 163, 184, 0.22);
+
+        border-radius: 8px;
+
+        font-family: Inter, system-ui, -apple-system, sans-serif;
+
+        font-size: 12px;
+
+        font-weight: 400;
+
+        font-style: normal;
+
+        line-height: 1.5;
+
+        text-align: left;
+
+        text-transform: none;
+
+        letter-spacing: normal;
+
+        white-space: nowrap;
+
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+
+        opacity: 0;
+
+        visibility: hidden;
+
+        pointer-events: none;
+
+        transition:
+            opacity 0.15s ease,
+            visibility 0.15s ease;
+
+        z-index: 4000;
+
+    }
+
+
+    html.sidebar-collapsed .sidebar .nav-btn:hover::after,
+    html.sidebar-collapsed .sidebar .nav-btn:focus-visible::after,
+    html.sidebar-collapsed .sidebar-toggle:hover::after,
+    html.sidebar-collapsed .sidebar-toggle:focus-visible::after,
+    html.sidebar-collapsed .theme-switch-option:hover::after,
+    html.sidebar-collapsed .theme-switch-option:focus-visible::after,
+    html.sidebar-collapsed .auth-btn:hover::after,
+    html.sidebar-collapsed .auth-btn:focus-visible::after {
+
+        opacity: 1;
+
+        visibility: visible;
+
+    }
+
+
+    html.sidebar-collapsed body.light-mode .sidebar .nav-btn::after,
+    html.sidebar-collapsed body.light-mode .sidebar-toggle::after,
+    html.sidebar-collapsed body.light-mode .theme-switch-option::after,
+    html.sidebar-collapsed body.light-mode .auth-btn::after {
+
+        background: #ffffff;
+
+        color: #334155;
+
+        border-color: rgba(148, 163, 184, 0.35);
+
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
 
     }
 
