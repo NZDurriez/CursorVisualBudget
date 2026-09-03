@@ -561,11 +561,27 @@ let adminMimicRestore = null;
 const adminMimicBanner =
     document.getElementById("adminMimicBanner");
 
+const adminMimicBannerMount =
+    adminMimicBanner
+        ? {
+            parent: adminMimicBanner.parentNode,
+            next: adminMimicBanner.nextSibling
+        }
+        : null;
+
 const adminMimicExitBtn =
     document.getElementById("adminMimicExitBtn");
 
 const adminMimicModal =
     document.getElementById("adminMimicModal");
+
+const adminMimicModalMount =
+    adminMimicModal
+        ? {
+            parent: adminMimicModal.parentNode,
+            next: adminMimicModal.nextSibling
+        }
+        : null;
 
 const adminMimicConfirmBtn =
     document.getElementById("adminMimicConfirmBtn");
@@ -655,6 +671,8 @@ async function startApp() {
         await syncFromCloudOnLogin();
 
     }
+
+    syncAdminOnlyUi();
 
 }
 
@@ -2060,6 +2078,8 @@ window.onBudgetAuthChanged = async function onBudgetAuthChanged(user) {
         }
 
     }
+
+    syncAdminOnlyUi();
 
 };
 
@@ -12318,6 +12338,78 @@ function isAdminMimicking() {
 }
 
 
+function isSignedInAdmin() {
+
+    return Boolean(
+        window.BudgetCloud &&
+        typeof window.BudgetCloud.isCurrentUserAdmin ===
+            "function" &&
+        window.BudgetCloud.isCurrentUserAdmin()
+    );
+
+}
+
+
+function setAdminOnlyElementMounted(el, mount, shouldMount) {
+
+    if (!el || !mount || !mount.parent) {
+
+        return;
+
+    }
+
+    if (shouldMount) {
+
+        if (!el.isConnected) {
+
+            mount.parent.insertBefore(el, mount.next);
+
+        }
+
+        return;
+
+    }
+
+    if (el.isConnected) {
+
+        el.remove();
+
+    }
+
+}
+
+
+function syncAdminOnlyUi() {
+
+    const allow = isSignedInAdmin();
+
+    if (!allow && isAdminMimicking()) {
+
+        stopAdminMimic({ silent: true });
+
+    }
+
+    setAdminOnlyElementMounted(
+        adminMimicBanner,
+        adminMimicBannerMount,
+        allow
+    );
+
+    setAdminOnlyElementMounted(
+        adminMimicModal,
+        adminMimicModalMount,
+        allow
+    );
+
+    if (allow) {
+
+        updateAdminMimicBanner();
+
+    }
+
+}
+
+
 function cloneStoragePayload(payload) {
 
     return JSON.parse(JSON.stringify(payload));
@@ -12333,7 +12425,8 @@ function updateAdminMimicBanner() {
 
     }
 
-    const active = isAdminMimicking();
+    const active =
+        isSignedInAdmin() && isAdminMimicking();
 
     adminMimicBanner.hidden = !active;
 

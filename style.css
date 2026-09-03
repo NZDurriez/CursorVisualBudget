@@ -7170,6 +7170,16 @@ body.light-mode .auth-btn-discord {
 }
 
 
+.admin-mimic-banner[hidden],
+body:not(.is-admin) #adminMimicBanner,
+body:not(.is-admin) #adminMimicModal,
+body:not(.is-admin) #admin {
+
+    display: none !important;
+
+}
+
+
 .admin-mimic-banner:not([hidden]) {
 
     display: flex;
