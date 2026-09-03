@@ -795,9 +795,27 @@ function setupSidebarToggle() {
 
 function isCollapsedSidebarIconMode() {
 
+    if (!appSidebar) {
+
+        return false;
+
+    }
+
+
+    const label =
+        appSidebar.querySelector(".nav-label");
+
+
+    if (!label) {
+
+        return false;
+
+    }
+
+
     return (
-        isSidebarCollapsed() &&
-        window.matchMedia("(min-width: 951px)").matches
+        window.getComputedStyle(label).display ===
+        "none"
     );
 
 }
