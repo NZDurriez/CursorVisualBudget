@@ -1915,7 +1915,7 @@ body.light-mode textarea:focus {
 
 
 /* ==========================================================
-   7-DAY FORECAST
+   UPCOMING FORECAST
 ========================================================== */
 
 .upcoming-panel {
@@ -1946,7 +1946,7 @@ body.light-mode textarea:focus {
 
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, auto);
 
     gap: 3px;
 
@@ -2066,9 +2066,9 @@ body.light-mode .upcoming-view-option.is-active {
 }
 
 
-.upcoming-panel[data-view="forecast"] .upcoming-payments-table,
-.upcoming-panel[data-view="forecast"] .payments-paid-summary,
-.upcoming-panel[data-view="forecast"] .upcoming-payments-bank-check {
+.upcoming-panel[data-view^="forecast"] .upcoming-payments-table,
+.upcoming-panel[data-view^="forecast"] .payments-paid-summary,
+.upcoming-panel[data-view^="forecast"] .upcoming-payments-bank-check {
 
     display: none;
 
