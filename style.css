@@ -388,6 +388,55 @@ body.light-mode {
 }
 
 
+.sidebar-icon-tooltip {
+
+    position: fixed;
+
+    z-index: 1200;
+
+    padding: 6px 10px;
+
+    background: #0f172a;
+
+    color: #e2e8f0;
+
+    border: 1px solid rgba(148, 163, 184, 0.28);
+
+    border-radius: 8px;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 650;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+
+}
+
+
+.sidebar-icon-tooltip[hidden] {
+
+    display: none !important;
+
+}
+
+
+body.light-mode .sidebar-icon-tooltip {
+
+    background: #0f172a;
+
+    color: #f8fafc;
+
+}
+
+
 /* ==========================================================
    NAVIGATION
 ========================================================== */
