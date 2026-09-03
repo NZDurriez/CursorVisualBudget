@@ -77,9 +77,6 @@ let upcomingView =
 const SIDEBAR_COLLAPSED_KEY =
     "budgioSidebarCollapsed";
 
-const appSidebar =
-    document.getElementById("appSidebar");
-
 const sidebarToggle =
     document.getElementById("sidebarToggle");
 
@@ -735,12 +732,6 @@ function applySidebarCollapsed(collapsed) {
     );
 
 
-    document.documentElement.classList.toggle(
-        "sidebar-peek-blocked",
-        collapsed
-    );
-
-
     try {
 
         localStorage.setItem(
@@ -777,31 +768,8 @@ function setupSidebarToggle() {
             "click",
             () => {
 
-                const next =
-                    !isSidebarCollapsed();
-
-                applySidebarCollapsed(next);
-
-                if (next) {
-
-                    sidebarToggle.blur();
-
-                }
-
-            }
-        );
-
-    }
-
-
-    if (appSidebar) {
-
-        appSidebar.addEventListener(
-            "mouseleave",
-            () => {
-
-                document.documentElement.classList.remove(
-                    "sidebar-peek-blocked"
+                applySidebarCollapsed(
+                    !isSidebarCollapsed()
                 );
 
             }
