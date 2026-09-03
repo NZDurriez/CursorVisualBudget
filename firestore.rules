@@ -3,7 +3,9 @@ rules_version = '2';
 // Deploy with: firebase deploy --only firestore:rules
 // Or paste into Firebase Console → Firestore → Rules
 //
-// Admin emails must match adminEmails in firebase-config.js.
+// Admin access is granted here, not in frontend JS.
+// Prefer request.auth.token.admin == true (Firebase Auth custom claim).
+// The email list is a fallback until that claim is set.
 // The Admin list reads userDirectory only (identity + usage counts).
 // Admins may get a single users/{userId} doc to temporarily view
 // that budget. They cannot write someone else's budget.
@@ -20,12 +22,16 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn()
-        && request.auth.token.email is string
-        && request.auth.token.email_verified == true
-        && request.auth.token.email.lower() in [
-          'alex.mangin35@gmail.com'
-        ];
+      return isSignedIn() && (
+        request.auth.token.admin == true
+        || (
+          request.auth.token.email is string
+          && request.auth.token.email_verified == true
+          && request.auth.token.email.lower() in [
+            'alex.mangin35@gmail.com'
+          ]
+        )
+      );
     }
 
     match /users/{userId} {

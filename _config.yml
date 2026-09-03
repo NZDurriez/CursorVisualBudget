@@ -1,0 +1,6 @@
+# GitHub Pages: do not publish Firebase rules or Cloud Functions as site files.
+exclude:
+  - firestore.rules
+  - firebase.json
+  - functions
+  - README.md

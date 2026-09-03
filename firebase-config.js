@@ -1,5 +1,7 @@
 // ============================================================
 // Firebase web config
+// Web API keys are public by design. Access is enforced by
+// Firestore rules, not by this file.
 // ============================================================
 
 export const firebaseConfig = {
@@ -14,15 +16,6 @@ export const firebaseConfig = {
 
 /** Flip to true once the Firebase config above is filled in. */
 export const firebaseEnabled = true;
-
-/**
- * Google / Discord emails that can open the Admin page and list
- * other signed-in users. Must stay in sync with isAdmin() in
- * firestore.rules — the rules are what actually grant access.
- */
-export const adminEmails = [
-    "alex.mangin35@gmail.com"
-];
 
 /**
  * Discord OAuth — not enabled.
@@ -52,26 +45,6 @@ export function isFirebaseConfigured() {
     );
 
 }
-
-export function isAdminEmail(email) {
-
-    if (!email) {
-
-        return false;
-
-    }
-
-    const needle =
-        String(email).trim().toLowerCase();
-
-    return adminEmails.some(
-        allowed =>
-            String(allowed).trim().toLowerCase() ===
-            needle
-    );
-
-}
-
 
 export function isDiscordConfigured() {
 
