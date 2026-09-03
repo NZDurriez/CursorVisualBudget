@@ -390,6 +390,8 @@ body.light-mode {
 
 .sidebar-icon-tooltip {
 
+    display: none;
+
     position: fixed;
 
     z-index: 1200;
@@ -421,9 +423,9 @@ body.light-mode {
 }
 
 
-.sidebar-icon-tooltip[hidden] {
+html.sidebar-collapsed .sidebar-icon-tooltip:not([hidden]) {
 
-    display: none !important;
+    display: block;
 
 }
 

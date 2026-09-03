@@ -878,9 +878,11 @@ function showSidebarIconTooltip(element) {
     if (
         !sidebarIconTooltip ||
         !element ||
+        !document.documentElement.classList.contains("sidebar-collapsed") ||
         !isCollapsedSidebarIconMode()
     ) {
 
+        hideSidebarIconTooltip();
         return;
 
     }
@@ -969,18 +971,11 @@ function setupSidebarIconTooltips() {
 
             if (
                 !target ||
-                !appSidebar.contains(target)
+                !appSidebar.contains(target) ||
+                !isCollapsedSidebarIconMode()
             ) {
 
-                return;
-
-            }
-
-
-            if (!isCollapsedSidebarIconMode()) {
-
                 hideSidebarIconTooltip();
-
                 return;
 
             }
