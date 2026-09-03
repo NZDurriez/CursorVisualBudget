@@ -6,7 +6,8 @@
 
 
 /* ==========================================================
-   DARK THEME — DEFAULT
+   DARK THEME — BASE TOKENS
+   Light is the app default via body.light-mode.
 ========================================================== */
 
 :root {
