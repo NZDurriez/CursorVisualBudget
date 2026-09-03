@@ -21,6 +21,8 @@ import {
     getDoc,
     getDocs,
     getFirestore,
+    limit,
+    query,
     serverTimestamp,
     setDoc
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
@@ -29,7 +31,6 @@ import {
     discordConfig,
     firebaseConfig,
     getDiscordFunctionUrl,
-    isAdminEmail,
     isDiscordConfigured,
     isFirebaseConfigured
 } from "./firebase-config.js";
@@ -50,6 +51,7 @@ let auth = null;
 let db = null;
 let googleProvider = null;
 let currentUser = null;
+let currentUserIsAdmin = false;
 let saveTimer = null;
 let heartbeatTimer = null;
 let heartbeatListenersBound = false;
@@ -150,6 +152,14 @@ async function initFirebase() {
         onAuthStateChanged(auth, async user => {
 
             currentUser = user || null;
+
+            currentUserIsAdmin = false;
+
+            if (currentUser && db) {
+
+                await refreshAdminStatus();
+
+            }
 
             updateAuthUi();
 
@@ -1176,11 +1186,59 @@ function setMimicMode(active) {
 
 function isCurrentUserAdmin() {
 
-    return Boolean(
-        currentUser &&
-        currentUser.emailVerified &&
-        isAdminEmail(currentUser.email)
-    );
+    return currentUserIsAdmin;
+
+}
+
+
+async function refreshAdminStatus() {
+
+    currentUserIsAdmin = false;
+
+    if (!currentUser || !db) {
+
+        return;
+
+    }
+
+    try {
+
+        const token =
+            await currentUser.getIdTokenResult();
+
+        if (token.claims && token.claims.admin === true) {
+
+            currentUserIsAdmin = true;
+
+            return;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "[BudgetCloud] Could not read auth claims:",
+            error
+        );
+
+    }
+
+    try {
+
+        await getDocs(
+            query(
+                collection(db, "userDirectory"),
+                limit(1)
+            )
+        );
+
+        currentUserIsAdmin = true;
+
+    } catch (error) {
+
+        currentUserIsAdmin = false;
+
+    }
 
 }
 

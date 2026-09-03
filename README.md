@@ -34,18 +34,19 @@ Google sign-in uses a **popup** (required on GitHub Pages). A same-window redire
 ## Security
 
 - Web config keys are public by design; **Firestore rules** enforce access
-- Never put private secrets in frontend code
+- Never put private secrets or admin emails in frontend code
+- Admin UI is shown only if Firebase Auth reports an `admin` claim, or if
+  Firestore allows an admin-only directory read
 
 ## Admin panel
 
-Signed-in accounts whose email is listed in **both** `adminEmails` (`firebase-config.js`) and `isAdmin()` (`firestore.rules`) can open **Admin** in the sidebar. The list comes from `userDirectory` (identity and last seen). Usage counts stay in the directory for the Empty/Active filter; they are not shown as a table column. Budget JSON is not downloaded for the list.
+The Admin page lists signed-in users from `userDirectory` (identity and last seen). Usage counts stay in the directory for the Empty/Active filter; they are not shown as a table column. Budget JSON is not downloaded for the list.
 
 **View as** loads one person’s budget into your session so you can look around. Edit and delete controls are hidden. Nothing is written to their account or yours; Exit restores your budget.
 
 Filters cover activity, Empty vs Active, and Google/Discord. **New this week** counts first seen in the last 7 days.
 
-1. Put your Google sign-in email in `adminEmails` in `firebase-config.js`
-2. Put the same email in `isAdmin()` in `firestore.rules`
-3. Deploy rules: `firebase deploy --only firestore:rules` (or paste the rules in Firebase Console → Firestore → Rules)
+1. Put your Google sign-in email in `isAdmin()` in `firestore.rules` (or set an Auth custom claim `admin: true`)
+2. Deploy rules: `firebase deploy --only firestore:rules` (or paste the rules in Firebase Console → Firestore → Rules)
 
 Guest (this device) sessions are not listed.
