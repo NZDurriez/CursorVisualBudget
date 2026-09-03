@@ -9183,25 +9183,44 @@ function getFortnightlyTotal(items) {
 // UPCOMING PAYMENTS
 // ============================================================
 
+function getUpcomingPaymentListId(payment) {
+
+    const kind =
+        payment && payment.upcomingKind === "oneoff"
+            ? "oneoff"
+            : "payment";
+
+
+    return `${kind}:${payment.id}`;
+
+}
+
+
 function getVisibleUpcomingPayments() {
 
-    if (
-        !Array.isArray(budget.payments) ||
-        budget.payments.length === 0
-    ) {
+    const recurring =
+        Array.isArray(budget.payments)
+            ? budget.payments.map(item => ({
+                ...item,
+                upcomingKind: "payment"
+            }))
+            : [];
 
-        return [];
 
-    }
+    const oneOffs =
+        Array.isArray(budget.oneOffPayments)
+            ? budget.oneOffPayments.map(item => ({
+                ...item,
+                upcomingKind: "oneoff"
+            }))
+            : [];
 
 
-    return [...budget.payments]
-        .sort(
-            (a, b) =>
-                new Date(a.nextDate) -
-                new Date(b.nextDate)
-        )
-        .slice(0, 8);
+    return [...recurring, ...oneOffs].sort(
+        (a, b) =>
+            new Date(a.nextDate) -
+            new Date(b.nextDate)
+    );
 
 }
 
@@ -9361,7 +9380,8 @@ function pruneUpcomingPaymentSelection(visiblePayments) {
     const validIds =
         new Set(
             visiblePayments.map(
-                payment => payment.id
+                payment =>
+                    getUpcomingPaymentListId(payment)
             )
         );
 
@@ -9384,9 +9404,13 @@ function getUpcomingPaymentsSelectionTotal() {
     let total = 0;
 
 
-    budget.payments.forEach(payment => {
+    getVisibleUpcomingPayments().forEach(payment => {
 
-        if (selectedUpcomingPaymentIds.has(payment.id)) {
+        if (
+            selectedUpcomingPaymentIds.has(
+                getUpcomingPaymentListId(payment)
+            )
+        ) {
 
             total += Number(payment.amount) || 0;
 
@@ -9658,13 +9682,22 @@ function renderUpcomingPayments() {
         }
 
 
+        const isOneOff =
+            payment.upcomingKind === "oneoff";
+
+
+        const listId =
+            getUpcomingPaymentListId(payment);
+
+
         const paidThisPeriod =
+            !isOneOff &&
             isPaymentPaidThisPeriod(payment);
 
 
         const isSelected =
             selectedUpcomingPaymentIds.has(
-                payment.id
+                listId
             );
 
 
@@ -9674,17 +9707,52 @@ function renderUpcomingPayments() {
         ].filter(Boolean).join(" ");
 
 
+        const nameCell = `
+                <span class="upcoming-payment-name">
+                    ${escapeHtml(payment.name)}
+                    ${
+                        isOneOff
+                            ? `<span class="upcoming-oneoff-badge">One-off</span>`
+                            : ""
+                    }
+                </span>
+        `;
+
+
+        const paidCell =
+            isOneOff
+                ? `
+                    <span
+                        class="upcoming-oneoff-paid-note"
+                        title="One-off payments aren’t marked paid. They drop off when the next budget period starts.">
+                        —
+                    </span>
+                `
+                : `
+                    <button
+                        type="button"
+                        class="paid-status-btn ${paidThisPeriod ? "is-paid" : "is-unpaid"}"
+                        onclick="event.stopPropagation(); markPaid('${escapeHtml(payment.id)}')"
+                        title="${paidThisPeriod ? "Undo paid for this period" : "Mark paid for this period"}">
+
+                        ${paidThisPeriod ? "Paid" : "Mark paid"}
+
+                    </button>
+                `;
+
+
         upcomingPayments.innerHTML += `
 
             <tr
                 class="${rowClasses}"
-                data-payment-id="${escapeHtml(payment.id)}"
+                data-payment-id="${escapeHtml(listId)}"
+                data-payment-kind="${isOneOff ? "oneoff" : "payment"}"
                 aria-selected="${isSelected ? "true" : "false"}"
                 tabindex="0"
                 title="${isSelected ? "Click to remove from this total" : "Click to add to this total"}">
 
                 <td data-label="Name">
-                    ${escapeHtml(payment.name)}
+                    ${nameCell}
                 </td>
 
                 <td data-label="Amount">
@@ -9692,17 +9760,7 @@ function renderUpcomingPayments() {
                 </td>
 
                 <td data-label="Paid">
-
-                    <button
-                        type="button"
-                        class="paid-status-btn ${paidThisPeriod ? "is-paid" : "is-unpaid"}"
-                        onclick="event.stopPropagation(); markPaid('${payment.id}')"
-                        title="${paidThisPeriod ? "Undo paid for this period" : "Mark paid for this period"}">
-
-                        ${paidThisPeriod ? "Paid" : "Mark paid"}
-
-                    </button>
-
+                    ${paidCell}
                 </td>
 
                 <td class="${className}" data-label="Due in">
