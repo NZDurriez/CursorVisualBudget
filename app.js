@@ -763,6 +763,9 @@ function setupSidebarToggle() {
     updateSidebarToggle();
 
 
+    setupCollapsedNavTooltips();
+
+
     if (sidebarToggle) {
 
         sidebarToggle.addEventListener(
@@ -778,6 +781,181 @@ function setupSidebarToggle() {
 
     }
 
+
+}
+
+
+function setupCollapsedNavTooltips() {
+
+    const root =
+        document.querySelector(".sidebar-scroll") ||
+        document.querySelector(".sidebar nav");
+
+    if (!root) {
+
+        return;
+
+    }
+
+
+    let tip =
+        document.getElementById("sidebarRailTooltip");
+
+
+    if (!tip) {
+
+        tip = document.createElement("div");
+
+        tip.id = "sidebarRailTooltip";
+
+        tip.className = "sidebar-rail-tooltip";
+
+        tip.hidden = true;
+
+        document.body.appendChild(tip);
+
+    }
+
+
+    const hideTip = () => {
+
+        tip.hidden = true;
+
+        tip.textContent = "";
+
+    };
+
+
+    const showTip = (button) => {
+
+        if (!isSidebarCollapsed()) {
+
+            hideTip();
+
+            return;
+
+        }
+
+
+        const label =
+            button.getAttribute("aria-label");
+
+
+        if (!label) {
+
+            hideTip();
+
+            return;
+
+        }
+
+
+        const rect =
+            button.getBoundingClientRect();
+
+        tip.textContent = label;
+
+        tip.hidden = false;
+
+        tip.style.top =
+            `${rect.top + rect.height / 2}px`;
+
+        tip.style.left =
+            `${rect.right + 10}px`;
+
+    };
+
+
+    const tipTarget =
+        ".nav-btn, .theme-switch-option, .auth-btn";
+
+
+    root.addEventListener(
+        "pointerover",
+        (event) => {
+
+            const button =
+                event.target.closest(tipTarget);
+
+            if (!button || !root.contains(button)) {
+
+                return;
+
+            }
+
+            showTip(button);
+
+        }
+    );
+
+
+    root.addEventListener(
+        "pointerout",
+        (event) => {
+
+            const button =
+                event.target.closest(tipTarget);
+
+            if (!button) {
+
+                return;
+
+            }
+
+
+            if (
+                event.relatedTarget &&
+                button.contains(event.relatedTarget)
+            ) {
+
+                return;
+
+            }
+
+            hideTip();
+
+        }
+    );
+
+
+    root.addEventListener(
+        "focusin",
+        (event) => {
+
+            const button =
+                event.target.closest(tipTarget);
+
+            if (button) {
+
+                showTip(button);
+
+            }
+
+        }
+    );
+
+
+    root.addEventListener(
+        "focusout",
+        hideTip
+    );
+
+
+    root.addEventListener(
+        "scroll",
+        hideTip,
+        { passive: true }
+    );
+
+
+    if (sidebarToggle) {
+
+        sidebarToggle.addEventListener(
+            "click",
+            hideTip
+        );
+
+    }
 
 }
 
