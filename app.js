@@ -13675,7 +13675,11 @@ function renderTicketMessages(container, ticket, messages) {
 
         const avatar = isAdmin
             ? `<span class="ticket-avatar is-admin" aria-hidden="true">
-                    <i class="fa-solid fa-shield-halved"></i>
+                    <img
+                        src="assets/budgio-logo.png?v=budgio-transparent-1"
+                        alt=""
+                        width="30"
+                        height="30">
                </span>`
             : `<span class="ticket-avatar" aria-hidden="true">
                     ${escapeHtml(ticketInitials(label))}
