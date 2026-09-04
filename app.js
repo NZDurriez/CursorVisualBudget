@@ -13576,8 +13576,12 @@ function renderTicketList(container, tickets, selectedId, options) {
 
     if (!tickets.length) {
 
-        container.innerHTML =
-            `<div class="ticket-list-empty">${escapeHtml(emptyText)}</div>`;
+        container.innerHTML = `
+            <div class="ticket-list-empty">
+                <i class="fa-regular fa-folder-open" aria-hidden="true"></i>
+                <span>${escapeHtml(emptyText)}</span>
+            </div>
+        `;
 
         return;
 
@@ -13593,6 +13597,9 @@ function renderTicketList(container, tickets, selectedId, options) {
         );
         const preview = ticket.lastMessagePreview || "";
         const closed = ticket.status === "closed";
+        const sub = forAdmin
+            ? `<span class="ticket-item-who">${escapeHtml(name)}</span>`
+            : "";
 
         return `
             <button
@@ -13603,13 +13610,16 @@ function renderTicketList(container, tickets, selectedId, options) {
                     <span class="ticket-item-title">
                         ${escapeHtml(ticket.subject || "Ticket")}
                     </span>
+                    <span class="ticket-item-time">
+                        ${escapeHtml(when)}
+                    </span>
+                </span>
+                <span class="ticket-item-sub">
                     ${unread ? `<span class="ticket-unread-dot" aria-hidden="true"></span>` : ""}
+                    ${sub}
                     <span class="ticket-status${closed ? " is-closed" : ""}">
                         ${closed ? "Closed" : "Open"}
                     </span>
-                </span>
-                <span class="ticket-item-meta">
-                    ${forAdmin ? escapeHtml(name) + " · " : ""}${escapeHtml(when)}
                 </span>
                 <span class="ticket-item-preview">
                     ${escapeHtml(preview)}
@@ -13645,8 +13655,12 @@ function renderTicketMessages(container, ticket, messages) {
 
     if (!messages.length) {
 
-        container.innerHTML =
-            `<div class="ticket-list-empty">No messages yet.</div>`;
+        container.innerHTML = `
+            <div class="ticket-list-empty">
+                <i class="fa-regular fa-comment-dots" aria-hidden="true"></i>
+                <span>No messages yet.</span>
+            </div>
+        `;
 
         return;
 
@@ -13655,20 +13669,57 @@ function renderTicketMessages(container, ticket, messages) {
     container.innerHTML = messages.map(message => {
 
         const isAdmin = message.authorRole === "admin";
+        const label = messageAuthorLabel(message, ticket);
+
+        const avatar = isAdmin
+            ? `<span class="ticket-avatar is-admin" aria-hidden="true">
+                    <i class="fa-solid fa-shield-halved"></i>
+               </span>`
+            : `<span class="ticket-avatar" aria-hidden="true">
+                    ${escapeHtml(ticketInitials(label))}
+               </span>`;
 
         return `
             <article class="ticket-message${isAdmin ? " is-admin" : " is-user"}">
-                <div class="ticket-message-top">
-                    <strong>${escapeHtml(messageAuthorLabel(message, ticket))}</strong>
-                    <time>${escapeHtml(formatTicketTime(message.createdAt))}</time>
+                ${avatar}
+                <div class="ticket-bubble">
+                    <div class="ticket-message-top">
+                        <strong>${escapeHtml(label)}</strong>
+                        <time>${escapeHtml(formatTicketTime(message.createdAt))}</time>
+                    </div>
+                    <p>${escapeHtml(message.body)}</p>
                 </div>
-                <p>${escapeHtml(message.body)}</p>
             </article>
         `;
 
     }).join("");
 
     container.scrollTop = container.scrollHeight;
+
+}
+
+
+function ticketInitials(name) {
+
+    const parts =
+        String(name || "")
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean);
+
+    if (!parts.length) {
+
+        return "?";
+
+    }
+
+    if (parts.length === 1) {
+
+        return parts[0].slice(0, 2);
+
+    }
+
+    return parts[0][0] + parts[parts.length - 1][0];
 
 }
 
@@ -13712,15 +13763,43 @@ function fillTicketThread(root, ticket, messages, options) {
 
     if (metaEl) {
 
-        const bits = [
-            forAdmin ? ticketPersonName(ticket) : "",
-            ticket.userEmail && forAdmin ? ticket.userEmail : "",
-            formatTicketTime(ticket.createdAt)
-                ? "Opened " + formatTicketTime(ticket.createdAt)
-                : ""
-        ].filter(Boolean);
+        const chips = [];
 
-        metaEl.textContent = bits.join(" · ");
+        if (forAdmin) {
+
+            chips.push({
+                icon: "fa-user",
+                text: ticketPersonName(ticket)
+            });
+
+            if (ticket.userEmail) {
+
+                chips.push({
+                    icon: "fa-envelope",
+                    text: ticket.userEmail
+                });
+
+            }
+
+        }
+
+        const opened = formatTicketTime(ticket.createdAt);
+
+        if (opened) {
+
+            chips.push({
+                icon: "fa-clock",
+                text: "Opened " + opened
+            });
+
+        }
+
+        metaEl.innerHTML = chips.map(chip => `
+            <span class="ticket-meta-chip">
+                <i class="fa-solid ${chip.icon}" aria-hidden="true"></i>
+                ${escapeHtml(chip.text)}
+            </span>
+        `).join("");
 
     }
 
@@ -14469,6 +14548,54 @@ async function toggleSelectedAdminTicketStatus() {
 }
 
 
+function enhanceReplyTextarea(form) {
+
+    const textarea = form.querySelector("textarea");
+
+    if (!textarea) {
+
+        return;
+
+    }
+
+    const autoGrow = () => {
+
+        textarea.style.height = "auto";
+
+        textarea.style.height =
+            Math.min(textarea.scrollHeight, 190) + "px";
+
+    };
+
+    textarea.addEventListener("input", autoGrow);
+
+    textarea.addEventListener("keydown", event => {
+
+        if (event.key !== "Enter" || event.shiftKey) {
+
+            return;
+
+        }
+
+        event.preventDefault();
+
+        if (textarea.value.trim()) {
+
+            form.requestSubmit();
+
+        }
+
+    });
+
+    form.addEventListener("submit", () => {
+
+        requestAnimationFrame(autoGrow);
+
+    });
+
+}
+
+
 function setupSupportTicketUi() {
 
     if (supportNewTicketBtn) {
@@ -14632,6 +14759,8 @@ function setupSupportTicketUi() {
 
             });
 
+            enhanceReplyTextarea(replyForm);
+
         }
 
         const backBtn =
@@ -14661,6 +14790,8 @@ function setupSupportTicketUi() {
                 submitTicketReply(event, true);
 
             });
+
+            enhanceReplyTextarea(replyForm);
 
         }
 
