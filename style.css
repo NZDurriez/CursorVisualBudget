@@ -605,7 +605,7 @@ body.light-mode {
 
 
     html.sidebar-collapsed .logo h1,
-    html.sidebar-collapsed .nav-label,
+    html.sidebar-collapsed .sidebar .nav-label,
     html.sidebar-collapsed .theme-switch-option span,
     html.sidebar-collapsed .auth-copy {
 
@@ -4015,9 +4015,12 @@ body.light-mode .action-btn.paid-btn {
 }
 
 
-.hidden {
+/* Layout rules further down the file would otherwise re-show
+   elements that JS hides, so both switches win over display. */
+.hidden,
+[hidden] {
 
-    display: none;
+    display: none !important;
 
 }
 
@@ -7988,6 +7991,8 @@ body.light-mode .admin-presence.is-online {
 
     }
 
+}
+
 @media (max-width: 1100px) {
 
     #admin.page {
@@ -8344,11 +8349,49 @@ html.sidebar-collapsed .nav-badge {
 
     border-radius: var(--radius);
 
-    padding: 20px;
+    padding: 22px;
 
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 
     box-shadow: var(--shadow);
+
+}
+
+
+.support-guest-card {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 16px;
+
+}
+
+
+.support-guest-icon {
+
+    flex-shrink: 0;
+
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 13px;
+
+    display: grid;
+
+    place-items: center;
+
+    font-size: 17px;
+
+    color: #fff;
+
+    background:
+        linear-gradient(135deg, #3b82f6, #2563eb);
+
+    box-shadow:
+        0 8px 20px rgba(37, 99, 235, 0.25);
 
 }
 
@@ -8358,9 +8401,11 @@ html.sidebar-collapsed .nav-badge {
 
     font-size: 16px;
 
-    font-weight: 650;
+    font-weight: 700;
 
-    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+
+    margin-bottom: 6px;
 
 }
 
@@ -8371,7 +8416,7 @@ html.sidebar-collapsed .nav-badge {
 
     font-size: 14px;
 
-    line-height: 1.5;
+    line-height: 1.55;
 
     max-width: 46rem;
 
@@ -8382,11 +8427,11 @@ html.sidebar-collapsed .nav-badge {
 
     display: grid;
 
-    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
 
-    gap: 14px;
+    gap: 16px;
 
-    min-height: 520px;
+    height: clamp(520px, calc(100vh - 280px), 840px);
 
     align-items: stretch;
 
@@ -8441,10 +8486,18 @@ html.sidebar-collapsed .nav-badge {
 
     padding: 8px;
 
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
 }
 
 
 .ticket-item {
+
+    position: relative;
 
     width: 100%;
 
@@ -8454,7 +8507,7 @@ html.sidebar-collapsed .nav-badge {
 
     align-items: stretch;
 
-    gap: 4px;
+    gap: 6px;
 
     text-align: left;
 
@@ -8466,11 +8519,36 @@ html.sidebar-collapsed .nav-badge {
 
     font-family: inherit;
 
-    padding: 12px;
+    padding: 12px 14px;
 
-    border-radius: 11px;
+    border-radius: 12px;
 
     cursor: pointer;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition);
+
+}
+
+
+.ticket-item::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 5px;
+
+    top: 12px;
+
+    bottom: 12px;
+
+    width: 3px;
+
+    border-radius: 3px;
+
+    background: transparent;
 
 }
 
@@ -8484,9 +8562,16 @@ html.sidebar-collapsed .nav-badge {
 
 .ticket-item.is-active {
 
-    border-color: rgba(59, 130, 246, 0.35);
+    border-color: rgba(59, 130, 246, 0.32);
 
     background: rgba(59, 130, 246, 0.10);
+
+}
+
+
+.ticket-item.is-active::before {
+
+    background: var(--primary);
 
 }
 
@@ -8495,6 +8580,8 @@ html.sidebar-collapsed .nav-badge {
 
     font-weight: 750;
 
+    color: var(--text);
+
 }
 
 
@@ -8502,39 +8589,86 @@ html.sidebar-collapsed .nav-badge {
 
     display: flex;
 
-    align-items: flex-start;
+    align-items: baseline;
 
     justify-content: space-between;
 
-    gap: 8px;
+    gap: 10px;
 
 }
 
 
 .ticket-item-title {
 
-    font-size: 13px;
+    font-size: 13.5px;
 
     font-weight: 650;
 
     line-height: 1.35;
 
+    display: -webkit-box;
+
+    -webkit-line-clamp: 2;
+
+    -webkit-box-orient: vertical;
+
+    overflow: hidden;
+
 }
 
 
-.ticket-item-meta,
+.ticket-item-time {
+
+    flex-shrink: 0;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    white-space: nowrap;
+
+}
+
+
+.ticket-item-sub {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 0;
+
+}
+
+
+.ticket-item-who {
+
+    color: var(--text-soft);
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+}
+
+
 .ticket-item-preview {
 
     color: var(--text-muted);
 
     font-size: 12px;
 
-    line-height: 1.4;
-
-}
-
-
-.ticket-item-preview {
+    line-height: 1.45;
 
     display: -webkit-box;
 
@@ -8549,13 +8683,36 @@ html.sidebar-collapsed .nav-badge {
 
 .ticket-list-empty {
 
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    flex: 1;
+
     color: var(--text-muted);
 
     font-size: 13px;
 
-    padding: 18px 12px;
+    line-height: 1.5;
+
+    padding: 28px 18px;
 
     text-align: center;
+
+}
+
+
+.ticket-list-empty i {
+
+    font-size: 20px;
+
+    opacity: 0.5;
 
 }
 
@@ -8572,13 +8729,22 @@ html.sidebar-collapsed .nav-badge {
 
     text-transform: uppercase;
 
-    padding: 3px 7px;
+    padding: 3px 8px;
 
     border-radius: 999px;
 
     background: rgba(34, 197, 94, 0.16);
 
     color: #4ade80;
+
+}
+
+
+body.light-mode .ticket-status {
+
+    background: rgba(22, 163, 74, 0.12);
+
+    color: #15803d;
 
 }
 
@@ -8592,19 +8758,29 @@ html.sidebar-collapsed .nav-badge {
 }
 
 
+body.light-mode .ticket-status.is-closed {
+
+    background: rgba(100, 116, 139, 0.14);
+
+    color: #475569;
+
+}
+
+
 .ticket-unread-dot {
 
-    width: 8px;
+    width: 7px;
 
-    height: 8px;
+    height: 7px;
 
     border-radius: 50%;
 
-    background: var(--danger);
+    background: var(--primary);
 
     flex-shrink: 0;
 
-    margin-top: 4px;
+    box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.18);
 
 }
 
@@ -8637,15 +8813,21 @@ html.sidebar-collapsed .nav-badge {
 
     display: flex;
 
+    flex-direction: column;
+
     align-items: center;
 
     justify-content: center;
+
+    gap: 10px;
 
     flex: 1;
 
     color: var(--text-muted);
 
     font-size: 14px;
+
+    line-height: 1.55;
 
     padding: 24px;
 
@@ -8654,17 +8836,30 @@ html.sidebar-collapsed .nav-badge {
 }
 
 
+.ticket-thread-empty i {
+
+    font-size: 26px;
+
+    opacity: 0.45;
+
+}
+
+
 .ticket-thread-header {
 
     display: flex;
 
-    align-items: flex-start;
+    align-items: center;
 
     gap: 12px;
 
-    padding: 14px 16px;
+    padding: 14px 18px;
 
     border-bottom: 1px solid var(--border);
+
+    background: var(--panel);
+
+    border-radius: var(--radius) var(--radius) 0 0;
 
 }
 
@@ -8684,18 +8879,72 @@ html.sidebar-collapsed .nav-badge {
 
     font-weight: 700;
 
+    letter-spacing: -0.2px;
+
     line-height: 1.3;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
 
 }
 
 
-.ticket-thread-copy p {
+.ticket-thread-meta {
 
-    margin-top: 4px;
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-top: 6px;
+
+}
+
+
+.ticket-meta-chip {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    max-width: 100%;
+
+    padding: 3px 9px;
+
+    border-radius: 999px;
+
+    background: var(--panel-hover);
+
+    border: 1px solid var(--border);
 
     color: var(--text-muted);
 
-    font-size: 12px;
+    font-size: 11px;
+
+    font-weight: 600;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+}
+
+
+.ticket-meta-chip i {
+
+    font-size: 10px;
+
+    opacity: 0.75;
 
 }
 
@@ -8730,20 +8979,101 @@ html.sidebar-collapsed .nav-badge {
 
     flex-direction: column;
 
-    gap: 12px;
+    gap: 14px;
 
-    padding: 16px;
+    padding: 20px 18px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(148, 163, 184, 0.05),
+            transparent 140px
+        );
+
+}
+
+
+.ticket-messages > :first-child {
+
+    margin-top: auto;
 
 }
 
 
 .ticket-message {
 
-    max-width: min(100%, 520px);
+    display: flex;
 
-    padding: 12px 14px;
+    align-items: flex-end;
 
-    border-radius: 14px;
+    gap: 10px;
+
+    max-width: min(100%, 640px);
+
+}
+
+
+.ticket-message.is-admin {
+
+    flex-direction: row-reverse;
+
+    align-self: flex-end;
+
+}
+
+
+.ticket-avatar {
+
+    flex-shrink: 0;
+
+    width: 30px;
+
+    height: 30px;
+
+    border-radius: 50%;
+
+    display: grid;
+
+    place-items: center;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.2px;
+
+    background: var(--panel-hover);
+
+    border: 1px solid var(--border);
+
+    color: var(--text-soft);
+
+    text-transform: uppercase;
+
+}
+
+
+.ticket-avatar.is-admin {
+
+    background:
+        linear-gradient(135deg, #3b82f6, #2563eb);
+
+    border-color: transparent;
+
+    color: #fff;
+
+    font-size: 12px;
+
+}
+
+
+.ticket-bubble {
+
+    min-width: 0;
+
+    padding: 11px 14px 12px;
+
+    border-radius: 16px 16px 16px 5px;
 
     background: var(--panel-hover);
 
@@ -8752,13 +9082,31 @@ html.sidebar-collapsed .nav-badge {
 }
 
 
-.ticket-message.is-admin {
+.ticket-message.is-admin .ticket-bubble {
 
-    align-self: flex-end;
+    border-radius: 16px 16px 5px 16px;
 
-    background: rgba(59, 130, 246, 0.12);
+    background: rgba(59, 130, 246, 0.13);
 
-    border-color: rgba(59, 130, 246, 0.22);
+    border-color: rgba(59, 130, 246, 0.24);
+
+}
+
+
+body.light-mode .ticket-bubble {
+
+    background: #f1f5f9;
+
+    border-color: rgba(15, 23, 42, 0.08);
+
+}
+
+
+body.light-mode .ticket-message.is-admin .ticket-bubble {
+
+    background: #e0edff;
+
+    border-color: rgba(37, 99, 235, 0.22);
 
 }
 
@@ -8767,11 +9115,13 @@ html.sidebar-collapsed .nav-badge {
 
     display: flex;
 
+    align-items: baseline;
+
     justify-content: space-between;
 
-    gap: 10px;
+    gap: 14px;
 
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 
 }
 
@@ -8785,7 +9135,23 @@ html.sidebar-collapsed .nav-badge {
 }
 
 
+.ticket-message.is-admin .ticket-message-top strong {
+
+    color: var(--primary);
+
+}
+
+
+body.light-mode .ticket-message.is-admin .ticket-message-top strong {
+
+    color: #1d4ed8;
+
+}
+
+
 .ticket-message-top time {
+
+    flex-shrink: 0;
 
     color: var(--text-muted);
 
@@ -8798,7 +9164,7 @@ html.sidebar-collapsed .nav-badge {
 
     font-size: 14px;
 
-    line-height: 1.5;
+    line-height: 1.55;
 
     white-space: pre-wrap;
 
@@ -8811,9 +9177,13 @@ html.sidebar-collapsed .nav-badge {
 
     display: grid;
 
+    grid-template-columns: minmax(0, 1fr) auto;
+
+    align-items: end;
+
     gap: 10px;
 
-    padding: 14px 16px 16px;
+    padding: 14px 18px 16px;
 
     border-top: 1px solid var(--border);
 
@@ -8830,17 +9200,23 @@ html.sidebar-collapsed .nav-badge {
 
     border: 1px solid var(--border);
 
-    border-radius: 9px;
+    border-radius: 14px;
 
-    padding: 11px;
+    padding: 12px 14px;
 
     font-family: inherit;
 
     font-size: 14px;
 
+    line-height: 1.5;
+
     resize: vertical;
 
-    min-height: 76px;
+    min-height: 48px;
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition);
 
 }
 
@@ -8859,14 +9235,61 @@ html.sidebar-collapsed .nav-badge {
 
 .ticket-reply-form .primary-btn {
 
-    justify-self: end;
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    height: 44px;
+
+    border-radius: 13px;
+
+    white-space: nowrap;
+
+}
+
+
+.ticket-reply-hint {
+
+    grid-column: 1 / -1;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+
+}
+
+
+.ticket-reply-form [data-ticket-reply-error] {
+
+    grid-column: 1 / -1;
+
+    margin: 0;
+
+}
+
+
+.ticket-closed-note {
+
+    grid-column: 1 / -1;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--text-muted);
+
+    font-size: 12.5px;
 
 }
 
 
 .admin-tickets-workspace {
 
-    min-height: 560px;
+    height: clamp(520px, calc(100vh - 320px), 840px);
 
 }
 
@@ -8915,11 +9338,70 @@ body.light-mode .app-toast {
 
 @media (max-width: 860px) {
 
-    .support-workspace {
+    /* The mobile header is tall, so the page area is short.
+       Let the page scroll as one column instead of nesting
+       a tall scroller inside it. */
+    .support-workspace,
+    .admin-tickets-workspace {
 
         grid-template-columns: 1fr;
 
+        height: auto;
+
         min-height: 0;
+
+    }
+
+    .support-list-panel,
+    .support-thread-panel {
+
+        max-height: none;
+
+    }
+
+    .ticket-list {
+
+        overflow: visible;
+
+    }
+
+    .ticket-messages {
+
+        flex: 0 1 auto;
+
+        max-height: 62vh;
+
+    }
+
+    .ticket-messages > :first-child {
+
+        margin-top: 0;
+
+    }
+
+    .ticket-thread-empty {
+
+        padding: 40px 24px;
+
+    }
+
+    .ticket-reply-form {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .ticket-reply-form .primary-btn {
+
+        justify-self: stretch;
+
+        justify-content: center;
+
+    }
+
+    .ticket-message {
+
+        max-width: 100%;
 
     }
 
