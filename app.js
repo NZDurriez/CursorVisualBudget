@@ -594,6 +594,127 @@ const adminViewAsModalError =
 
 let pendingAdminViewAsUid = null;
 
+const supportNavBadge =
+    document.getElementById("supportNavBadge");
+
+const adminNavBadge =
+    document.getElementById("adminNavBadge");
+
+const adminTicketsTabBadge =
+    document.getElementById("adminTicketsTabBadge");
+
+const supportNewTicketBtn =
+    document.getElementById("supportNewTicketBtn");
+
+const supportGuestCard =
+    document.getElementById("supportGuestCard");
+
+const supportOfflineCard =
+    document.getElementById("supportOfflineCard");
+
+const supportNewTicketCard =
+    document.getElementById("supportNewTicketCard");
+
+const supportCancelTicketBtn =
+    document.getElementById("supportCancelTicketBtn");
+
+const supportNewTicketForm =
+    document.getElementById("supportNewTicketForm");
+
+const supportTicketSubject =
+    document.getElementById("supportTicketSubject");
+
+const supportTicketBody =
+    document.getElementById("supportTicketBody");
+
+const supportNewTicketError =
+    document.getElementById("supportNewTicketError");
+
+const supportSubmitTicketBtn =
+    document.getElementById("supportSubmitTicketBtn");
+
+const supportWorkspace =
+    document.getElementById("supportWorkspace");
+
+const supportTicketList =
+    document.getElementById("supportTicketList");
+
+const supportThreadPanel =
+    document.getElementById("supportThreadPanel");
+
+const supportThreadEmpty =
+    document.getElementById("supportThreadEmpty");
+
+const supportThread =
+    document.getElementById("supportThread");
+
+const adminUsersSection =
+    document.getElementById("adminUsersSection");
+
+const adminTicketsSection =
+    document.getElementById("adminTicketsSection");
+
+const adminUsersHeaderActions =
+    document.getElementById("adminUsersHeaderActions");
+
+const adminTicketsHeaderActions =
+    document.getElementById("adminTicketsHeaderActions");
+
+const adminTicketSearch =
+    document.getElementById("adminTicketSearch");
+
+const adminTicketList =
+    document.getElementById("adminTicketList");
+
+const adminThreadEmpty =
+    document.getElementById("adminThreadEmpty");
+
+const adminThread =
+    document.getElementById("adminThread");
+
+const adminTicketsStatus =
+    document.getElementById("adminTicketsStatus");
+
+const adminTicketStatusBtn =
+    document.getElementById("adminTicketStatusBtn");
+
+const appToast =
+    document.getElementById("appToast");
+
+let supportTicketsCache = [];
+
+let adminTicketsCache = [];
+
+let supportMessagesCache = [];
+
+let adminMessagesCache = [];
+
+let supportTicketFilter = "open";
+
+let adminTicketFilter = "open";
+
+let selectedSupportTicketId = null;
+
+let selectedAdminTicketId = null;
+
+let myTicketsUnsub = null;
+
+let adminTicketsUnsub = null;
+
+let supportMessagesUnsub = null;
+
+let adminMessagesUnsub = null;
+
+let adminSection = "users";
+
+let knownAdminUnreadIds = new Set();
+
+let adminTicketNotifyReady = false;
+
+let toastTimer = null;
+
+let adminNotifyPermissionAsked = false;
+
 
 // ============================================================
 // STARTUP
@@ -673,6 +794,8 @@ async function startApp() {
     }
 
     syncAdminOnlyUi();
+
+    startSupportTicketWatches();
 
 }
 
@@ -1163,6 +1286,8 @@ function setupEvents() {
         );
 
     }
+
+    setupSupportTicketUi();
 
     if (adminViewAsExitBtn) {
 
@@ -2080,6 +2205,8 @@ window.onBudgetAuthChanged = async function onBudgetAuthChanged(user) {
     }
 
     syncAdminOnlyUi();
+
+    startSupportTicketWatches();
 
 };
 
@@ -3379,6 +3506,8 @@ function showPage(page) {
                         ? "Pay Calculator"
                         : page === "admin"
                             ? "Admin"
+                            : page === "support"
+                                ? "Support"
                             : page.charAt(0).toUpperCase() + page.slice(1);
 
 
@@ -3424,6 +3553,20 @@ function showPage(page) {
         }
 
         loadAdminUsers();
+
+        if (adminSection === "tickets") {
+
+            renderAdminTickets();
+
+        }
+
+        maybeAskAdminNotifyPermission();
+
+    }
+
+    if (page === "support") {
+
+        renderSupportPage();
 
     }
 
@@ -12943,6 +13086,1610 @@ async function loadAdminUsers(options) {
         }
 
     }
+
+}
+
+
+function formatTicketTime(iso) {
+
+    if (!iso) {
+
+        return "";
+
+    }
+
+    const date = new Date(iso);
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "";
+
+    }
+
+    const now = Date.now();
+    const diff = now - date.getTime();
+
+    if (diff < 60 * 1000) {
+
+        return "Just now";
+
+    }
+
+    if (diff < 60 * 60 * 1000) {
+
+        const minutes = Math.max(1, Math.round(diff / 60000));
+
+        return minutes + "m ago";
+
+    }
+
+    if (diff < 24 * 60 * 60 * 1000) {
+
+        const hours = Math.max(1, Math.round(diff / 3600000));
+
+        return hours + "h ago";
+
+    }
+
+    return date.toLocaleString("en-NZ", {
+        day: "numeric",
+        month: "short",
+        hour: "numeric",
+        minute: "2-digit"
+    });
+
+}
+
+
+function ticketPersonName(ticket) {
+
+    return (
+        (ticket && ticket.userDisplayName) ||
+        (ticket && ticket.userEmail) ||
+        "Signed-in user"
+    );
+
+}
+
+
+function ticketIsUnread(ticket, forAdmin) {
+
+    if (!ticket) {
+
+        return false;
+
+    }
+
+    return forAdmin
+        ? Boolean(ticket.unreadByAdmin)
+        : Boolean(ticket.unreadByUser);
+
+}
+
+
+function setNavBadge(el, count) {
+
+    if (!el) {
+
+        return;
+
+    }
+
+    const n = Number(count) || 0;
+
+    if (n <= 0) {
+
+        el.hidden = true;
+        el.textContent = "0";
+        return;
+
+    }
+
+    el.hidden = false;
+    el.textContent = n > 99 ? "99+" : String(n);
+
+}
+
+
+function showAppToast(message) {
+
+    if (!appToast || !message) {
+
+        return;
+
+    }
+
+    appToast.textContent = message;
+    appToast.hidden = false;
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+
+        appToast.hidden = true;
+
+    }, 5200);
+
+}
+
+
+function setInlineError(el, message) {
+
+    if (!el) {
+
+        return;
+
+    }
+
+    if (!message) {
+
+        el.hidden = true;
+        el.textContent = "";
+        return;
+
+    }
+
+    el.hidden = false;
+    el.textContent = message;
+
+}
+
+
+function stopListener(unsub) {
+
+    if (typeof unsub === "function") {
+
+        try {
+
+            unsub();
+
+        } catch (error) {}
+
+    }
+
+}
+
+
+function stopTicketMessageWatch(kind) {
+
+    if (kind === "admin") {
+
+        stopListener(adminMessagesUnsub);
+        adminMessagesUnsub = null;
+        adminMessagesCache = [];
+
+    } else {
+
+        stopListener(supportMessagesUnsub);
+        supportMessagesUnsub = null;
+        supportMessagesCache = [];
+
+    }
+
+}
+
+
+function stopSupportTicketWatches() {
+
+    stopListener(myTicketsUnsub);
+    stopListener(adminTicketsUnsub);
+    myTicketsUnsub = null;
+    adminTicketsUnsub = null;
+    stopTicketMessageWatch("user");
+    stopTicketMessageWatch("admin");
+    supportTicketsCache = [];
+    adminTicketsCache = [];
+    knownAdminUnreadIds = new Set();
+    adminTicketNotifyReady = false;
+    setNavBadge(supportNavBadge, 0);
+    setNavBadge(adminNavBadge, 0);
+    setNavBadge(adminTicketsTabBadge, 0);
+
+}
+
+
+function isCloudReady() {
+
+    return Boolean(
+        window.BudgetCloud &&
+        window.BudgetCloud.isConfigured &&
+        window.BudgetCloud.isConfigured()
+    );
+
+}
+
+
+function isCloudUserSignedIn() {
+
+    return Boolean(
+        window.BudgetCloud &&
+        typeof window.BudgetCloud.isSignedIn === "function" &&
+        window.BudgetCloud.isSignedIn()
+    );
+
+}
+
+
+function maybeAskAdminNotifyPermission() {
+
+    if (
+        adminNotifyPermissionAsked ||
+        !isSignedInAdmin() ||
+        typeof Notification === "undefined" ||
+        Notification.permission !== "default"
+    ) {
+
+        return;
+
+    }
+
+    adminNotifyPermissionAsked = true;
+
+    Notification.requestPermission().catch(() => {});
+
+}
+
+
+function notifyAdminOfTicket(ticket) {
+
+    const subject =
+        (ticket && ticket.subject) || "New support ticket";
+
+    const who = ticketPersonName(ticket);
+
+    showAppToast(
+        ticket && ticket.lastSenderRole === "admin"
+            ? subject
+            : `${who}: ${subject}`
+    );
+
+    if (
+        typeof Notification === "undefined" ||
+        Notification.permission !== "granted"
+    ) {
+
+        return;
+
+    }
+
+    try {
+
+        const note = new Notification("Budgio support", {
+            body: `${who} — ${subject}`,
+            tag: "budgio-support-" + (ticket && ticket.id || "new")
+        });
+
+        note.onclick = () => {
+
+            window.focus();
+            adminSection = "tickets";
+            selectedAdminTicketId = ticket && ticket.id;
+            syncAdminSectionUi();
+            showPage("admin");
+
+        };
+
+    } catch (error) {}
+
+}
+
+
+function handleAdminTicketSnapshot(tickets) {
+
+    const unread = tickets.filter(ticket => ticket.unreadByAdmin);
+    const unreadIds = new Set(unread.map(ticket => ticket.id));
+
+    if (adminTicketNotifyReady) {
+
+        unread.forEach(ticket => {
+
+            if (knownAdminUnreadIds.has(ticket.id)) {
+
+                return;
+
+            }
+
+            const current =
+                window.BudgetCloud &&
+                window.BudgetCloud.getUser &&
+                window.BudgetCloud.getUser();
+
+            if (current && ticket.userId === current.uid) {
+
+                return;
+
+            }
+
+            notifyAdminOfTicket(ticket);
+
+        });
+
+    }
+
+    knownAdminUnreadIds = unreadIds;
+    adminTicketNotifyReady = true;
+
+    setNavBadge(adminNavBadge, unread.length);
+    setNavBadge(adminTicketsTabBadge, unread.length);
+
+}
+
+
+function startSupportTicketWatches() {
+
+    stopSupportTicketWatches();
+
+    if (!isCloudReady() || !isCloudUserSignedIn()) {
+
+        renderSupportPage();
+        return;
+
+    }
+
+    try {
+
+        myTicketsUnsub =
+            window.BudgetCloud.subscribeMySupportTickets(
+                tickets => {
+
+                    supportTicketsCache = tickets || [];
+
+                    setNavBadge(
+                        supportNavBadge,
+                        supportTicketsCache.filter(
+                            ticket => ticket.unreadByUser
+                        ).length
+                    );
+
+                    renderSupportPage();
+
+                },
+                error => {
+
+                    console.error(
+                        "[BudgetCloud] Support tickets failed:",
+                        error
+                    );
+
+                    renderSupportPage();
+
+                }
+            );
+
+    } catch (error) {
+
+        console.error(
+            "[BudgetCloud] Support tickets failed:",
+            error
+        );
+
+    }
+
+    if (selectedSupportTicketId) {
+
+        watchTicketMessages("user", selectedSupportTicketId);
+
+    }
+
+    if (!isSignedInAdmin()) {
+
+        return;
+
+    }
+
+    try {
+
+        adminTicketsUnsub =
+            window.BudgetCloud.subscribeAdminSupportTickets(
+                tickets => {
+
+                    adminTicketsCache = tickets || [];
+                    handleAdminTicketSnapshot(adminTicketsCache);
+                    renderAdminTickets();
+
+                },
+                error => {
+
+                    console.error(
+                        "[BudgetCloud] Admin tickets failed:",
+                        error
+                    );
+
+                    setInlineError(
+                        adminTicketsStatus,
+                        error && error.message
+                            ? error.message
+                            : "Could not load tickets. Deploy the updated Firestore rules, then refresh."
+                    );
+
+                }
+            );
+
+    } catch (error) {
+
+        console.error(
+            "[BudgetCloud] Admin tickets failed:",
+            error
+        );
+
+        setInlineError(
+            adminTicketsStatus,
+            error && error.message
+                ? error.message
+                : "Could not load tickets."
+        );
+
+    }
+
+    if (selectedAdminTicketId) {
+
+        watchTicketMessages("admin", selectedAdminTicketId);
+
+    }
+
+}
+
+
+function ticketMatchesFilter(ticket, filter, forAdmin) {
+
+    if (!ticket) {
+
+        return false;
+
+    }
+
+    if (filter === "closed") {
+
+        return ticket.status === "closed";
+
+    }
+
+    if (filter === "unread") {
+
+        return ticketIsUnread(ticket, forAdmin);
+
+    }
+
+    if (filter === "open") {
+
+        return ticket.status !== "closed";
+
+    }
+
+    return true;
+
+}
+
+
+function renderTicketList(container, tickets, selectedId, options) {
+
+    if (!container) {
+
+        return;
+
+    }
+
+    const forAdmin = Boolean(options && options.forAdmin);
+    const emptyText =
+        (options && options.emptyText) ||
+        "No tickets yet.";
+
+    if (!tickets.length) {
+
+        container.innerHTML =
+            `<div class="ticket-list-empty">${escapeHtml(emptyText)}</div>`;
+
+        return;
+
+    }
+
+    container.innerHTML = tickets.map(ticket => {
+
+        const unread = ticketIsUnread(ticket, forAdmin);
+        const active = ticket.id === selectedId;
+        const name = ticketPersonName(ticket);
+        const when = formatTicketTime(
+            ticket.lastMessageAt || ticket.updatedAt || ticket.createdAt
+        );
+        const preview = ticket.lastMessagePreview || "";
+        const closed = ticket.status === "closed";
+
+        return `
+            <button
+                type="button"
+                class="ticket-item${active ? " is-active" : ""}${unread ? " is-unread" : ""}"
+                data-ticket-id="${escapeHtml(ticket.id)}">
+                <span class="ticket-item-top">
+                    <span class="ticket-item-title">
+                        ${escapeHtml(ticket.subject || "Ticket")}
+                    </span>
+                    ${unread ? `<span class="ticket-unread-dot" aria-hidden="true"></span>` : ""}
+                    <span class="ticket-status${closed ? " is-closed" : ""}">
+                        ${closed ? "Closed" : "Open"}
+                    </span>
+                </span>
+                <span class="ticket-item-meta">
+                    ${forAdmin ? escapeHtml(name) + " · " : ""}${escapeHtml(when)}
+                </span>
+                <span class="ticket-item-preview">
+                    ${escapeHtml(preview)}
+                </span>
+            </button>
+        `;
+
+    }).join("");
+
+}
+
+
+function messageAuthorLabel(message, ticket) {
+
+    if (message && message.authorRole === "admin") {
+
+        return "Admin";
+
+    }
+
+    return ticketPersonName(ticket);
+
+}
+
+
+function renderTicketMessages(container, ticket, messages) {
+
+    if (!container) {
+
+        return;
+
+    }
+
+    if (!messages.length) {
+
+        container.innerHTML =
+            `<div class="ticket-list-empty">No messages yet.</div>`;
+
+        return;
+
+    }
+
+    container.innerHTML = messages.map(message => {
+
+        const isAdmin = message.authorRole === "admin";
+
+        return `
+            <article class="ticket-message${isAdmin ? " is-admin" : " is-user"}">
+                <div class="ticket-message-top">
+                    <strong>${escapeHtml(messageAuthorLabel(message, ticket))}</strong>
+                    <time>${escapeHtml(formatTicketTime(message.createdAt))}</time>
+                </div>
+                <p>${escapeHtml(message.body)}</p>
+            </article>
+        `;
+
+    }).join("");
+
+    container.scrollTop = container.scrollHeight;
+
+}
+
+
+function fillTicketThread(root, ticket, messages, options) {
+
+    if (!root) {
+
+        return;
+
+    }
+
+    const forAdmin = Boolean(options && options.forAdmin);
+
+    if (!ticket) {
+
+        root.classList.add("hidden");
+        return;
+
+    }
+
+    root.classList.remove("hidden");
+
+    const subjectEl =
+        root.querySelector("[data-ticket-subject]");
+
+    const metaEl =
+        root.querySelector("[data-ticket-meta]");
+
+    const statusEl =
+        root.querySelector("[data-ticket-status]");
+
+    const messagesEl =
+        root.querySelector("[data-ticket-messages]");
+
+    if (subjectEl) {
+
+        subjectEl.textContent = ticket.subject || "Ticket";
+
+    }
+
+    if (metaEl) {
+
+        const bits = [
+            forAdmin ? ticketPersonName(ticket) : "",
+            ticket.userEmail && forAdmin ? ticket.userEmail : "",
+            formatTicketTime(ticket.createdAt)
+                ? "Opened " + formatTicketTime(ticket.createdAt)
+                : ""
+        ].filter(Boolean);
+
+        metaEl.textContent = bits.join(" · ");
+
+    }
+
+    if (statusEl) {
+
+        statusEl.textContent =
+            ticket.status === "closed" ? "Closed" : "Open";
+
+        statusEl.classList.toggle(
+            "is-closed",
+            ticket.status === "closed"
+        );
+
+    }
+
+    if (adminTicketStatusBtn && forAdmin) {
+
+        adminTicketStatusBtn.textContent =
+            ticket.status === "closed"
+                ? "Reopen ticket"
+                : "Close ticket";
+
+    }
+
+    renderTicketMessages(messagesEl, ticket, messages);
+
+}
+
+
+function selectedSupportTicket() {
+
+    return supportTicketsCache.find(
+        ticket => ticket.id === selectedSupportTicketId
+    ) || null;
+
+}
+
+
+function selectedAdminTicket() {
+
+    return adminTicketsCache.find(
+        ticket => ticket.id === selectedAdminTicketId
+    ) || null;
+
+}
+
+
+function setSupportThreadOpen(open) {
+
+    if (supportWorkspace) {
+
+        supportWorkspace.classList.toggle("is-thread-open", open);
+
+    }
+
+}
+
+
+function setAdminThreadOpen(open) {
+
+    const workspace =
+        document.querySelector(".admin-tickets-workspace");
+
+    if (workspace) {
+
+        workspace.classList.toggle("is-thread-open", open);
+
+    }
+
+}
+
+
+function watchTicketMessages(kind, ticketId) {
+
+    stopTicketMessageWatch(kind);
+
+    if (
+        !ticketId ||
+        !window.BudgetCloud ||
+        typeof window.BudgetCloud.subscribeSupportTicketMessages !==
+            "function"
+    ) {
+
+        return;
+
+    }
+
+    try {
+
+        const unsub =
+            window.BudgetCloud.subscribeSupportTicketMessages(
+                ticketId,
+                messages => {
+
+                    if (kind === "admin") {
+
+                        adminMessagesCache = messages || [];
+                        fillTicketThread(
+                            adminThread,
+                            selectedAdminTicket(),
+                            adminMessagesCache,
+                            { forAdmin: true }
+                        );
+
+                    } else {
+
+                        supportMessagesCache = messages || [];
+                        fillTicketThread(
+                            supportThread,
+                            selectedSupportTicket(),
+                            supportMessagesCache,
+                            { forAdmin: false }
+                        );
+
+                    }
+
+                },
+                error => {
+
+                    console.error(
+                        "[BudgetCloud] Ticket messages failed:",
+                        error
+                    );
+
+                }
+            );
+
+        if (kind === "admin") {
+
+            adminMessagesUnsub = unsub;
+
+        } else {
+
+            supportMessagesUnsub = unsub;
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "[BudgetCloud] Ticket messages failed:",
+            error
+        );
+
+    }
+
+}
+
+
+function selectSupportTicket(ticketId) {
+
+    selectedSupportTicketId = ticketId || null;
+
+    const ticket = selectedSupportTicket();
+
+    if (supportThreadEmpty) {
+
+        supportThreadEmpty.hidden = Boolean(ticket);
+
+    }
+
+    if (!ticket) {
+
+        stopTicketMessageWatch("user");
+        if (supportThread) {
+
+            supportThread.classList.add("hidden");
+
+        }
+        setSupportThreadOpen(false);
+        renderSupportTicketList();
+        return;
+
+    }
+
+    setSupportThreadOpen(true);
+    fillTicketThread(
+        supportThread,
+        ticket,
+        supportMessagesCache,
+        { forAdmin: false }
+    );
+    watchTicketMessages("user", ticket.id);
+    renderSupportTicketList();
+
+    if (
+        ticket.unreadByUser &&
+        window.BudgetCloud &&
+        window.BudgetCloud.markSupportTicketRead
+    ) {
+
+        window.BudgetCloud.markSupportTicketRead(
+            ticket.id,
+            { asAdmin: false }
+        ).catch(() => {});
+
+    }
+
+}
+
+
+function selectAdminTicket(ticketId) {
+
+    selectedAdminTicketId = ticketId || null;
+
+    const ticket = selectedAdminTicket();
+
+    if (adminThreadEmpty) {
+
+        adminThreadEmpty.hidden = Boolean(ticket);
+
+    }
+
+    if (!ticket) {
+
+        stopTicketMessageWatch("admin");
+        if (adminThread) {
+
+            adminThread.classList.add("hidden");
+
+        }
+        setAdminThreadOpen(false);
+        renderAdminTicketList();
+        return;
+
+    }
+
+    setAdminThreadOpen(true);
+    fillTicketThread(
+        adminThread,
+        ticket,
+        adminMessagesCache,
+        { forAdmin: true }
+    );
+    watchTicketMessages("admin", ticket.id);
+    renderAdminTicketList();
+
+    if (
+        ticket.unreadByAdmin &&
+        window.BudgetCloud &&
+        window.BudgetCloud.markSupportTicketRead
+    ) {
+
+        window.BudgetCloud.markSupportTicketRead(
+            ticket.id,
+            { asAdmin: true }
+        ).catch(() => {});
+
+    }
+
+}
+
+
+function visibleSupportTickets() {
+
+    return supportTicketsCache.filter(ticket =>
+        ticketMatchesFilter(ticket, supportTicketFilter, false)
+    );
+
+}
+
+
+function visibleAdminTickets() {
+
+    const needle =
+        String(
+            adminTicketSearch && adminTicketSearch.value || ""
+        ).trim().toLowerCase();
+
+    return adminTicketsCache.filter(ticket => {
+
+        if (!ticketMatchesFilter(ticket, adminTicketFilter, true)) {
+
+            return false;
+
+        }
+
+        if (!needle) {
+
+            return true;
+
+        }
+
+        const hay = [
+            ticket.subject,
+            ticket.userDisplayName,
+            ticket.userEmail,
+            ticket.lastMessagePreview
+        ].join(" ").toLowerCase();
+
+        return hay.includes(needle);
+
+    });
+
+}
+
+
+function renderSupportTicketList() {
+
+    renderTicketList(
+        supportTicketList,
+        visibleSupportTickets(),
+        selectedSupportTicketId,
+        {
+            forAdmin: false,
+            emptyText:
+                supportTicketsCache.length
+                    ? "No tickets match that filter."
+                    : "No tickets yet. Raise one and Admin will be notified."
+        }
+    );
+
+}
+
+
+function renderAdminTicketList() {
+
+    renderTicketList(
+        adminTicketList,
+        visibleAdminTickets(),
+        selectedAdminTicketId,
+        {
+            forAdmin: true,
+            emptyText:
+                adminTicketsCache.length
+                    ? "No tickets match that search or filter."
+                    : "No support tickets yet."
+        }
+    );
+
+}
+
+
+function renderSupportPage() {
+
+    const configured = isCloudReady();
+    const signedIn = isCloudUserSignedIn();
+
+    if (supportOfflineCard) {
+
+        supportOfflineCard.hidden = configured;
+
+    }
+
+    if (supportGuestCard) {
+
+        supportGuestCard.hidden = !configured || signedIn;
+
+    }
+
+    if (supportNewTicketBtn) {
+
+        supportNewTicketBtn.hidden = !configured || !signedIn;
+
+    }
+
+    if (supportWorkspace) {
+
+        supportWorkspace.hidden = !configured || !signedIn;
+
+    }
+
+    if (!configured || !signedIn) {
+
+        if (supportNewTicketCard) {
+
+            supportNewTicketCard.classList.add("hidden");
+
+        }
+
+        selectSupportTicket(null);
+        return;
+
+    }
+
+    if (
+        selectedSupportTicketId &&
+        !selectedSupportTicket()
+    ) {
+
+        selectedSupportTicketId =
+            visibleSupportTickets()[0]
+                ? visibleSupportTickets()[0].id
+                : null;
+
+    }
+
+    renderSupportTicketList();
+
+    if (selectedSupportTicketId) {
+
+        const ticket = selectedSupportTicket();
+
+        if (supportThreadEmpty) {
+
+            supportThreadEmpty.hidden = true;
+
+        }
+
+        fillTicketThread(
+            supportThread,
+            ticket,
+            supportMessagesCache,
+            { forAdmin: false }
+        );
+        setSupportThreadOpen(true);
+
+    } else if (supportThreadEmpty) {
+
+        supportThreadEmpty.hidden = false;
+
+        if (supportThread) {
+
+            supportThread.classList.add("hidden");
+
+        }
+
+        setSupportThreadOpen(false);
+
+    }
+
+}
+
+
+function renderAdminTickets() {
+
+    if (!isSignedInAdmin()) {
+
+        return;
+
+    }
+
+    setInlineError(adminTicketsStatus, "");
+
+    if (
+        selectedAdminTicketId &&
+        !selectedAdminTicket()
+    ) {
+
+        selectedAdminTicketId = null;
+
+    }
+
+    renderAdminTicketList();
+
+    const ticket = selectedAdminTicket();
+
+    if (adminThreadEmpty) {
+
+        adminThreadEmpty.hidden = Boolean(ticket);
+
+    }
+
+    if (ticket) {
+
+        fillTicketThread(
+            adminThread,
+            ticket,
+            adminMessagesCache,
+            { forAdmin: true }
+        );
+        setAdminThreadOpen(true);
+
+    } else if (adminThread) {
+
+        adminThread.classList.add("hidden");
+        setAdminThreadOpen(false);
+
+    }
+
+}
+
+
+function syncAdminSectionUi() {
+
+    const tickets = adminSection === "tickets";
+
+    document.querySelectorAll("[data-admin-section]").forEach(button => {
+
+        const active =
+            button.dataset.adminSection === adminSection;
+
+        button.classList.toggle("is-active", active);
+        button.setAttribute(
+            "aria-selected",
+            active ? "true" : "false"
+        );
+
+    });
+
+    if (adminUsersSection) {
+
+        adminUsersSection.hidden = tickets;
+
+    }
+
+    if (adminTicketsSection) {
+
+        adminTicketsSection.hidden = !tickets;
+
+    }
+
+    if (adminUsersHeaderActions) {
+
+        adminUsersHeaderActions.hidden = tickets;
+
+    }
+
+    if (adminTicketsHeaderActions) {
+
+        adminTicketsHeaderActions.hidden = !tickets;
+
+    }
+
+    if (tickets) {
+
+        maybeAskAdminNotifyPermission();
+        renderAdminTickets();
+
+    }
+
+}
+
+
+function openNewTicketForm() {
+
+    if (supportNewTicketCard) {
+
+        supportNewTicketCard.classList.remove("hidden");
+
+    }
+
+    setInlineError(supportNewTicketError, "");
+
+    if (supportTicketSubject) {
+
+        supportTicketSubject.focus();
+
+    }
+
+}
+
+
+function closeNewTicketForm() {
+
+    if (supportNewTicketCard) {
+
+        supportNewTicketCard.classList.add("hidden");
+
+    }
+
+    if (supportNewTicketForm) {
+
+        supportNewTicketForm.reset();
+
+    }
+
+    setInlineError(supportNewTicketError, "");
+
+}
+
+
+async function submitNewSupportTicket(event) {
+
+    event.preventDefault();
+
+    if (
+        !window.BudgetCloud ||
+        typeof window.BudgetCloud.createSupportTicket !== "function"
+    ) {
+
+        setInlineError(
+            supportNewTicketError,
+            "Sign in to raise a ticket."
+        );
+
+        return;
+
+    }
+
+    if (supportSubmitTicketBtn) {
+
+        supportSubmitTicketBtn.disabled = true;
+
+    }
+
+    setInlineError(supportNewTicketError, "");
+
+    try {
+
+        const ticketId =
+            await window.BudgetCloud.createSupportTicket({
+                subject:
+                    supportTicketSubject
+                        ? supportTicketSubject.value
+                        : "",
+                body:
+                    supportTicketBody
+                        ? supportTicketBody.value
+                        : ""
+            });
+
+        closeNewTicketForm();
+        supportTicketFilter = "open";
+
+        document.querySelectorAll("[data-support-filter]").forEach(button => {
+
+            button.classList.toggle(
+                "is-active",
+                button.dataset.supportFilter === "open"
+            );
+
+        });
+
+        selectedSupportTicketId = ticketId;
+        showAppToast("Ticket sent. Admin will be notified.");
+
+    } catch (error) {
+
+        setInlineError(
+            supportNewTicketError,
+            error && error.message
+                ? error.message
+                : "Could not send that ticket."
+        );
+
+    } finally {
+
+        if (supportSubmitTicketBtn) {
+
+            supportSubmitTicketBtn.disabled = false;
+
+        }
+
+    }
+
+}
+
+
+async function submitTicketReply(event, forAdmin) {
+
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const textarea = form.querySelector("textarea");
+    const errorEl = form.querySelector("[data-ticket-reply-error]");
+    const ticket = forAdmin
+        ? selectedAdminTicket()
+        : selectedSupportTicket();
+    const submitBtn = form.querySelector("button[type='submit']");
+
+    if (!ticket) {
+
+        return;
+
+    }
+
+    if (
+        !window.BudgetCloud ||
+        typeof window.BudgetCloud.replyToSupportTicket !== "function"
+    ) {
+
+        setInlineError(errorEl, "Could not send that reply.");
+        return;
+
+    }
+
+    if (submitBtn) {
+
+        submitBtn.disabled = true;
+
+    }
+
+    setInlineError(errorEl, "");
+
+    try {
+
+        await window.BudgetCloud.replyToSupportTicket(
+            ticket.id,
+            textarea ? textarea.value : "",
+            { asAdmin: forAdmin }
+        );
+
+        if (textarea) {
+
+            textarea.value = "";
+
+        }
+
+    } catch (error) {
+
+        setInlineError(
+            errorEl,
+            error && error.message
+                ? error.message
+                : "Could not send that reply."
+        );
+
+    } finally {
+
+        if (submitBtn) {
+
+            submitBtn.disabled = false;
+
+        }
+
+    }
+
+}
+
+
+async function toggleSelectedAdminTicketStatus() {
+
+    const ticket = selectedAdminTicket();
+
+    if (
+        !ticket ||
+        !window.BudgetCloud ||
+        typeof window.BudgetCloud.setSupportTicketStatus !== "function"
+    ) {
+
+        return;
+
+    }
+
+    const next =
+        ticket.status === "closed" ? "open" : "closed";
+
+    try {
+
+        await window.BudgetCloud.setSupportTicketStatus(
+            ticket.id,
+            next
+        );
+
+    } catch (error) {
+
+        showAppToast(
+            error && error.message
+                ? error.message
+                : "Could not update that ticket."
+        );
+
+    }
+
+}
+
+
+function setupSupportTicketUi() {
+
+    if (supportNewTicketBtn) {
+
+        supportNewTicketBtn.addEventListener("click", () => {
+
+            if (supportNewTicketCard &&
+                !supportNewTicketCard.classList.contains("hidden")
+            ) {
+
+                closeNewTicketForm();
+                return;
+
+            }
+
+            openNewTicketForm();
+
+        });
+
+    }
+
+    if (supportCancelTicketBtn) {
+
+        supportCancelTicketBtn.addEventListener(
+            "click",
+            closeNewTicketForm
+        );
+
+    }
+
+    if (supportNewTicketForm) {
+
+        supportNewTicketForm.addEventListener(
+            "submit",
+            submitNewSupportTicket
+        );
+
+    }
+
+    document.querySelectorAll("[data-support-filter]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            supportTicketFilter =
+                button.dataset.supportFilter || "open";
+
+            document.querySelectorAll("[data-support-filter]").forEach(entry => {
+
+                entry.classList.toggle(
+                    "is-active",
+                    entry === button
+                );
+
+            });
+
+            renderSupportTicketList();
+
+        });
+
+    });
+
+    document.querySelectorAll("[data-admin-ticket-filter]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            adminTicketFilter =
+                button.dataset.adminTicketFilter || "open";
+
+            document.querySelectorAll("[data-admin-ticket-filter]").forEach(entry => {
+
+                entry.classList.toggle(
+                    "is-active",
+                    entry === button
+                );
+
+            });
+
+            renderAdminTicketList();
+
+        });
+
+    });
+
+    document.querySelectorAll("[data-admin-section]").forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            adminSection =
+                button.dataset.adminSection || "users";
+
+            syncAdminSectionUi();
+
+            if (adminSection === "users") {
+
+                loadAdminUsers();
+
+            }
+
+        });
+
+    });
+
+    if (supportTicketList) {
+
+        supportTicketList.addEventListener("click", event => {
+
+            const button =
+                event.target.closest("[data-ticket-id]");
+
+            if (!button) {
+
+                return;
+
+            }
+
+            selectSupportTicket(button.dataset.ticketId);
+
+        });
+
+    }
+
+    if (adminTicketList) {
+
+        adminTicketList.addEventListener("click", event => {
+
+            const button =
+                event.target.closest("[data-ticket-id]");
+
+            if (!button) {
+
+                return;
+
+            }
+
+            selectAdminTicket(button.dataset.ticketId);
+
+        });
+
+    }
+
+    if (adminTicketSearch) {
+
+        adminTicketSearch.addEventListener("input", () => {
+
+            renderAdminTicketList();
+
+        });
+
+    }
+
+    if (supportThread) {
+
+        const replyForm =
+            supportThread.querySelector("[data-ticket-reply-form]");
+
+        if (replyForm) {
+
+            replyForm.addEventListener("submit", event => {
+
+                submitTicketReply(event, false);
+
+            });
+
+        }
+
+        const backBtn =
+            supportThread.querySelector("[data-ticket-back]");
+
+        if (backBtn) {
+
+            backBtn.addEventListener("click", () => {
+
+                selectSupportTicket(null);
+
+            });
+
+        }
+
+    }
+
+    if (adminThread) {
+
+        const replyForm =
+            adminThread.querySelector("[data-ticket-reply-form]");
+
+        if (replyForm) {
+
+            replyForm.addEventListener("submit", event => {
+
+                submitTicketReply(event, true);
+
+            });
+
+        }
+
+        const backBtn =
+            adminThread.querySelector("[data-ticket-back]");
+
+        if (backBtn) {
+
+            backBtn.addEventListener("click", () => {
+
+                selectAdminTicket(null);
+
+            });
+
+        }
+
+    }
+
+    if (adminTicketStatusBtn) {
+
+        adminTicketStatusBtn.addEventListener(
+            "click",
+            toggleSelectedAdminTicketStatus
+        );
+
+    }
+
+    syncAdminSectionUi();
+    renderSupportPage();
 
 }
 

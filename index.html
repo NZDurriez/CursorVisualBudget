@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=facebook-login-1">
+    <link rel="stylesheet" href="style.css?v=support-tickets-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -171,6 +171,24 @@
 
             <button
                 class="nav-btn"
+                id="supportNavBtn"
+                aria-label="Support"
+                data-page="support">
+
+                <i class="fa-solid fa-life-ring"></i>
+
+                <span class="nav-label">Support</span>
+
+                <span
+                    id="supportNavBadge"
+                    class="nav-badge"
+                    hidden>
+                    0
+                </span>
+            </button>
+
+            <button
+                class="nav-btn"
                 id="adminNavBtn"
                 aria-label="Admin"
                 data-page="admin"
@@ -179,6 +197,13 @@
                 <i class="fa-solid fa-shield-halved"></i>
 
                 <span class="nav-label">Admin</span>
+
+                <span
+                    id="adminNavBadge"
+                    class="nav-badge"
+                    hidden>
+                    0
+                </span>
             </button>
 
         </nav>
@@ -1876,6 +1901,256 @@
         </section>
 
         <!-- ================================ -->
+        <!-- SUPPORT -->
+        <!-- ================================ -->
+
+        <section
+            id="support"
+            class="page">
+
+            <div class="page-header">
+
+                <h3>Support</h3>
+
+                <button
+                    type="button"
+                    id="supportNewTicketBtn"
+                    class="primary-btn">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    <span class="nav-label">New ticket</span>
+
+                </button>
+
+            </div>
+
+            <div
+                id="supportGuestCard"
+                class="support-card support-guest-card"
+                hidden>
+
+                <h4>Sign in to contact support</h4>
+
+                <p>
+                    Tickets sync to your account so you can keep
+                    the conversation going on any device.
+                    Sign in from the sidebar, then send a message
+                    here. Replies show as Admin.
+                </p>
+
+            </div>
+
+            <div
+                id="supportOfflineCard"
+                class="support-card support-guest-card"
+                hidden>
+
+                <h4>Support needs cloud sync</h4>
+
+                <p>
+                    Tickets are stored in Firebase. Add your
+                    Firebase config, then sign in to raise a ticket.
+                </p>
+
+            </div>
+
+            <div
+                id="supportNewTicketCard"
+                class="support-card hidden">
+
+                <div class="savings-form-header">
+
+                    <h4>New support ticket</h4>
+
+                    <button
+                        type="button"
+                        id="supportCancelTicketBtn"
+                        class="secondary-btn cancel-btn">
+                        Cancel
+                    </button>
+
+                </div>
+
+                <form id="supportNewTicketForm">
+
+                    <div class="form-group">
+
+                        <label for="supportTicketSubject">
+                            Subject
+                        </label>
+
+                        <input
+                            type="text"
+                            id="supportTicketSubject"
+                            maxlength="160"
+                            placeholder="Short summary"
+                            required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="supportTicketBody">
+                            Message
+                        </label>
+
+                        <textarea
+                            id="supportTicketBody"
+                            rows="5"
+                            maxlength="4000"
+                            placeholder="What do you need help with?"
+                            required></textarea>
+
+                    </div>
+
+                    <p
+                        id="supportNewTicketError"
+                        class="admin-status is-error"
+                        hidden></p>
+
+                    <div class="modal-buttons">
+
+                        <button
+                            type="submit"
+                            id="supportSubmitTicketBtn"
+                            class="primary-btn">
+                            Send ticket
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div
+                id="supportWorkspace"
+                class="support-workspace"
+                hidden>
+
+                <div class="support-list-panel">
+
+                    <div class="admin-toolbar">
+
+                        <div
+                            class="admin-filter-group"
+                            role="group"
+                            aria-label="Ticket status">
+
+                            <button
+                                type="button"
+                                class="admin-filter-btn is-active"
+                                data-support-filter="open">
+                                Open
+                            </button>
+
+                            <button
+                                type="button"
+                                class="admin-filter-btn"
+                                data-support-filter="closed">
+                                Closed
+                            </button>
+
+                            <button
+                                type="button"
+                                class="admin-filter-btn"
+                                data-support-filter="all">
+                                All
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="supportTicketList"
+                        class="ticket-list">
+                    </div>
+
+                </div>
+
+                <div
+                    id="supportThreadPanel"
+                    class="support-thread-panel">
+
+                    <div
+                        id="supportThreadEmpty"
+                        class="ticket-thread-empty">
+                        Select a ticket, or raise a new one.
+                    </div>
+
+                    <div
+                        id="supportThread"
+                        class="ticket-thread hidden">
+
+                        <div class="ticket-thread-header">
+
+                            <button
+                                type="button"
+                                class="secondary-btn ticket-back-btn"
+                                data-ticket-back>
+                                Back
+                            </button>
+
+                            <div class="ticket-thread-copy">
+
+                                <h4 data-ticket-subject>Ticket</h4>
+
+                                <p data-ticket-meta></p>
+
+                            </div>
+
+                            <span
+                                class="ticket-status"
+                                data-ticket-status>
+                                Open
+                            </span>
+
+                        </div>
+
+                        <div
+                            class="ticket-messages"
+                            data-ticket-messages>
+                        </div>
+
+                        <form
+                            class="ticket-reply-form"
+                            data-ticket-reply-form>
+
+                            <label class="visually-hidden" for="supportReplyBody">
+                                Reply
+                            </label>
+
+                            <textarea
+                                id="supportReplyBody"
+                                rows="3"
+                                maxlength="4000"
+                                placeholder="Write a reply"
+                                required></textarea>
+
+                            <p
+                                class="admin-status is-error"
+                                data-ticket-reply-error
+                                hidden></p>
+
+                            <button
+                                type="submit"
+                                class="primary-btn">
+                                Send reply
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================================ -->
         <!-- ADMIN -->
         <!-- ================================ -->
 
@@ -1885,9 +2160,44 @@
 
             <div class="page-header admin-page-header">
 
-                <h3>Signed-in users</h3>
+                <div class="admin-header-tabs">
 
-                <div class="page-header-actions">
+                    <div
+                        class="admin-section-tabs"
+                        role="tablist"
+                        aria-label="Admin sections">
+
+                        <button
+                            type="button"
+                            class="admin-section-tab is-active"
+                            data-admin-section="users"
+                            role="tab"
+                            aria-selected="true">
+                            Users
+                        </button>
+
+                        <button
+                            type="button"
+                            class="admin-section-tab"
+                            data-admin-section="tickets"
+                            role="tab"
+                            aria-selected="false">
+                            Tickets
+                            <span
+                                id="adminTicketsTabBadge"
+                                class="nav-badge"
+                                hidden>
+                                0
+                            </span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="adminUsersHeaderActions"
+                    class="page-header-actions">
 
                     <div class="sort-selector admin-search">
 
@@ -1915,7 +2225,29 @@
 
                 </div>
 
+                <div
+                    id="adminTicketsHeaderActions"
+                    class="page-header-actions"
+                    hidden>
+
+                    <div class="sort-selector admin-search">
+
+                        <label for="adminTicketSearch">
+                            Search
+                        </label>
+
+                        <input
+                            type="search"
+                            id="adminTicketSearch"
+                            placeholder="Subject, name, or email">
+
+                    </div>
+
+                </div>
+
             </div>
+
+            <div id="adminUsersSection">
 
             <div class="admin-metrics">
 
@@ -2118,6 +2450,159 @@
             </table>
 
             </div>
+
+            </div>
+
+            </div>
+
+            <div
+                id="adminTicketsSection"
+                hidden>
+
+                <div class="admin-toolbar">
+
+                    <div
+                        class="admin-filter-group"
+                        role="group"
+                        aria-label="Admin ticket status">
+
+                        <button
+                            type="button"
+                            class="admin-filter-btn is-active"
+                            data-admin-ticket-filter="open">
+                            Open
+                        </button>
+
+                        <button
+                            type="button"
+                            class="admin-filter-btn"
+                            data-admin-ticket-filter="unread">
+                            Unread
+                        </button>
+
+                        <button
+                            type="button"
+                            class="admin-filter-btn"
+                            data-admin-ticket-filter="closed">
+                            Closed
+                        </button>
+
+                        <button
+                            type="button"
+                            class="admin-filter-btn"
+                            data-admin-ticket-filter="all">
+                            All
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <p
+                    id="adminTicketsStatus"
+                    class="admin-status"
+                    hidden></p>
+
+                <div class="support-workspace admin-tickets-workspace">
+
+                    <div class="support-list-panel">
+
+                        <div
+                            id="adminTicketList"
+                            class="ticket-list">
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="adminThreadPanel"
+                        class="support-thread-panel">
+
+                        <div
+                            id="adminThreadEmpty"
+                            class="ticket-thread-empty">
+                            Select a ticket to reply as Admin.
+                        </div>
+
+                        <div
+                            id="adminThread"
+                            class="ticket-thread hidden">
+
+                            <div class="ticket-thread-header">
+
+                                <button
+                                    type="button"
+                                    class="secondary-btn ticket-back-btn"
+                                    data-ticket-back>
+                                    Back
+                                </button>
+
+                                <div class="ticket-thread-copy">
+
+                                    <h4 data-ticket-subject>Ticket</h4>
+
+                                    <p data-ticket-meta></p>
+
+                                </div>
+
+                                <div class="ticket-thread-actions">
+
+                                    <span
+                                        class="ticket-status"
+                                        data-ticket-status>
+                                        Open
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        class="secondary-btn"
+                                        id="adminTicketStatusBtn"
+                                        data-ticket-status-btn>
+                                        Close ticket
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <div
+                                class="ticket-messages"
+                                data-ticket-messages>
+                            </div>
+
+                            <form
+                                class="ticket-reply-form"
+                                data-ticket-reply-form>
+
+                                <label class="visually-hidden" for="adminReplyBody">
+                                    Reply as Admin
+                                </label>
+
+                                <textarea
+                                    id="adminReplyBody"
+                                    rows="3"
+                                    maxlength="4000"
+                                    placeholder="Reply as Admin"
+                                    required></textarea>
+
+                                <p
+                                    class="admin-status is-error"
+                                    data-ticket-reply-error
+                                    hidden></p>
+
+                                <button
+                                    type="submit"
+                                    class="primary-btn">
+                                    Send as Admin
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -2681,8 +3166,15 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=hide-facebook-login-1"></script>
-<script src="app.js?v=admin-view-as-1"></script>
+<div
+    id="appToast"
+    class="app-toast"
+    hidden
+    role="status"
+    aria-live="polite"></div>
+
+<script type="module" src="cloud.js?v=support-tickets-1"></script>
+<script src="app.js?v=support-tickets-1"></script>
 
 </body>
 </html>

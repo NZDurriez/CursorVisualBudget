@@ -6,6 +6,7 @@ NZ personal budget dashboard (local-first, with optional Firebase sync).
 
 - Dashboard, income, recurring / one-off payments, savings goals, NZ pay calculator, calendar
 - Profiles + light/dark mode
+- **Support tickets:** signed-in users can raise tickets; admins reply from the Admin panel as **Admin**
 - **Guest mode:** data stays in `localStorage` on this device
 - **Google sign-in:** sync the same budget JSON to Firestore across devices
 
@@ -43,6 +44,8 @@ Google sign-in uses a **popup** (required on GitHub Pages). A same-window redire
 The Admin page lists signed-in users from `userDirectory` (identity and last seen). Usage counts stay in the directory for the Empty/Active filter; they are not shown as a table column. Budget JSON is not downloaded for the list.
 
 **View as** loads one person’s budget into your session so you can look around. Edit and delete controls are hidden. Nothing is written to their account or yours; Exit restores your budget.
+
+**Tickets** lists in-app support conversations. New tickets and user replies notify you in the app (badge + toast, and a browser notification if you allow them). Replies you send are shown to the user as **Admin**, not your name.
 
 Filters cover activity, Empty vs Active, and Google/Facebook/Discord. **New this week** counts first seen in the last 7 days.
 

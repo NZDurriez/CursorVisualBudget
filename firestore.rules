@@ -7,8 +7,10 @@ rules_version = '2';
 // Prefer request.auth.token.admin == true (Firebase Auth custom claim).
 // The email list is a fallback until that claim is set.
 // The Admin list reads userDirectory only (identity + usage counts).
-// Admins may get a single users/{userId} doc to temporarily view
-// that budget. They cannot write someone else's budget.
+    // Admins may get a single users/{userId} doc to temporarily view
+    // that budget. They cannot write someone else's budget.
+    // Support tickets live in supportTickets/{ticketId} with a messages
+    // subcollection. Admin replies use authorRole 'admin' (shown as "Admin").
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -42,6 +44,90 @@ service cloud.firestore {
     match /userDirectory/{userId} {
       allow read, write: if isOwner(userId);
       allow read: if isAdmin();
+    }
+
+    // Support tickets. Admin replies are stored as authorRole 'admin'
+    // so the UI can always show the name "Admin", never the person.
+    function validTicketStatus() {
+      return request.resource.data.status in ['open', 'closed'];
+    }
+
+    function validTicketShape() {
+      return request.resource.data.userId is string
+        && request.resource.data.userId.size() > 0
+        && request.resource.data.userId.size() <= 128
+        && request.resource.data.userEmail is string
+        && request.resource.data.userEmail.size() <= 320
+        && request.resource.data.userDisplayName is string
+        && request.resource.data.userDisplayName.size() <= 120
+        && request.resource.data.subject is string
+        && request.resource.data.subject.size() > 0
+        && request.resource.data.subject.size() <= 160
+        && validTicketStatus()
+        && request.resource.data.lastSenderRole in ['user', 'admin']
+        && request.resource.data.unreadByAdmin is bool
+        && request.resource.data.unreadByUser is bool
+        && request.resource.data.lastMessagePreview is string
+        && request.resource.data.lastMessagePreview.size() <= 240;
+    }
+
+    match /supportTickets/{ticketId} {
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'open'
+        && request.resource.data.lastSenderRole == 'user'
+        && request.resource.data.unreadByAdmin == true
+        && request.resource.data.unreadByUser == false
+        && validTicketShape();
+
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      allow update: if validTicketShape()
+        && request.resource.data.userId == resource.data.userId
+        && (
+          isAdmin()
+          || (
+            isSignedIn()
+            && resource.data.userId == request.auth.uid
+            && request.resource.data.userEmail == resource.data.userEmail
+            && request.resource.data.userDisplayName == resource.data.userDisplayName
+            && request.resource.data.subject == resource.data.subject
+            && (
+              request.resource.data.lastSenderRole == 'user'
+              || request.resource.data.lastSenderRole == resource.data.lastSenderRole
+            )
+          )
+        );
+
+      allow delete: if isAdmin();
+
+      match /messages/{messageId} {
+        allow read: if isAdmin()
+          || (
+            isSignedIn()
+            && get(/databases/$(database)/documents/supportTickets/$(ticketId)).data.userId
+              == request.auth.uid
+          );
+
+        allow create: if isSignedIn()
+          && request.resource.data.keys().hasOnly(['authorRole', 'body', 'createdAt'])
+          && request.resource.data.body is string
+          && request.resource.data.body.size() > 0
+          && request.resource.data.body.size() <= 4000
+          && request.resource.data.createdAt == request.time
+          && (
+            (
+              isAdmin()
+              && request.resource.data.authorRole == 'admin'
+            )
+            || (
+              getAfter(/databases/$(database)/documents/supportTickets/$(ticketId)).data.userId
+                == request.auth.uid
+              && request.resource.data.authorRole == 'user'
+            )
+          );
+      }
     }
 
   }

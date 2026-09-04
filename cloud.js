@@ -23,9 +23,13 @@ import {
     getDocs,
     getFirestore,
     limit,
+    onSnapshot,
     query,
     serverTimestamp,
-    setDoc
+    setDoc,
+    updateDoc,
+    where,
+    writeBatch
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
 import {
@@ -1886,6 +1890,485 @@ function setupAuthButtons() {
 }
 
 
+const SUPPORT_SUBJECT_MAX = 160;
+const SUPPORT_BODY_MAX = 4000;
+const SUPPORT_PREVIEW_MAX = 240;
+
+
+function requireSignedInDb() {
+
+    if (!db) {
+
+        throw new Error("Firebase is not configured.");
+
+    }
+
+    if (!currentUser) {
+
+        throw new Error("Sign in to use support tickets.");
+
+    }
+
+}
+
+
+function clipText(value, max) {
+
+    const text = String(value || "").trim();
+
+    if (text.length <= max) {
+
+        return text;
+
+    }
+
+    return text.slice(0, max);
+
+}
+
+
+function supportTicketsCol() {
+
+    return collection(db, "supportTickets");
+
+}
+
+
+function supportTicketRef(ticketId) {
+
+    return doc(db, "supportTickets", ticketId);
+
+}
+
+
+function supportMessagesCol(ticketId) {
+
+    return collection(db, "supportTickets", ticketId, "messages");
+
+}
+
+
+function ticketFromDoc(entry) {
+
+    const data = entry.data() || {};
+
+    return {
+        id: entry.id,
+        userId: String(data.userId || ""),
+        userEmail: String(data.userEmail || ""),
+        userDisplayName: String(data.userDisplayName || ""),
+        subject: String(data.subject || ""),
+        status: data.status === "closed" ? "closed" : "open",
+        lastSenderRole:
+            data.lastSenderRole === "admin" ? "admin" : "user",
+        unreadByAdmin: Boolean(data.unreadByAdmin),
+        unreadByUser: Boolean(data.unreadByUser),
+        lastMessagePreview: String(data.lastMessagePreview || ""),
+        createdAt: toIsoOrNull(data.createdAt),
+        updatedAt: toIsoOrNull(data.updatedAt),
+        lastMessageAt: toIsoOrNull(data.lastMessageAt)
+    };
+
+}
+
+
+function messageFromDoc(entry) {
+
+    const data = entry.data() || {};
+
+    const role =
+        data.authorRole === "admin" ? "admin" : "user";
+
+    return {
+        id: entry.id,
+        authorRole: role,
+        // Never expose a real admin name. The UI always labels this "Admin".
+        authorName: role === "admin" ? "Admin" : "",
+        body: String(data.body || ""),
+        createdAt: toIsoOrNull(data.createdAt)
+    };
+
+}
+
+
+function sortTicketsNewestFirst(tickets) {
+
+    return tickets.slice().sort((a, b) => {
+
+        const aTime = a.lastMessageAt || a.updatedAt || a.createdAt || "";
+        const bTime = b.lastMessageAt || b.updatedAt || b.createdAt || "";
+
+        if (aTime !== bTime) {
+
+            return bTime.localeCompare(aTime);
+
+        }
+
+        return String(a.subject || "").localeCompare(
+            String(b.subject || "")
+        );
+
+    });
+
+}
+
+
+function sortMessagesOldestFirst(messages) {
+
+    return messages.slice().sort((a, b) => {
+
+        const aTime = a.createdAt || "";
+        const bTime = b.createdAt || "";
+
+        if (aTime !== bTime) {
+
+            return aTime.localeCompare(bTime);
+
+        }
+
+        return String(a.id).localeCompare(String(b.id));
+
+    });
+
+}
+
+
+function currentSupportIdentity() {
+
+    const user = currentUser;
+
+    return {
+        userId: user.uid,
+        userEmail: String(user.email || ""),
+        userDisplayName: String(
+            user.displayName ||
+            user.email ||
+            "Signed-in user"
+        ).slice(0, 120)
+    };
+
+}
+
+
+function subscribeMySupportTickets(onChange, onError) {
+
+    requireSignedInDb();
+
+    const ticketQuery = query(
+        supportTicketsCol(),
+        where("userId", "==", currentUser.uid)
+    );
+
+    return onSnapshot(
+        ticketQuery,
+        snap => {
+
+            const tickets = sortTicketsNewestFirst(
+                snap.docs.map(ticketFromDoc)
+            );
+
+            onChange(tickets);
+
+        },
+        error => {
+
+            if (typeof onError === "function") {
+
+                onError(error);
+
+            }
+
+        }
+    );
+
+}
+
+
+function subscribeAdminSupportTickets(onChange, onError) {
+
+    requireSignedInDb();
+
+    if (!isCurrentUserAdmin()) {
+
+        throw new Error("Admin access required.");
+
+    }
+
+    return onSnapshot(
+        supportTicketsCol(),
+        snap => {
+
+            const tickets = sortTicketsNewestFirst(
+                snap.docs.map(ticketFromDoc)
+            );
+
+            onChange(tickets);
+
+        },
+        error => {
+
+            if (typeof onError === "function") {
+
+                onError(error);
+
+            }
+
+        }
+    );
+
+}
+
+
+function subscribeSupportTicketMessages(ticketId, onChange, onError) {
+
+    requireSignedInDb();
+
+    if (!ticketId) {
+
+        throw new Error("Missing ticket.");
+
+    }
+
+    return onSnapshot(
+        supportMessagesCol(ticketId),
+        snap => {
+
+            const messages = sortMessagesOldestFirst(
+                snap.docs.map(messageFromDoc)
+            );
+
+            onChange(messages);
+
+        },
+        error => {
+
+            if (typeof onError === "function") {
+
+                onError(error);
+
+            }
+
+        }
+    );
+
+}
+
+
+async function createSupportTicket(input) {
+
+    requireSignedInDb();
+
+    const subject = clipText(input && input.subject, SUPPORT_SUBJECT_MAX);
+    const body = clipText(input && input.body, SUPPORT_BODY_MAX);
+
+    if (!subject) {
+
+        throw new Error("Add a subject.");
+
+    }
+
+    if (!body) {
+
+        throw new Error("Write a message.");
+
+    }
+
+    const identity = currentSupportIdentity();
+    const preview = clipText(body, SUPPORT_PREVIEW_MAX);
+    const ticketRef = doc(supportTicketsCol());
+    const messageRef = doc(supportMessagesCol(ticketRef.id));
+    const batch = writeBatch(db);
+
+    batch.set(ticketRef, {
+        userId: identity.userId,
+        userEmail: identity.userEmail,
+        userDisplayName: identity.userDisplayName,
+        subject,
+        status: "open",
+        lastSenderRole: "user",
+        unreadByAdmin: true,
+        unreadByUser: false,
+        lastMessagePreview: preview,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        lastMessageAt: serverTimestamp()
+    });
+
+    batch.set(messageRef, {
+        authorRole: "user",
+        body,
+        createdAt: serverTimestamp()
+    });
+
+    await batch.commit();
+
+    return ticketRef.id;
+
+}
+
+
+async function replyToSupportTicket(ticketId, body, options) {
+
+    requireSignedInDb();
+
+    const text = clipText(body, SUPPORT_BODY_MAX);
+    const asAdmin = Boolean(options && options.asAdmin);
+
+    if (!ticketId) {
+
+        throw new Error("Missing ticket.");
+
+    }
+
+    if (!text) {
+
+        throw new Error("Write a message.");
+
+    }
+
+    if (asAdmin && !isCurrentUserAdmin()) {
+
+        throw new Error("Admin access required.");
+
+    }
+
+    const ticketRef = supportTicketRef(ticketId);
+    const snap = await getDoc(ticketRef);
+
+    if (!snap.exists()) {
+
+        throw new Error("That ticket no longer exists.");
+
+    }
+
+    const data = snap.data() || {};
+
+    if (!asAdmin && data.userId !== currentUser.uid) {
+
+        throw new Error("You can only reply to your own tickets.");
+
+    }
+
+    const preview = clipText(text, SUPPORT_PREVIEW_MAX);
+    const messageRef = doc(supportMessagesCol(ticketId));
+    const batch = writeBatch(db);
+
+    batch.set(messageRef, {
+        authorRole: asAdmin ? "admin" : "user",
+        body: text,
+        createdAt: serverTimestamp()
+    });
+
+    const ticketUpdate = {
+        lastSenderRole: asAdmin ? "admin" : "user",
+        lastMessagePreview: preview,
+        status: "open",
+        updatedAt: serverTimestamp(),
+        lastMessageAt: serverTimestamp()
+    };
+
+    if (asAdmin) {
+
+        ticketUpdate.unreadByAdmin = false;
+        ticketUpdate.unreadByUser = true;
+
+    } else {
+
+        ticketUpdate.unreadByAdmin = true;
+        ticketUpdate.unreadByUser = false;
+
+    }
+
+    batch.update(ticketRef, ticketUpdate);
+
+    await batch.commit();
+
+}
+
+
+async function markSupportTicketRead(ticketId, options) {
+
+    requireSignedInDb();
+
+    const asAdmin = Boolean(options && options.asAdmin);
+
+    if (!ticketId) {
+
+        return;
+
+    }
+
+    if (asAdmin && !isCurrentUserAdmin()) {
+
+        throw new Error("Admin access required.");
+
+    }
+
+    const ticketRef = supportTicketRef(ticketId);
+    const snap = await getDoc(ticketRef);
+
+    if (!snap.exists()) {
+
+        return;
+
+    }
+
+    const data = snap.data() || {};
+
+    if (!asAdmin && data.userId !== currentUser.uid) {
+
+        throw new Error("You can only update your own tickets.");
+
+    }
+
+    const payload = {};
+
+    if (asAdmin) {
+
+        if (!data.unreadByAdmin) {
+
+            return;
+
+        }
+
+        payload.unreadByAdmin = false;
+
+    } else if (!data.unreadByUser) {
+
+        return;
+
+    } else {
+
+        payload.unreadByUser = false;
+
+    }
+
+    await updateDoc(ticketRef, payload);
+
+}
+
+
+async function setSupportTicketStatus(ticketId, status) {
+
+    requireSignedInDb();
+
+    if (!isCurrentUserAdmin()) {
+
+        throw new Error("Admin access required.");
+
+    }
+
+    const nextStatus =
+        status === "closed" ? "closed" : "open";
+
+    await updateDoc(supportTicketRef(ticketId), {
+        status: nextStatus,
+        updatedAt: serverTimestamp()
+    });
+
+}
+
+
 window.BudgetCloud = {
     ready: readyPromise,
     authReady: authReadyPromise,
@@ -1900,6 +2383,13 @@ window.BudgetCloud = {
     saveNow,
     loadUserData,
     listDirectoryUsers,
+    subscribeMySupportTickets,
+    subscribeAdminSupportTickets,
+    subscribeSupportTicketMessages,
+    createSupportTicket,
+    replyToSupportTicket,
+    markSupportTicketRead,
+    setSupportTicketStatus,
     signInWithGoogle,
     signInWithFacebook,
     beginDiscordSignIn,
