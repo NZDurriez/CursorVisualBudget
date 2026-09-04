@@ -20,6 +20,8 @@ export const discordConfig = {
     functionUrl: ""
 };
 
+export const facebookSignInEnabled = false;
+
 export function isFirebaseConfigured() {
     if (!firebaseEnabled) return false;
     return Boolean(

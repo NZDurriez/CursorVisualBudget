@@ -33,7 +33,8 @@ import {
     firebaseConfig,
     getDiscordFunctionUrl,
     isDiscordConfigured,
-    isFirebaseConfigured
+    isFirebaseConfigured,
+    facebookSignInEnabled
 } from "./firebase-config.js";
 
 
@@ -519,7 +520,7 @@ function updateAuthUi() {
 
         if (facebookBtn) {
 
-            facebookBtn.hidden = false;
+            facebookBtn.hidden = !facebookSignInEnabled;
 
             facebookBtn.disabled = oauthPending;
 
