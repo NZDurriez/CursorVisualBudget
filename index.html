@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=admin-view-as-1">
+    <link rel="stylesheet" href="style.css?v=facebook-login-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -264,6 +264,17 @@
                     <i class="fa-brands fa-google"></i>
 
                     <span class="nav-label">Sign in with Google</span>
+                </button>
+
+                <button
+                    type="button"
+                    id="facebookSignInBtn"
+                    class="auth-btn auth-btn-facebook"
+                    aria-label="Sign in with Facebook">
+
+                    <i class="fa-brands fa-facebook-f"></i>
+
+                    <span class="nav-label">Sign in with Facebook</span>
                 </button>
 
                 <button
@@ -2030,6 +2041,13 @@
                     <button
                         type="button"
                         class="admin-filter-btn"
+                        data-admin-provider="facebook">
+                        Facebook
+                    </button>
+
+                    <button
+                        type="button"
+                        class="admin-filter-btn"
                         data-admin-provider="discord">
                         Discord
                     </button>
@@ -2662,7 +2680,7 @@
 
 </div>
 
-<script type="module" src="cloud.js?v=admin-view-as-1"></script>
+<script type="module" src="cloud.js?v=facebook-login-1"></script>
 <script src="app.js?v=admin-view-as-1"></script>
 
 </body>
