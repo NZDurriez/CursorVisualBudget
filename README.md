@@ -38,18 +38,3 @@ Google sign-in uses a **popup** (required on GitHub Pages). A same-window redire
 - Never put private secrets or admin emails in frontend code
 - Admin UI is shown only if Firebase Auth reports an `admin` claim, or if
   Firestore allows an admin-only directory read
-
-## Admin panel
-
-The Admin page lists signed-in users from `userDirectory` (identity and last seen). Usage counts stay in the directory for the Empty/Active filter; they are not shown as a table column. Budget JSON is not downloaded for the list.
-
-**View as** loads one person’s budget into your session so you can look around. Edit and delete controls are hidden. Nothing is written to their account or yours; Exit restores your budget.
-
-**Tickets** lists in-app support conversations. New tickets and user replies notify you in the app (badge + toast, and a browser notification if you allow them). Replies you send are shown to the user as **Admin**, not your name.
-
-Filters cover activity, Empty vs Active, and Google/Facebook/Discord. **New this week** counts first seen in the last 7 days.
-
-1. Put your Google sign-in email in `isAdmin()` in `firestore.rules` (or set an Auth custom claim `admin: true`)
-2. Deploy rules: `firebase deploy --only firestore:rules` (or paste the rules in Firebase Console → Firestore → Rules)
-
-Guest (this device) sessions are not listed.
