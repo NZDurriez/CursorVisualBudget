@@ -27,6 +27,13 @@ export const discordConfig = {
     functionUrl: ""
 };
 
+/**
+ * Facebook sign-in button. Login still works for accounts
+ * already signed in with Facebook; the sidebar button stays
+ * hidden until Meta Advanced Access / Live is ready.
+ */
+export const facebookSignInEnabled = false;
+
 export function isFirebaseConfigured() {
 
     if (!firebaseEnabled) {
