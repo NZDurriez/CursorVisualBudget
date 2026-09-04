@@ -7099,6 +7099,38 @@ body.light-mode .auth-btn-google {
 
 
 
+.auth-btn-facebook {
+
+    background: rgba(24, 119, 242, 0.14);
+
+    border-color: rgba(24, 119, 242, 0.4);
+
+    color: var(--text);
+
+}
+
+
+
+.auth-btn-facebook i {
+
+    color: #1877f2;
+
+}
+
+
+
+body.light-mode .auth-btn-facebook {
+
+    background: #eff6ff;
+
+    border-color: #93c5fd;
+
+    color: #1e3a8a;
+
+}
+
+
+
 .auth-btn-discord {
 
     background: rgba(88, 101, 242, 0.14);

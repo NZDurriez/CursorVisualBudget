@@ -1,5 +1,5 @@
 // ============================================================
-// Cloud layer — Firebase Auth (Google + Discord) + Firestore
+// Cloud layer — Firebase Auth (Google + Facebook + Discord) + Firestore
 // Guest / unconfigured mode keeps using localStorage only.
 // ============================================================
 
@@ -7,6 +7,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebas
 
 import {
     getAuth,
+    FacebookAuthProvider,
     getRedirectResult,
     GoogleAuthProvider,
     onAuthStateChanged,
@@ -44,12 +45,14 @@ const ADMIN_RECENT_MS = 7 * DAY_MS;
 const ADMIN_NEW_MS = 7 * DAY_MS;
 const DISCORD_OAUTH_STATE = "budget_discord_oauth";
 const GOOGLE_OAUTH_PENDING = "budget_google_oauth";
+const FACEBOOK_OAUTH_PENDING = "budget_facebook_oauth";
 
 
 let app = null;
 let auth = null;
 let db = null;
 let googleProvider = null;
+let facebookProvider = null;
 let currentUser = null;
 let currentUserIsAdmin = false;
 let saveTimer = null;
@@ -102,6 +105,17 @@ function getAuthProviderLabel(user) {
 
     }
 
+    const providerIds =
+        (user.providerData || []).map(
+            entry => String(entry && entry.providerId || "")
+        );
+
+    if (providerIds.includes("facebook.com")) {
+
+        return "Facebook";
+
+    }
+
     return "Google";
 
 }
@@ -146,6 +160,14 @@ async function initFirebase() {
 
         googleProvider.setCustomParameters({
             prompt: "select_account"
+        });
+
+        facebookProvider = new FacebookAuthProvider();
+
+        facebookProvider.addScope("email");
+
+        facebookProvider.setCustomParameters({
+            display: "popup"
         });
 
 
@@ -273,6 +295,9 @@ function updateAuthUi() {
     const googleBtn =
         document.getElementById("googleSignInBtn");
 
+    const facebookBtn =
+        document.getElementById("facebookSignInBtn");
+
     const discordBtn =
         document.getElementById("discordSignInBtn");
 
@@ -331,6 +356,12 @@ function updateAuthUi() {
         if (googleBtn) {
 
             googleBtn.hidden = true;
+
+        }
+
+        if (facebookBtn) {
+
+            facebookBtn.hidden = true;
 
         }
 
@@ -405,6 +436,23 @@ function updateAuthUi() {
 
         }
 
+        if (facebookBtn) {
+
+            facebookBtn.hidden = true;
+
+            facebookBtn.disabled = false;
+
+            const facebookLabel =
+                facebookBtn.querySelector(".nav-label");
+
+            if (facebookLabel) {
+
+                facebookLabel.textContent = "Sign in with Facebook";
+
+            }
+
+        }
+
         if (discordBtn) {
 
             discordBtn.hidden = true;
@@ -422,11 +470,19 @@ function updateAuthUi() {
         const googlePending =
             isGoogleRedirectPending();
 
+        const facebookPending =
+            isFacebookRedirectPending();
+
+        const oauthPending =
+            googlePending || facebookPending;
+
         if (status) {
 
             status.textContent = googlePending
                 ? "Waiting for Google…"
-                : "Sign in to sync budgets across devices";
+                : facebookPending
+                    ? "Waiting for Facebook…"
+                    : "Sign in to sync budgets across devices";
 
         }
 
@@ -446,7 +502,7 @@ function updateAuthUi() {
 
             googleBtn.hidden = false;
 
-            googleBtn.disabled = googlePending;
+            googleBtn.disabled = oauthPending;
 
             const googleLabel =
                 googleBtn.querySelector(".nav-label");
@@ -456,6 +512,25 @@ function updateAuthUi() {
                 googleLabel.textContent = googlePending
                     ? "Waiting for Google…"
                     : "Sign in with Google";
+
+            }
+
+        }
+
+        if (facebookBtn) {
+
+            facebookBtn.hidden = false;
+
+            facebookBtn.disabled = oauthPending;
+
+            const facebookLabel =
+                facebookBtn.querySelector(".nav-label");
+
+            if (facebookLabel) {
+
+                facebookLabel.textContent = facebookPending
+                    ? "Waiting for Facebook…"
+                    : "Sign in with Facebook";
 
             }
 
@@ -480,6 +555,44 @@ function updateAuthUi() {
             signOutBtn.hidden = true;
 
         }
+
+    }
+
+}
+
+
+function isFacebookRedirectPending() {
+
+    try {
+
+        return sessionStorage.getItem(FACEBOOK_OAUTH_PENDING) === "1";
+
+    } catch (error) {
+
+        return false;
+
+    }
+
+}
+
+
+function setFacebookRedirectPending(pending) {
+
+    try {
+
+        if (pending) {
+
+            sessionStorage.setItem(FACEBOOK_OAUTH_PENDING, "1");
+
+        } else {
+
+            sessionStorage.removeItem(FACEBOOK_OAUTH_PENDING);
+
+        }
+
+    } catch (error) {
+
+        /* ignore */
 
     }
 
@@ -537,9 +650,12 @@ function isAuthCancelled(error) {
 }
 
 
-function showGoogleSignInError(error) {
+function showSignInError(providerLabel, error) {
 
-    console.error("[BudgetCloud] Google sign-in failed:", error);
+    console.error(
+        `[BudgetCloud] ${providerLabel} sign-in failed:`,
+        error
+    );
 
     if (isAuthCancelled(error)) {
 
@@ -547,10 +663,30 @@ function showGoogleSignInError(error) {
 
     }
 
+    const code = String(error?.code || "");
+
+    if (code === "auth/account-exists-with-different-credential") {
+
+        alert(
+            "That email is already used with another sign-in method. " +
+            "Try Google instead, or use the same method you signed up with."
+        );
+
+        return;
+
+    }
+
     alert(
         error?.message ||
-        "Google sign-in failed. Check the console for details."
+        `${providerLabel} sign-in failed. Check the console for details.`
     );
+
+}
+
+
+function showGoogleSignInError(error) {
+
+    showSignInError("Google", error);
 
 }
 
@@ -586,6 +722,43 @@ async function signInWithGoogle() {
     } finally {
 
         setGoogleRedirectPending(false);
+
+        updateAuthUi();
+
+    }
+
+}
+
+
+async function signInWithFacebook() {
+
+    if (!auth || !facebookProvider) {
+
+        alert(
+            "Firebase is not configured yet."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        // Popup is required on GitHub Pages, same as Google.
+        setFacebookRedirectPending(true);
+
+        updateAuthUi();
+
+        await signInWithPopup(auth, facebookProvider);
+
+    } catch (error) {
+
+        showSignInError("Facebook", error);
+
+    } finally {
+
+        setFacebookRedirectPending(false);
 
         updateAuthUi();
 
@@ -1641,6 +1814,9 @@ function setupAuthButtons() {
     const googleBtn =
         document.getElementById("googleSignInBtn");
 
+    const facebookBtn =
+        document.getElementById("facebookSignInBtn");
+
     const discordBtn =
         document.getElementById("discordSignInBtn");
 
@@ -1655,6 +1831,20 @@ function setupAuthButtons() {
             () => {
 
                 signInWithGoogle();
+
+            }
+        );
+
+    }
+
+
+    if (facebookBtn) {
+
+        facebookBtn.addEventListener(
+            "click",
+            () => {
+
+                signInWithFacebook();
 
             }
         );
@@ -1710,6 +1900,7 @@ window.BudgetCloud = {
     loadUserData,
     listDirectoryUsers,
     signInWithGoogle,
+    signInWithFacebook,
     beginDiscordSignIn,
     signOutUser,
     refreshAuthUi: updateAuthUi

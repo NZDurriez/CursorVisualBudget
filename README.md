@@ -44,7 +44,7 @@ The Admin page lists signed-in users from `userDirectory` (identity and last see
 
 **View as** loads one person’s budget into your session so you can look around. Edit and delete controls are hidden. Nothing is written to their account or yours; Exit restores your budget.
 
-Filters cover activity, Empty vs Active, and Google/Discord. **New this week** counts first seen in the last 7 days.
+Filters cover activity, Empty vs Active, and Google/Facebook/Discord. **New this week** counts first seen in the last 7 days.
 
 1. Put your Google sign-in email in `isAdmin()` in `firestore.rules` (or set an Auth custom claim `admin: true`)
 2. Deploy rules: `firebase deploy --only firestore:rules` (or paste the rules in Firebase Console → Firestore → Rules)
