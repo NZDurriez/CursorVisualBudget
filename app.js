@@ -3465,6 +3465,8 @@ function deleteProfile(profileId) {
 
 function showPage(page) {
 
+    document.body.dataset.page = page;
+
     pages.forEach(section => {
 
         section.classList.remove("active");

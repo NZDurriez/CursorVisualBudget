@@ -6893,23 +6893,31 @@ body.light-mode .paid-status-label.is-unpaid {
 
 /* ==========================================================
    BUDGET SETTINGS (collapsible on mobile)
+
+   These desktop defaults sit after the mobile rules, so they
+   must stay behind a min-width query or they win on source
+   order and the mobile collapse never applies.
 ========================================================== */
 
-.mobile-budget-settings {
+@media (min-width: 951px) {
 
-    display: contents;
+    .mobile-budget-settings {
 
-}
+        display: contents;
 
-.budget-settings-toggle {
+    }
 
-    display: none;
+    .budget-settings-toggle {
 
-}
+        display: none;
 
-.budget-settings-body {
+    }
 
-    display: contents;
+    .budget-settings-body {
+
+        display: contents;
+
+    }
 
 }
 
@@ -8337,6 +8345,19 @@ html.sidebar-collapsed .nav-badge {
     position: static;
 
     margin-left: 8px;
+
+}
+
+
+/* Support and Admin are not budget views, so the budget
+   controls and period strip only get in the way — and on
+   phones they push the page itself below the fold. */
+body[data-page="support"] .topbar-right,
+body[data-page="admin"] .topbar-right,
+body[data-page="support"] .main-status,
+body[data-page="admin"] .main-status {
+
+    display: none;
 
 }
 
