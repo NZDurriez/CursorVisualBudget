@@ -63,7 +63,6 @@ let currentUserIsAdmin = false;
 let saveTimer = null;
 let heartbeatTimer = null;
 let heartbeatListenersBound = false;
-let viewAsMode = false;
 let readyResolve;
 let authReadyResolve;
 
@@ -1026,7 +1025,7 @@ async function signOutUser() {
 
 function queueSave(storageData) {
 
-    if (viewAsMode || !currentUser || !db) {
+    if (!currentUser || !db) {
 
         return;
 
@@ -1053,7 +1052,7 @@ function queueSave(storageData) {
 
 async function saveNow(storageData) {
 
-    if (viewAsMode || !currentUser || !db) {
+    if (!currentUser || !db) {
 
         return;
 
@@ -1285,7 +1284,7 @@ async function upsertUserDirectory(options) {
 }
 
 
-async function loadUserData(uid) {
+async function loadUserData() {
 
     if (!currentUser || !db) {
 
@@ -1293,19 +1292,8 @@ async function loadUserData(uid) {
 
     }
 
-    const targetUid = uid || currentUser.uid;
-
-    if (
-        targetUid !== currentUser.uid &&
-        !isCurrentUserAdmin()
-    ) {
-
-        throw new Error("Admin access required.");
-
-    }
-
     const snap =
-        await getDoc(userDocRef(targetUid));
+        await getDoc(userDocRef(currentUser.uid));
 
 
     if (!snap.exists()) {
@@ -1336,28 +1324,6 @@ async function loadUserData(uid) {
 function isSignedIn() {
 
     return Boolean(currentUser);
-
-}
-
-
-function isViewAsActive() {
-
-    return viewAsMode;
-
-}
-
-
-function setViewAsMode(active) {
-
-    viewAsMode = Boolean(active);
-
-    if (viewAsMode) {
-
-        clearTimeout(saveTimer);
-
-        saveTimer = null;
-
-    }
 
 }
 
@@ -2376,8 +2342,6 @@ window.BudgetCloud = {
     isDiscordConfigured,
     isSignedIn,
     isCurrentUserAdmin,
-    isViewAsActive,
-    setViewAsMode,
     getUser,
     queueSave,
     saveNow,

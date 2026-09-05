@@ -7,8 +7,7 @@ rules_version = '2';
 // Prefer request.auth.token.admin == true (Firebase Auth custom claim).
 // The email list is a fallback until that claim is set.
 // The Admin list reads userDirectory only (identity + usage counts).
-    // Admins may get a single users/{userId} doc to temporarily view
-    // that budget. They cannot write someone else's budget.
+    // Admins cannot read users/{userId} budget documents.
     // Support tickets live in supportTickets/{ticketId} with a messages
     // subcollection. Admin replies use authorRole 'admin' (shown as "Admin").
 
@@ -38,7 +37,6 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow get, write: if isOwner(userId);
-      allow get: if isAdmin();
     }
 
     match /userDirectory/{userId} {

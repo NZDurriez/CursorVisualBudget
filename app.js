@@ -554,46 +554,6 @@ let adminSortKey = "lastSeen";
 
 let adminSortDir = "desc";
 
-let adminViewAsSession = null;
-
-let adminViewAsRestore = null;
-
-const adminViewAsBanner =
-    document.getElementById("adminViewAsBanner");
-
-const adminViewAsBannerMount =
-    adminViewAsBanner
-        ? {
-            parent: adminViewAsBanner.parentNode,
-            next: adminViewAsBanner.nextSibling
-        }
-        : null;
-
-const adminViewAsExitBtn =
-    document.getElementById("adminViewAsExitBtn");
-
-const adminViewAsModal =
-    document.getElementById("adminViewAsModal");
-
-const adminViewAsModalMount =
-    adminViewAsModal
-        ? {
-            parent: adminViewAsModal.parentNode,
-            next: adminViewAsModal.nextSibling
-        }
-        : null;
-
-const adminViewAsConfirmBtn =
-    document.getElementById("adminViewAsConfirmBtn");
-
-const adminViewAsCancelBtn =
-    document.getElementById("adminViewAsCancelBtn");
-
-const adminViewAsModalError =
-    document.getElementById("adminViewAsModalError");
-
-let pendingAdminViewAsUid = null;
-
 const supportNavBadge =
     document.getElementById("supportNavBadge");
 
@@ -792,8 +752,6 @@ async function startApp() {
         await syncFromCloudOnLogin();
 
     }
-
-    syncAdminOnlyUi();
 
     startSupportTicketWatches();
 
@@ -1265,98 +1223,7 @@ function setupEvents() {
 
     });
 
-    if (adminUsersTable) {
-
-        adminUsersTable.addEventListener(
-            "click",
-            event => {
-
-                const button =
-                    event.target.closest("[data-admin-view-as]");
-
-                if (!button) {
-
-                    return;
-
-                }
-
-                openAdminViewAsModal(button.dataset.adminViewAs);
-
-            }
-        );
-
-    }
-
     setupSupportTicketUi();
-
-    if (adminViewAsExitBtn) {
-
-        adminViewAsExitBtn.addEventListener(
-            "click",
-            () => {
-
-                stopAdminViewAs();
-
-            }
-        );
-
-    }
-
-    if (adminViewAsConfirmBtn) {
-
-        adminViewAsConfirmBtn.addEventListener(
-            "click",
-            () => {
-
-                confirmAdminViewAs();
-
-            }
-        );
-
-    }
-
-    if (adminViewAsCancelBtn) {
-
-        adminViewAsCancelBtn.addEventListener(
-            "click",
-            closeAdminViewAsModal
-        );
-
-    }
-
-    if (adminViewAsModal) {
-
-        adminViewAsModal.addEventListener(
-            "click",
-            event => {
-
-                if (event.target === adminViewAsModal) {
-
-                    closeAdminViewAsModal();
-
-                }
-
-            }
-        );
-
-    }
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape" &&
-                adminViewAsModal &&
-                !adminViewAsModal.classList.contains("hidden")
-            ) {
-
-                closeAdminViewAsModal();
-
-            }
-
-        }
-    );
 
     if (adminUsersTableHead) {
 
@@ -1716,12 +1583,6 @@ if (deleteItemBtn) {
     deleteItemBtn.addEventListener(
         "click",
         () => {
-
-            if (isAdminViewingAs()) {
-
-                return;
-
-            }
 
             if (
                 !editingType ||
@@ -2162,12 +2023,6 @@ async function syncFromCloudOnLogin() {
 
 window.onBudgetAuthChanged = async function onBudgetAuthChanged(user) {
 
-    if (isAdminViewingAs()) {
-
-        stopAdminViewAs({ silent: true });
-
-    }
-
     if (user) {
 
         await syncFromCloudOnLogin();
@@ -2204,8 +2059,6 @@ window.onBudgetAuthChanged = async function onBudgetAuthChanged(user) {
 
     }
 
-    syncAdminOnlyUi();
-
     startSupportTicketWatches();
 
 };
@@ -2228,12 +2081,6 @@ function getStoragePayload() {
 
 
 function saveData() {
-
-    if (isAdminViewingAs()) {
-
-        return;
-
-    }
 
     const storageData =
         getStoragePayload();
@@ -3009,12 +2856,6 @@ function openCreateProfileForm() {
 
 function editProfile(profileId) {
 
-    if (isAdminViewingAs()) {
-
-        return;
-
-    }
-
     const profile =
         profiles.find(
             entry => entry.id === profileId
@@ -3367,12 +3208,6 @@ function saveProfile(event) {
 
 function deleteProfile(profileId) {
 
-    if (isAdminViewingAs()) {
-
-        return;
-
-    }
-
     const profile =
         profiles.find(
             profile =>
@@ -3583,12 +3418,6 @@ window.showBudgetPage = showPage;
 // ============================================================
 
 function openModal(type, id = null) {
-
-    if (id && isAdminViewingAs()) {
-
-        return;
-
-    }
 
     editingType = type;
     editingId = id;
@@ -4280,13 +4109,6 @@ function saveItem(event) {
 // ============================================================
 
 function deleteItem(type, id) {
-
-    if (isAdminViewingAs()) {
-
-        return;
-
-    }
-
 
     if (!id) {
 
@@ -5700,12 +5522,6 @@ function updateSavingsGoalPreview() {
 
 function openSavingsGoalForm(id = null) {
 
-    if (id && isAdminViewingAs()) {
-
-        return;
-
-    }
-
     ensureSavingsGoalsArray();
 
 
@@ -6033,12 +5849,6 @@ function saveSavingsGoal(event) {
 
 function deleteSavingsGoal(id) {
 
-    if (isAdminViewingAs()) {
-
-        return;
-
-    }
-
     ensureSavingsGoalsArray();
 
 
@@ -6136,12 +5946,6 @@ function openSavingsProgressModal(
     goalId,
     contributionId = null
 ) {
-
-    if (contributionId && isAdminViewingAs()) {
-
-        return;
-
-    }
 
     ensureSavingsGoalsArray();
 
@@ -6446,12 +6250,6 @@ function editSavingsContribution(
     contributionId
 ) {
 
-    if (isAdminViewingAs()) {
-
-        return;
-
-    }
-
     openSavingsProgressModal(
         goalId,
         contributionId
@@ -6464,12 +6262,6 @@ function deleteSavingsContribution(
     goalId,
     contributionId
 ) {
-
-    if (isAdminViewingAs()) {
-
-        return;
-
-    }
 
     ensureSavingsGoalsArray();
 
@@ -8832,12 +8624,6 @@ function updatePayCalculator() {
 // ============================================================
 
 function editItem(type, id) {
-
-    if (isAdminViewingAs()) {
-
-        return;
-
-    }
 
     if (type === "savings") {
 
@@ -12476,13 +12262,6 @@ function adminPresenceCounts(users) {
 }
 
 
-function isAdminViewingAs() {
-
-    return Boolean(adminViewAsSession);
-
-}
-
-
 function isSignedInAdmin() {
 
     return Boolean(
@@ -12491,338 +12270,6 @@ function isSignedInAdmin() {
             "function" &&
         window.BudgetCloud.isCurrentUserAdmin()
     );
-
-}
-
-
-function setAdminOnlyElementMounted(el, mount, shouldMount) {
-
-    if (!el || !mount || !mount.parent) {
-
-        return;
-
-    }
-
-    if (shouldMount) {
-
-        if (!el.isConnected) {
-
-            mount.parent.insertBefore(el, mount.next);
-
-        }
-
-        return;
-
-    }
-
-    if (el.isConnected) {
-
-        el.remove();
-
-    }
-
-}
-
-
-function syncAdminOnlyUi() {
-
-    const allow = isSignedInAdmin();
-
-    if (!allow && isAdminViewingAs()) {
-
-        stopAdminViewAs({ silent: true });
-
-    }
-
-    setAdminOnlyElementMounted(
-        adminViewAsBanner,
-        adminViewAsBannerMount,
-        allow
-    );
-
-    setAdminOnlyElementMounted(
-        adminViewAsModal,
-        adminViewAsModalMount,
-        allow
-    );
-
-    if (allow) {
-
-        updateAdminViewAsBanner();
-
-    }
-
-}
-
-
-function cloneStoragePayload(payload) {
-
-    return JSON.parse(JSON.stringify(payload));
-
-}
-
-
-function updateAdminViewAsBanner() {
-
-    if (!adminViewAsBanner) {
-
-        return;
-
-    }
-
-    const active =
-        isSignedInAdmin() && isAdminViewingAs();
-
-    adminViewAsBanner.hidden = !active;
-
-    document.body.classList.toggle("is-viewing-as", active);
-
-    const nameEl =
-        adminViewAsBanner.querySelector("[data-view-as-name]");
-
-    if (nameEl && adminViewAsSession) {
-
-        nameEl.textContent =
-            adminViewAsSession.displayName ||
-            adminViewAsSession.email ||
-            "this user";
-
-    }
-
-}
-
-
-function refreshBudgetView() {
-
-    updateScheduleSelector();
-    updateRecurringDates();
-    renderProfiles();
-    renderAll();
-
-}
-
-
-function setAdminViewAsModalError(message) {
-
-    if (!adminViewAsModalError) {
-
-        return;
-
-    }
-
-    if (!message) {
-
-        adminViewAsModalError.hidden = true;
-        adminViewAsModalError.textContent = "";
-        return;
-
-    }
-
-    adminViewAsModalError.hidden = false;
-    adminViewAsModalError.textContent = message;
-
-}
-
-
-function closeAdminViewAsModal() {
-
-    pendingAdminViewAsUid = null;
-
-    setAdminViewAsModalError("");
-
-    if (adminViewAsConfirmBtn) {
-
-        adminViewAsConfirmBtn.disabled = false;
-
-    }
-
-    if (adminViewAsModal) {
-
-        adminViewAsModal.classList.add("hidden");
-
-    }
-
-}
-
-
-function openAdminViewAsModal(uid) {
-
-    if (
-        !uid ||
-        !window.BudgetCloud ||
-        typeof window.BudgetCloud.loadUserData !== "function" ||
-        !window.BudgetCloud.isCurrentUserAdmin()
-    ) {
-
-        return;
-
-    }
-
-    const current =
-        window.BudgetCloud.getUser &&
-        window.BudgetCloud.getUser();
-
-    if (current && current.uid === uid) {
-
-        return;
-
-    }
-
-    const summary =
-        adminUsersCache.find(user => user.uid === uid) ||
-        {};
-
-    pendingAdminViewAsUid = uid;
-
-    const nameEl = adminViewAsModal
-        ? adminViewAsModal.querySelector("[data-view-as-modal-name]")
-        : null;
-
-    if (nameEl) {
-
-        nameEl.textContent =
-            summary.displayName ||
-            summary.email ||
-            "this user";
-
-    }
-
-    setAdminViewAsModalError("");
-
-    if (adminViewAsModal) {
-
-        adminViewAsModal.classList.remove("hidden");
-
-    }
-
-}
-
-
-async function confirmAdminViewAs() {
-
-    const uid = pendingAdminViewAsUid;
-
-    if (!uid) {
-
-        return;
-
-    }
-
-    const summary =
-        adminUsersCache.find(user => user.uid === uid) ||
-        {};
-
-    if (adminViewAsConfirmBtn) {
-
-        adminViewAsConfirmBtn.disabled = true;
-
-    }
-
-    setAdminViewAsModalError("");
-
-    try {
-
-        const cloudData =
-            await window.BudgetCloud.loadUserData(uid);
-
-        if (
-            !cloudData ||
-            !Array.isArray(cloudData.profiles) ||
-            cloudData.profiles.length === 0
-        ) {
-
-            setAdminViewAsModalError(
-                "That account has no cloud budget to view yet."
-            );
-
-            if (adminViewAsConfirmBtn) {
-
-                adminViewAsConfirmBtn.disabled = false;
-
-            }
-
-            return;
-
-        }
-
-        if (!adminViewAsRestore) {
-
-            adminViewAsRestore =
-                cloneStoragePayload(getStoragePayload());
-
-        }
-
-        if (window.BudgetCloud.setViewAsMode) {
-
-            window.BudgetCloud.setViewAsMode(true);
-
-        }
-
-        adminViewAsSession = {
-            uid,
-            displayName: summary.displayName || "",
-            email: summary.email || ""
-        };
-
-        applyStoragePayload(cloudData);
-        closeAdminViewAsModal();
-        updateAdminViewAsBanner();
-        refreshBudgetView();
-        showPage("dashboard");
-
-    } catch (error) {
-
-        console.error("[BudgetCloud] View as failed:", error);
-
-        setAdminViewAsModalError(
-            error && error.message
-                ? error.message
-                : "Could not load that budget."
-        );
-
-        if (adminViewAsConfirmBtn) {
-
-            adminViewAsConfirmBtn.disabled = false;
-
-        }
-
-    }
-
-}
-
-
-function stopAdminViewAs(options) {
-
-    const silent = Boolean(options && options.silent);
-
-    if (!isAdminViewingAs() && !adminViewAsRestore) {
-
-        return;
-
-    }
-
-    if (window.BudgetCloud && window.BudgetCloud.setViewAsMode) {
-
-        window.BudgetCloud.setViewAsMode(false);
-
-    }
-
-    if (adminViewAsRestore) {
-
-        applyStoragePayload(adminViewAsRestore);
-
-    }
-
-    adminViewAsSession = null;
-    adminViewAsRestore = null;
-    updateAdminViewAsBanner();
-    refreshBudgetView();
-
-    if (!silent) {
-
-        showPage("admin");
-
-    }
 
 }
 
@@ -12880,7 +12327,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="3">
                     Loading users…
                 </td>
             </tr>
@@ -12894,7 +12341,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="3">
                     No signed-in users found.
                 </td>
             </tr>
@@ -12908,7 +12355,7 @@ function renderAdminUsers() {
 
         adminUsersTable.innerHTML = `
             <tr>
-                <td colspan="4">
+                <td colspan="3">
                     No users match that search or filter.
                 </td>
             </tr>
@@ -12985,18 +12432,6 @@ function renderAdminUsers() {
                         </span>
                         ${firstSeen}
                     </div>
-                </td>
-                <td data-label="View">
-                    ${
-                        user.isCurrentUser
-                            ? `<span class="admin-muted">—</span>`
-                            : `<button
-                                type="button"
-                                class="admin-view-as-btn"
-                                data-admin-view-as="${escapeHtml(user.uid)}">
-                                View as
-                            </button>`
-                    }
                 </td>
             </tr>
         `;

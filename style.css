@@ -4175,26 +4175,6 @@ body.light-mode .modal {
 }
 
 
-.admin-view-as-copy {
-
-    margin: 0;
-
-    font-size: 14px;
-
-    line-height: 1.5;
-
-    color: var(--text-soft);
-
-}
-
-
-.admin-view-as-copy strong {
-
-    color: var(--text);
-
-}
-
-
 .modal-content .admin-status {
 
     margin: 12px 0 0;
@@ -7215,137 +7195,9 @@ body.light-mode .auth-btn-discord {
 }
 
 
-.admin-view-as-banner[hidden],
-body:not(.is-admin) #adminViewAsBanner,
-body:not(.is-admin) #adminViewAsModal,
 body:not(.is-admin) #admin {
 
     display: none !important;
-
-}
-
-
-.admin-view-as-banner:not([hidden]) {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 12px;
-
-    flex-shrink: 0;
-
-    padding: 10px 16px;
-
-    background: #b45309;
-
-    color: #fff7ed;
-
-    font-size: 13px;
-
-    font-weight: 650;
-
-    z-index: 400;
-
-}
-
-
-.admin-view-as-banner strong {
-
-    font-weight: 700;
-
-}
-
-
-.admin-view-as-exit {
-
-    flex-shrink: 0;
-
-    border: 1px solid rgba(255, 255, 255, 0.45);
-
-    background: transparent;
-
-    color: inherit;
-
-    font-family: inherit;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    height: 30px;
-
-    padding: 0 12px;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-}
-
-
-.admin-view-as-exit:hover {
-
-    background: rgba(255, 255, 255, 0.12);
-
-}
-
-
-.admin-view-as-btn {
-
-    border: 1px solid var(--border);
-
-    background: var(--panel-hover);
-
-    color: var(--text);
-
-    font-family: inherit;
-
-    font-size: 12px;
-
-    font-weight: 650;
-
-    height: 30px;
-
-    padding: 0 10px;
-
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    white-space: nowrap;
-
-}
-
-
-.admin-view-as-btn:hover {
-
-    border-color: var(--border-hover);
-
-}
-
-
-body.is-viewing-as .edit-btn,
-body.is-viewing-as .delete-btn,
-body.is-viewing-as .delete-modal-btn,
-body.is-viewing-as .row-actions,
-body.is-viewing-as .profile-management-actions,
-body.is-viewing-as .savings-goal-actions,
-body.is-viewing-as .col-actions,
-body.is-viewing-as td.actions,
-body.is-viewing-as td[data-label="Actions"] {
-
-    display: none !important;
-
-}
-
-
-body.is-viewing-as .forecast-event,
-body.is-viewing-as .calendar-event {
-
-    cursor: default;
 
 }
 

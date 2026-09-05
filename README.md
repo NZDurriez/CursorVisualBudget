@@ -38,3 +38,5 @@ Google sign-in uses a **popup** (required on GitHub Pages). A same-window redire
 - Never put private secrets or admin emails in frontend code
 - Admin UI is shown only if Firebase Auth reports an `admin` claim, or if
   Firestore allows an admin-only directory read
+- Admins can list `userDirectory` and manage support tickets; they **cannot**
+  read another user’s `users/{uid}` budget document

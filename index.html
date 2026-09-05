@@ -39,7 +39,7 @@
     <link rel="icon" type="image/png" href="assets/favicon-48.png?v=budgio-transparent-1" sizes="48x48">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=budgio-transparent-1">
 
-    <link rel="stylesheet" href="style.css?v=support-tickets-3">
+    <link rel="stylesheet" href="style.css?v=no-view-as-1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -328,26 +328,6 @@
     <!-- ===================================== -->
 
     <main class="main">
-
-        <div
-            id="adminViewAsBanner"
-            class="admin-view-as-banner"
-            hidden>
-
-            <span>
-                Viewing
-                <strong data-view-as-name>this user</strong>’s
-                budget. Nothing is saved.
-            </span>
-
-            <button
-                type="button"
-                id="adminViewAsExitBtn"
-                class="admin-view-as-exit">
-                Exit view
-            </button>
-
-        </div>
 
         <header class="topbar">
 
@@ -2461,8 +2441,6 @@
                         </button>
                     </th>
 
-                    <th>View</th>
-
                 </tr>
 
                 </thead>
@@ -3171,58 +3149,14 @@
 </div>
 
 <div
-    id="adminViewAsModal"
-    class="modal hidden">
-
-    <div class="modal-content">
-
-        <h2>
-            View this budget?
-        </h2>
-
-        <p class="admin-view-as-copy">
-            You’ll look around as
-            <strong data-view-as-modal-name>this user</strong>.
-            Nothing is saved to their account or yours.
-            Exit view restores your budget.
-        </p>
-
-        <p
-            id="adminViewAsModalError"
-            class="admin-status is-error"
-            hidden></p>
-
-        <div class="modal-buttons">
-
-            <button
-                type="button"
-                id="adminViewAsCancelBtn"
-                class="secondary-btn cancel-btn">
-                Cancel
-            </button>
-
-            <button
-                type="button"
-                id="adminViewAsConfirmBtn"
-                class="primary-btn">
-                View budget
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-<div
     id="appToast"
     class="app-toast"
     hidden
     role="status"
     aria-live="polite"></div>
 
-<script type="module" src="cloud.js?v=support-tickets-2"></script>
-<script src="app.js?v=support-tickets-3"></script>
+<script type="module" src="cloud.js?v=no-view-as-1"></script>
+<script src="app.js?v=no-view-as-1"></script>
 
 </body>
 </html>
